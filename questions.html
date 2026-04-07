@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Questions</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="questions-page">
+    <div class="container">
+        <header class="header">
+            <h1>Quiz Questions</h1>
+            <p class="subtitle">Select a category to begin</p>
+        </header>
+
+        <main class="main-content">
+            <div class="content-area">
+                <section id="welcomeSection" class="welcome-section">
+                    <div class="card">
+                        <div class="welcome-content">
+                            <div class="welcome-icon">Quiz</div>
+                            <h2>Welcome to the Quiz!</h2>
+                            <p>The quiz is being prepared. Please wait for the administrator to start the quiz.</p>
+                            <div class="waiting-indicator">
+                                <div class="pulse-dot"></div>
+                                <span>Waiting for quiz to start...</span>
+                            </div>
+                            <button id="startQuizBtn" class="btn btn-primary hidden">Start Quiz</button>
+                            <div id="teamsPreview" class="teams-preview">
+                                <h3>Participating Teams:</h3>
+                                <div id="welcomeTeamsList">
+                                    <!-- Teams will be displayed here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="category-section hidden">
+                    <div class="card">
+                        <h2>Select Category</h2>
+                        <div class="categories-grid">
+                            <button class="category-btn" data-category="music">
+                                <div class="category-icon">Music</div>
+                                <span>Music</span>
+                            </button>
+                            <button class="category-btn" data-category="sports">
+                                <div class="category-icon">Sports</div>
+                                <span>Sports</span>
+                            </button>
+                            <button class="category-btn" data-category="art">
+                                <div class="category-icon">Art</div>
+                                <span>Art</span>
+                            </button>
+                            <button class="category-btn" data-category="mathematics">
+                                <div class="category-icon">Math</div>
+                                <span>Mathematics</span>
+                            </button>
+                            <button class="category-btn" data-category="science">
+                                <div class="category-icon">Science</div>
+                                <span>Science</span>
+                            </button>
+                            <button class="category-btn" data-category="geography">
+                                <div class="category-icon">Geo</div>
+                                <span>Geography</span>
+                            </button>
+                            <button class="category-btn" data-category="history">
+                                <div class="category-icon">History</div>
+                                <span>History</span>
+                            </button>
+                            <button class="category-btn" data-category="literature">
+                                <div class="category-icon">Books</div>
+                                <span>Literature</span>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="questionSection" class="question-section hidden">
+                    <div class="card">
+                        <div class="question-header">
+                            <span id="categoryDisplay" class="category-badge"></span>
+                            <span id="questionNumber" class="question-counter"></span>
+                        </div>
+                        <div class="question-content">
+                            <h3 id="questionText"></h3>
+                            <div id="answerOptions" class="answer-options">
+                                <!-- Answer options will be generated here -->
+                            </div>
+                        </div>
+                        <div class="question-actions">
+                            <button id="nextQuestion" class="btn btn-primary hidden">Next Question</button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div class="teams-sidebar">
+                <h3>Teams</h3>
+                <div id="teamsList">
+                    <!-- Teams will be displayed here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
