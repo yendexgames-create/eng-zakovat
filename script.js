@@ -1,21 +1,93 @@
 // Quiz Application JavaScript
 class QuizApp {
     constructor() {
+        this.questions = {};
         this.teams = [];
+        this.scores = {};
         this.currentCategory = null;
         this.currentQuestionIndex = 0;
-        this.questions = {};
-        this.scores = {};
+        this.currentQuestions = [];
+        this.currentQuestion = null;
+        this.timerInterval = null;
+        this.currentTimerInterval = null;
+        this.lastScoresTime = '0';
+        this.refreshInterval = null;
+        this.lastSetupTime = '0';
+        this.lastStartedTime = '0';
+        
+        // Socket.io connection
+        this.socket = null;
         
         this.initializeQuestions();
         this.bindEvents();
         
-        // Check if we're on the questions page
-        if (window.location.pathname.includes('questions.html') || window.location.href.includes('questions.html')) {
+        // Initialize socket connection
+        this.initializeSocket();
+        
+        // Check which page we're on
+        if (window.location.pathname.includes('questions.html') || window.location.pathname.endsWith('/questions')) {
             this.initializeQuestionsPage();
         } else {
-            // Check for scoring phase on index.html
-            this.checkScoringPhase();
+            this.initializeIndexPage();
+        }
+    }
+    
+    initializeSocket() {
+        // Connect to Socket.io server
+        this.socket = io();
+        
+        // Handle connection
+        this.socket.on('connect', () => {
+            console.log('Connected to server');
+        });
+        
+        // Handle state updates
+        this.socket.on('stateUpdate', (state) => {
+            console.log('State update received:', state);
+            this.updateState(state);
+        });
+        
+        // Handle auto next question
+        this.socket.on('autoNextQuestion', () => {
+            console.log('Auto next question received');
+            this.goToNextQuestion();
+        });
+        
+        // Handle disconnect
+        this.socket.on('disconnect', () => {
+            console.log('Disconnected from server');
+        });
+    }
+    
+    updateState(state) {
+        // Update local state with server state
+        this.teams = state.teams || [];
+        this.scores = state.scores || {};
+        this.currentCategory = state.currentCategory;
+        this.currentQuestionIndex = state.currentQuestionIndex || 0;
+        this.completedCategories = state.completedCategories || [];
+        
+        // Update UI based on current page
+        if (window.location.pathname.includes('questions.html') || window.location.pathname.endsWith('/questions')) {
+            this.updateQuestionsPage(state);
+        }
+        
+        // Always update teams display
+        this.displayTeams();
+    }
+    
+    updateQuestionsPage(state) {
+        if (state.quizActivated && !state.currentCategory) {
+            // Show category selection
+            this.showCategorySelection();
+        } else if (state.currentCategory && !state.scoringPhase) {
+            // Show question
+            if (this.currentCategory !== state.currentCategory || this.currentQuestionIndex !== state.currentQuestionIndex) {
+                this.selectCategory(state.currentCategory);
+            }
+        } else if (state.scoringPhase) {
+            // Show time up screen
+            this.timeUp();
         }
     }
 
@@ -205,46 +277,58 @@ class QuizApp {
 
     generateTeamInputs() {
         const teamCount = parseInt(document.getElementById('teamCount').value);
-        const container = document.getElementById('teamInputs');
-        const startBtn = document.getElementById('startQuiz');
-
-        container.innerHTML = '';
-
+        const teamInputsContainer = document.getElementById('teamInputsContainer');
+        
+        // Clear previous inputs
+        teamInputsContainer.innerHTML = '';
+        
+        // Generate team inputs
         for (let i = 1; i <= teamCount; i++) {
-            const inputGroup = document.createElement('div');
-            inputGroup.className = 'team-input-group';
-            inputGroup.innerHTML = `
-                <label for="team${i}">Team ${i}:</label>
-                <input type="text" id="team${i}" class="text-input" placeholder="Enter team name" required>
+            const teamInput = document.createElement('div');
+            teamInput.className = 'team-input';
+            teamInput.innerHTML = `
+                <label>Team ${i}:</label>
+                <input type="text" id="team${i}" placeholder="Enter team ${i} name" required>
             `;
-            container.appendChild(inputGroup);
+            teamInputsContainer.appendChild(teamInput);
         }
-
-        // Add event listeners to team inputs
-        container.querySelectorAll('.text-input').forEach(input => {
-            input.addEventListener('input', () => this.checkTeamInputs());
-        });
-
-        this.checkTeamInputs();
+        
+        // Show setup button
+        const setupBtn = document.getElementById('startQuizBtn');
+        if (setupBtn) {
+            setupBtn.classList.remove('hidden');
+        }
     }
-
-    checkScoringPhase() {
-        // Clear any old scoring data first
-        this.clearOldScoringData();
+    
+    startQuiz() {
+        const teamCount = parseInt(document.getElementById('teamCount').value);
+        const teams = [];
         
-        const scoringPhase = localStorage.getItem('scoringPhase');
-        const timeUpSignal = localStorage.getItem('timeUpSignal');
-        
-        // Only show scoring if there's an active scoring phase or time up signal
-        if (scoringPhase === 'true' || timeUpSignal) {
-            this.showScoringSection();
-        } else {
-            // Make sure we're in normal setup mode
-            this.ensureNormalMode();
+        // Collect team names
+        for (let i = 1; i <= teamCount; i++) {
+            const teamName = document.getElementById(`team${i}`).value.trim();
+            if (teamName) {
+                teams.push({
+                    id: i,
+                    name: teamName
+                });
+            }
         }
         
-        // Listen for time up signals from questions device
-        this.listenForTimeUpSignals();
+        if (teams.length === 0) {
+            alert('Iltimos, kamida bitta jamoa nomini kiriting!');
+            return;
+        }
+        
+        // Send teams to server
+        this.socket.emit('setupTeams', teams);
+        console.log('Teams setup sent to server:', teams);
+        
+        // Store teams locally
+        this.teams = teams;
+        
+        // Show setup status
+        this.showSetupStatus();
     }
 
     clearOldScoringData() {
@@ -399,46 +483,9 @@ class QuizApp {
             return;
         }
         
-        // Always load current scores from localStorage first
-        const storedScores = localStorage.getItem('quizScores');
-        if (storedScores) {
-            this.scores = JSON.parse(storedScores);
-        } else {
-            this.scores = {};
-        }
-        
-        // Update local scores - ONLY ADD NEW SCORES
-        Object.keys(scores).forEach(teamId => {
-            const oldScore = this.scores[teamId] || 0;
-            const newScore = scores[teamId];
-            this.scores[teamId] = oldScore + newScore;
-        });
-        
-        // Save final scores directly to quizScores
-        localStorage.setItem('quizScores', JSON.stringify(this.scores));
-        
-        // Also save new scores for animation
-        localStorage.setItem('newScores', JSON.stringify(scores));
-        localStorage.setItem('scoresTimestamp', Date.now().toString());
-        
-        // Send scoring completion signal to questions device
-        localStorage.setItem('scoringCompleted', Date.now().toString());
-        
-        // Send auto-next signal to questions.html after animations complete
-        setTimeout(() => {
-            localStorage.setItem('autoNextQuestion', Date.now().toString());
-        }, 2000); // Wait for animations to complete
-        
-        // Send refresh signal to questions.html after a small delay
-        setTimeout(() => {
-            localStorage.setItem('refreshQuestions', Date.now().toString());
-        }, 100);
-        
-        // Clear scoring phase
-        localStorage.removeItem('scoringPhase');
-        localStorage.removeItem('currentQuestion');
-        localStorage.removeItem('timeUpSignal');
-        // Don't remove scoringCompleted here - let questions page handle it
+        // Send scores to server via Socket.io
+        this.socket.emit('submitScores', scores);
+        console.log('Scores submitted to server:', scores);
         
         // Show completion message and restore setup
         this.restoreSetupSection();
@@ -680,9 +727,9 @@ class QuizApp {
     }
 
     activateQuiz() {
-        localStorage.setItem('quizActivated', 'true');
-        localStorage.setItem('quizStartedTime', Date.now().toString());
-        this.showCategorySelection();
+        // Send activation signal to server
+        this.socket.emit('activateQuiz');
+        console.log('Quiz activation sent to server');
     }
 
     showCategorySelection() {
@@ -707,20 +754,10 @@ class QuizApp {
         this.currentCategory = category;
         this.currentQuestionIndex = 0;
         
-        // Load teams and scores
-        const storedTeams = localStorage.getItem('quizTeams');
-        const storedScores = localStorage.getItem('quizScores');
-        const completedCategories = localStorage.getItem('completedCategories') ? JSON.parse(localStorage.getItem('completedCategories')) : [];
+        // Send category selection to server
+        this.socket.emit('selectCategory', category);
+        console.log('Category selection sent to server:', category);
         
-        if (storedTeams) {
-            this.teams = JSON.parse(storedTeams);
-        }
-        if (storedScores) {
-            this.scores = JSON.parse(storedScores);
-        } else {
-            this.scores = {};
-        }
-
         // Set current questions
         this.currentQuestions = this.questions[category];
         this.currentQuestion = this.currentQuestions[this.currentQuestionIndex];
@@ -734,6 +771,7 @@ class QuizApp {
         this.showQuestion();
         
         // Update category button states
+        const completedCategories = this.completedCategories || [];
         this.updateCategoryButtons(completedCategories);
         console.log('=== SELECT CATEGORY END ===');
     }
@@ -1248,10 +1286,9 @@ startCountdown(countdownDisplay, countdownNumber, stopwatchDisplay, timerTime, t
             clearInterval(this.currentTimerInterval);
         }
         
-        // Set scoring phase flag and send signal to admin device
-        localStorage.setItem('scoringPhase', 'true');
-        localStorage.setItem('currentQuestion', JSON.stringify(this.currentQuestion));
-        localStorage.setItem('timeUpSignal', Date.now().toString());
+        // Send time up signal to server
+        this.socket.emit('timeUp');
+        console.log('Time up signal sent to server');
         
         // Show only TIME'S UP! message
         const questionText = document.getElementById('questionText');
@@ -1266,9 +1303,6 @@ startCountdown(countdownDisplay, countdownNumber, stopwatchDisplay, timerTime, t
         
         // Hide stopwatch
         document.getElementById('stopwatchDisplay').classList.add('hidden');
-        
-        // Listen for scoring completion
-        this.listenForScoringCompletion();
     }
 
     listenForScoringCompletion() {
