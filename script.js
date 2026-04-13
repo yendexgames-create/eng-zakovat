@@ -409,9 +409,37 @@ class QuizApp {
 
         if (startBtn) {
             console.log('Binding startBtn click event');
-            startBtn.addEventListener('click', () => this.setupQuiz());
+            console.log('startBtn type:', typeof startBtn);
+            console.log('startBtn tagName:', startBtn.tagName);
+            console.log('startBtn onclick:', startBtn.onclick);
+            
+            try {
+                startBtn.addEventListener('click', function(e) {
+                    console.log('Setup Quiz button clicked!');
+                    console.log('Event object:', e);
+                    console.log('this:', this);
+                    console.log('window.quizApp:', window.quizApp);
+                    
+                    if (window.quizApp && typeof window.quizApp.setupQuiz === 'function') {
+                        window.quizApp.setupQuiz();
+                    } else {
+                        console.error('quizApp or setupQuiz method not found');
+                        alert('Application error. Please refresh the page.');
+                    }
+                });
+                console.log('Event listener added successfully');
+            } catch (error) {
+                console.error('Error adding event listener:', error);
+                alert('Error setting up button. Please refresh the page.');
+            }
         } else {
             console.warn('startBtn not found');
+            // Try to find it with different selectors
+            const allButtons = document.querySelectorAll('button');
+            console.log('All buttons found:', allButtons.length);
+            allButtons.forEach((btn, index) => {
+                console.log(`Button ${index}:`, btn.id, btn.className, btn.textContent);
+            });
         }
 
         if (submitScoresBtn) {
@@ -1706,3 +1734,7 @@ window.addEventListener('load', () => {
         teamCountInput.dispatchEvent(event);
     }
 });
+
+// Initialize the quiz app globally
+window.quizApp = new QuizApp();
+console.log('Quiz App initialized globally:', window.quizApp);
