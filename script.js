@@ -34,30 +34,206 @@ class QuizApp {
         }
     }
     
-    // Safe localStorage methods
+    // Enhanced storage methods with fallback
     safeSetItem(key, value) {
+        console.log(`=== SAFE SET ITEM ${key} ===`);
+        console.log('Setting value:', value);
+        
         if (this.isLocalStorageAvailable) {
             localStorage.setItem(key, value);
+            // Also try to set in sessionStorage for cross-tab sync
+            try {
+                sessionStorage.setItem(key, value);
+            } catch (e) {
+                console.warn('sessionStorage not available:', e);
+            }
         } else {
-            console.warn('localStorage not available, cannot set:', key);
+            console.warn('localStorage not available, using fallback:', key);
+            // Fallback to sessionStorage
+            try {
+                sessionStorage.setItem(key, value);
+            } catch (e) {
+                console.warn('sessionStorage not available either:', e);
+            }
         }
+        
+        // Always set in cookies for cross-device sync
+        this.setCookie(key, value, 7);
+        console.log(`=== SAFE SET ITEM ${key} END ===`);
     }
     
     safeGetItem(key) {
+        console.log(`=== SAFE GET ITEM ${key} ===`);
+        
+        let value = null;
+        
         if (this.isLocalStorageAvailable) {
-            return localStorage.getItem(key);
+            value = localStorage.getItem(key);
+            console.log('From localStorage:', value);
         } else {
-            console.warn('localStorage not available, cannot get:', key);
-            return null;
+            console.warn('localStorage not available, trying sessionStorage:', key);
+            // Fallback to sessionStorage
+            try {
+                value = sessionStorage.getItem(key);
+                console.log('From sessionStorage:', value);
+            } catch (e) {
+                console.warn('sessionStorage not available either:', e);
+            }
         }
+        
+        // Fallback to cookies if empty
+        if (!value) {
+            value = this.getCookie(key);
+            console.log('From cookie:', value);
+        }
+        
+        console.log(`Final value for ${key}:`, value);
+        console.log(`=== SAFE GET ITEM ${key} END ===`);
+        return value;
     }
     
     safeRemoveItem(key) {
+        console.log(`=== SAFE REMOVE ITEM ${key} ===`);
+        
         if (this.isLocalStorageAvailable) {
             localStorage.removeItem(key);
+            // Also remove from sessionStorage
+            try {
+                sessionStorage.removeItem(key);
+            } catch (e) {
+                console.warn('sessionStorage not available:', e);
+            }
         } else {
             console.warn('localStorage not available, cannot remove:', key);
+            // Fallback to sessionStorage
+            try {
+                sessionStorage.removeItem(key);
+            } catch (e) {
+                console.warn('sessionStorage not available either:', e);
+            }
         }
+        
+        // Always remove from cookies
+        this.deleteCookie(key);
+        console.log(`=== SAFE REMOVE ITEM ${key} END ===`);
+    }
+    
+    // Force refresh from all storage sources
+    forceRefreshStorage() {
+        console.log('=== FORCE REFRESH STORAGE ===');
+        
+        // Try localStorage first
+        let teams = null;
+        let scores = null;
+        let quizSetup = null;
+        let quizActivated = null;
+        
+        if (this.isLocalStorageAvailable) {
+            teams = localStorage.getItem('quizTeams');
+            scores = localStorage.getItem('quizScores');
+            quizSetup = localStorage.getItem('quizSetup');
+            quizActivated = localStorage.getItem('quizActivated');
+            console.log('From localStorage:', { teams, scores, quizSetup, quizActivated });
+        }
+        
+        // Fallback to sessionStorage if localStorage is empty
+        if (!teams) {
+            try {
+                teams = sessionStorage.getItem('quizTeams');
+                console.log('From sessionStorage teams:', teams);
+            } catch (e) {
+                console.warn('sessionStorage not available for teams:', e);
+            }
+        }
+        
+        if (!scores) {
+            try {
+                scores = sessionStorage.getItem('quizScores');
+                console.log('From sessionStorage scores:', scores);
+            } catch (e) {
+                console.warn('sessionStorage not available for scores:', e);
+            }
+        }
+        
+        if (!quizSetup) {
+            try {
+                quizSetup = sessionStorage.getItem('quizSetup');
+                console.log('From sessionStorage quizSetup:', quizSetup);
+            } catch (e) {
+                console.warn('sessionStorage not available for quizSetup:', e);
+            }
+        }
+        
+        if (!quizActivated) {
+            try {
+                quizActivated = sessionStorage.getItem('quizActivated');
+                console.log('From sessionStorage quizActivated:', quizActivated);
+            } catch (e) {
+                console.warn('sessionStorage not available for quizActivated:', e);
+            }
+        }
+        
+        // Fallback to cookies if both localStorage and sessionStorage are empty
+        if (!teams) {
+            teams = this.getCookie('quizTeams');
+            console.log('From cookie teams:', teams);
+        }
+        
+        if (!scores) {
+            scores = this.getCookie('quizScores');
+            console.log('From cookie scores:', scores);
+        }
+        
+        if (!quizSetup) {
+            quizSetup = this.getCookie('quizSetup');
+            console.log('From cookie quizSetup:', quizSetup);
+        }
+        
+        if (!quizActivated) {
+            quizActivated = this.getCookie('quizActivated');
+            console.log('From cookie quizActivated:', quizActivated);
+        }
+        
+        // Update local state
+        if (teams) {
+            this.teams = JSON.parse(teams);
+            console.log('Updated teams:', this.teams);
+        }
+        
+        if (scores) {
+            this.scores = JSON.parse(scores);
+            console.log('Updated scores:', this.scores);
+        }
+        
+        console.log('=== FORCE REFRESH STORAGE END ===');
+    }
+    
+    // Cookie methods for cross-device sync
+    setCookie(name, value, days = 7) {
+        const expires = new Date();
+        expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+        document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/`;
+        console.log(`Set cookie ${name}:`, value);
+    }
+    
+    getCookie(name) {
+        const nameEQ = name + "=";
+        const ca = document.cookie.split(';');
+        for (let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+            if (c.indexOf(nameEQ) === 0) {
+                const value = decodeURIComponent(c.substring(nameEQ.length, c.length));
+                console.log(`Got cookie ${name}:`, value);
+                return value;
+            }
+        }
+        return null;
+    }
+    
+    deleteCookie(name) {
+        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;`;
+        console.log(`Deleted cookie ${name}`);
     }
 
     initializeQuestions() {
