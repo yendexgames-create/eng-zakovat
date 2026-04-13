@@ -232,34 +232,272 @@ class QuizApp {
         };
     }
 
-    bindEvents() {
-        const teamCountInput = document.getElementById('teamCount');
-        const generateBtn = document.getElementById('generateInputs');
-        const startBtn = document.getElementById('startQuiz');
-        const submitScoresBtn = document.getElementById('submitScores');
-        const skipScoringBtn = document.getElementById('skipScoring');
+// Handle auto next question
+this.socket.on('autoNextQuestion', () => {
+    console.log('Auto next question received');
+    this.goToNextQuestion();
+});
 
-        if (teamCountInput) {
-            teamCountInput.addEventListener('change', () => this.generateTeamInputs());
+// Handle disconnect
+this.socket.on('disconnect', () => {
+    console.log('Disconnected from server');
+});
+
+}
+
+updateState(state) {
+    // Update local state with server state
+    this.teams = state.teams || [];
+    this.scores = state.scores || {};
+    this.currentCategory = state.currentCategory;
+    this.currentQuestionIndex = state.currentQuestionIndex || 0;
+    this.completedCategories = state.completedCategories || [];
+
+    // Update UI based on current page
+    if (window.location.pathname.includes('questions.html') || window.location.pathname.endsWith('/questions')) {
+        this.updateQuestionsPage(state);
+    }
+
+    // Always update teams display
+    this.displayTeams();
+}
+
+updateQuestionsPage(state) {
+    if (state.quizActivated && !state.currentCategory) {
+        // Show category selection
+        this.showCategorySelection();
+    } else if (state.currentCategory && !state.scoringPhase) {
+        // Show question
+        if (this.currentCategory !== state.currentCategory || this.currentQuestionIndex !== state.currentQuestionIndex) {
+            this.selectCategory(state.currentCategory);
         }
+    } else if (state.scoringPhase) {
+        // Show time up screen
+        this.timeUp();
+    }
+}
 
-        if (generateBtn) {
-            generateBtn.addEventListener('click', () => this.generateTeamInputs());
-        }
+initializeQuestions() {
+    this.questions = {
+        music: [
+            {
+                question: "Who composed the 'Moonlight Sonata'?",
+                options: ["Mozart", "Beethoven", "Bach", "Chopin"],
+                correct: 1
+            },
+            {
+                question: "Which instrument has 88 keys?",
+                options: ["Guitar", "Violin", "Piano", "Drums"],
+                correct: 2
+            },
+            {
+                question: "Who is known as the 'King of Pop'?",
+                options: ["Elvis Presley", "Michael Jackson", "Madonna", "Prince"],
+                correct: 1
+            }
+        ],
+        sports: [
+            {
+                question: "How many players are on a basketball team?",
+                options: ["4", "5", "6", "7"],
+                correct: 1
+            },
+            {
+                question: "In which sport would you perform a slam dunk?",
+                options: ["Tennis", "Basketball", "Baseball", "Golf"],
+                correct: 1
+            },
+            {
+                question: "How often are the Olympic Games held?",
+                options: ["Every 2 years", "Every 3 years", "Every 4 years", "Every 5 years"],
+                correct: 2
+            }
+        ],
+        art: [
+            {
+                question: "Who painted the Mona Lisa?",
+                options: ["Van Gogh", "Picasso", "Leonardo da Vinci", "Michelangelo"],
+                correct: 2
+            },
+            {
+                question: "What art movement is Pablo Picasso associated with?",
+                options: ["Impressionism", "Cubism", "Surrealism", "Realism"],
+                correct: 1
+            },
+            {
+                question: "Where is the Louvre Museum located?",
+                options: ["London", "Rome", "Paris", "New York"],
+                correct: 2
+            }
+        ],
+        mathematics: [
+            {
+                question: "What is the value of Pi (approximately)?",
+                options: ["3.14", "2.71", "1.61", "4.66"],
+                correct: 0
+            },
+            {
+                question: "What is 15% of 200?",
+                options: ["25", "30", "35", "40"],
+                correct: 1
+            },
+            {
+                question: "What is the square root of 144?",
+                options: ["10", "11", "12", "13"],
+                correct: 2
+            }
+        ],
+        science: [
+            {
+                question: "What is the chemical symbol for gold?",
+                options: ["Go", "Gd", "Au", "Ag"],
+                correct: 2
+            },
+            {
+                question: "Which planet is known as the 'Red Planet'?",
+                options: ["Venus", "Mars", "Jupiter", "Saturn"],
+                correct: 1
+            },
+            {
+                question: "What is the largest organ in the human body?",
+                options: ["Heart", "Liver", "Brain", "Skin"],
+                correct: 3
+            }
+        ],
+        geography: [
+            {
+                question: "What is the capital of Japan?",
+                options: ["Beijing", "Seoul", "Tokyo", "Bangkok"],
+                correct: 2
+            },
+            {
+                question: "Which is the longest river in the world?",
+                options: ["Amazon", "Nile", "Mississippi", "Yangtze"],
+                correct: 1
+            },
+            {
+                question: "How many continents are there?",
+                options: ["5", "6", "7", "8"],
+                correct: 2
+            }
+        ],
+        history: [
+            {
+                question: "In which year did World War II end?",
+                options: ["1943", "1944", "1945", "1946"],
+                correct: 2
+            },
+            {
+                question: "Who was the first President of the United States?",
+                options: ["Thomas Jefferson", "George Washington", "Abraham Lincoln", "John Adams"],
+                correct: 1
+            },
+            {
+                question: "Which ancient wonder of the world still stands today?",
+                options: ["Colossus of Rhodes", "Hanging Gardens", "Great Pyramid of Giza", "Lighthouse of Alexandria"],
+                correct: 2
+            }
+        ],
+        literature: [
+            {
+                question: "Who wrote 'Romeo and Juliet'?",
+                options: ["Charles Dickens", "William Shakespeare", "Jane Austen", "Mark Twain"],
+                correct: 1
+            },
+            {
+                question: "What is the first book in the Harry Potter series?",
+                options: ["Chamber of Secrets", "Prisoner of Azkaban", "Philosopher's Stone", "Goblet of Fire"],
+                correct: 2
+            },
+            {
+                question: "Who wrote '1984'?",
+                options: ["George Orwell", "Aldous Huxley", "Ray Bradbury", "H.G. Wells"],
+                correct: 0
+            }
+        ]
+    };
+}
 
-        if (startBtn) {
-            startBtn.addEventListener('click', () => this.setupQuiz());
-        }
+bindEvents() {
+    // Team setup events
+    const teamCountInput = document.getElementById('teamCount');
+    if (teamCountInput) {
+        teamCountInput.addEventListener('change', () => this.generateTeamInputs());
+    }
 
-        if (submitScoresBtn) {
-            submitScoresBtn.addEventListener('click', () => this.submitScores());
-        }
+    const generateBtn = document.getElementById('generateInputs');
+    if (generateBtn) {
+        generateBtn.addEventListener('click', () => this.generateTeamInputs());
+    }
 
-        if (skipScoringBtn) {
-            skipScoringBtn.addEventListener('click', () => this.skipScoring());
-        }
+    const startBtn = document.getElementById('startQuiz');
+    if (startBtn) {
+        startBtn.addEventListener('click', () => this.startQuiz());
+    }
 
-        // Category buttons
+    // Scoring events
+    const submitScoresBtn = document.getElementById('submitScores');
+    if (submitScoresBtn) {
+        submitScoresBtn.addEventListener('click', () => this.submitScores());
+    }
+
+    const skipScoringBtn = document.getElementById('skipScoring');
+    if (skipScoringBtn) {
+        skipScoringBtn.addEventListener('click', () => this.skipScoring());
+    }
+
+    // Category buttons
+    const categoryBtns = document.querySelectorAll('.category-btn');
+    categoryBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const category = e.currentTarget.dataset.category;
+            this.selectCategory(category);
+        });
+    });
+
+    // Next question button
+    const nextBtn = document.getElementById('nextQuestion');
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => this.nextQuestion());
+    }
+}
+
+generateTeamInputs() {
+    const teamCount = parseInt(document.getElementById('teamCount').value);
+    const teamInputsContainer = document.getElementById('teamInputsContainer');
+
+    // Clear previous inputs
+    teamInputsContainer.innerHTML = '';
+
+    // Generate team inputs
+    for (let i = 1; i <= teamCount; i++) {
+        const teamInput = document.createElement('div');
+        teamInput.className = 'team-input';
+        teamInput.innerHTML = `
+            <label>Team ${i}:</label>
+            <input type="text" id="team${i}" placeholder="Enter team ${i} name" required>
+        `;
+        teamInputsContainer.appendChild(teamInput);
+    }
+
+    // Show setup button
+    const setupBtn = document.getElementById('startQuizBtn');
+    if (setupBtn) {
+        setupBtn.classList.remove('hidden');
+    }
+}
+
+startQuiz() {
+    const teamCount = parseInt(document.getElementById('teamCount').value);
+    const teams = [];
+
+    // Collect team names
+    for (let i = 1; i <= teamCount; i++) {
+        const teamName = document.getElementById(`team${i}`).value.trim();
+        if (teamName) {
+            teams.push({
+                id: i,
+                name: teamName
         const categoryBtns = document.querySelectorAll('.category-btn');
         categoryBtns.forEach(btn => {
             btn.addEventListener('click', (e) => {
