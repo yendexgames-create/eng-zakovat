@@ -16,6 +16,7 @@ class QuizApp {
         this.lastStartedTime = '0';
         this.currentSound = null;
         this.timeUpCalled = false;
+        this.isAnimating = false;
         
         // Socket.io connection
         this.socket = null;
@@ -61,6 +62,23 @@ class QuizApp {
             this.animateScoreUpdates(scores);
         });
         
+        // Handle category completion
+        this.socket.on('categoryCompleted', (category) => {
+            if (!this.completedCategories.includes(category)) {
+                this.completedCategories.push(category);
+                console.log('Category completed on server:', category);
+                console.log('All completed categories:', this.completedCategories);
+                
+                // Broadcast updated state
+                this.socket.emit('stateUpdate', this);
+            }
+        });
+        
+        // Handle quiz reset
+        this.socket.on('resetQuiz', () => {
+            console.log('Quiz reset received');
+        });
+        
         // Handle disconnect
         this.socket.on('disconnect', () => {
             console.log('Disconnected from server');
@@ -83,8 +101,10 @@ class QuizApp {
             this.updateIndexPage(state);
         }
         
-        // Always update teams display
-        this.displayTeams();
+        // Only update teams display if not in animation
+        if (!this.isAnimating) {
+            this.displayTeams();
+        }
     }
     
     updateIndexPage(state) {
@@ -619,9 +639,11 @@ class QuizApp {
         console.log('Questions for this category:', this.questions[category]);
         console.log('Questions array length:', this.questions[category] ? this.questions[category].length : 'undefined');
         
-        this.currentCategory = category;
-        this.currentQuestionIndex = 0;
-        this.timeUpCalled = false; // Reset timeUp flag
+        // Check if category is already completed
+        if (this.completedCategories.includes(category)) {
+            console.log('Category already completed, cannot select:', category);
+            return; // Handle category selection
+        }
         
         // Send category selection to server
         this.socket.emit('selectCategory', category);
@@ -903,6 +925,9 @@ class QuizApp {
     }
 
     animateScoreUpdates(scores) {
+        // Set animation flag
+        this.isAnimating = true;
+        
         // Simple animation - just update display with effect
         Object.keys(scores).forEach((teamId, index) => {
             const scoreValue = scores[teamId];
@@ -913,32 +938,79 @@ class QuizApp {
             }
         });
         
-        // Refresh display after all animations
+        // Clear animation flag after all animations complete
         setTimeout(() => {
-            this.displayTeams();
-        }, 1000);
+            this.isAnimating = false;
+        }, 1500); // Enough time for all animations
     }
     
     animateSingleTeamScore(teamId, scoreValue) {
         const teamCard = document.querySelector(`[data-team-id="${teamId}"]`);
         if (!teamCard) return;
         
-        // Add simple highlight effect
+        // Find the score element
+        const scoreElement = teamCard.querySelector('.team-score');
+        if (!scoreElement) return;
+        
+        // Get current and target scores
+        const currentScore = parseInt(scoreElement.textContent) || 0;
+        const targetScore = currentScore + scoreValue;
+        
+        console.log(`Animating score for team ${teamId}: ${currentScore} -> ${targetScore}`);
+        
+        // Add visual effect
         teamCard.style.background = '#e8f5e8';
         teamCard.style.transform = 'scale(1.05)';
         teamCard.style.transition = 'all 0.3s ease';
         
-        // Remove effect after animation
+        // Animate the number
+        this.animateNumber(scoreElement, currentScore, targetScore, 800);
+        
+        // Remove visual effect after animation
         setTimeout(() => {
             teamCard.style.background = '';
             teamCard.style.transform = '';
         }, 800);
     }
     
+    animateNumber(element, start, end, duration) {
+        const startTime = performance.now();
+        const animate = (currentTime) => {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            
+            // Easing function for smooth animation
+            const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+            const currentNumber = Math.floor(start + (end - start) * easeOutQuart);
+            
+            element.textContent = currentNumber;
+            
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            } else {
+                element.textContent = end; // Ensure final number is exact
+            }
+        };
+        
+        requestAnimationFrame(animate);
+    }
+    
     markCategoryCompleted(category) {
         if (!this.completedCategories.includes(category)) {
             this.completedCategories.push(category);
             console.log('Category marked as completed:', category);
+            console.log('All completed categories:', this.completedCategories);
+            
+            // Update buttons immediately to show completion
+            this.updateCategoryButtons(this.completedCategories);
+            
+            // Send completion signal to server
+            if (this.socket) {
+                this.socket.emit('categoryCompleted', category);
+                console.log('Category completion signal sent to server:', category);
+            }
+        } else {
+            console.log('Category already marked as completed:', category);
         }
     }
 }

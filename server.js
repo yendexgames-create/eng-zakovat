@@ -59,6 +59,12 @@ io.on('connection', (socket) => {
     
     // Handle category selection
     socket.on('selectCategory', (category) => {
+        // Check if category is already completed
+        if (quizState.completedCategories.includes(category)) {
+            console.log('Category already completed on server:', category);
+            return; // Don't allow selection of completed categories
+        }
+        
         quizState.currentCategory = category;
         quizState.currentQuestionIndex = 0;
         io.emit('stateUpdate', quizState);
@@ -110,6 +116,18 @@ io.on('connection', (socket) => {
         quizState.scoringPhase = true;
         io.emit('stateUpdate', quizState);
         console.log('Time up - scoring phase activated');
+    });
+    
+    // Handle category completion
+    socket.on('categoryCompleted', (category) => {
+        if (!quizState.completedCategories.includes(category)) {
+            quizState.completedCategories.push(category);
+            console.log('Category completed on server:', category);
+            console.log('All completed categories:', quizState.completedCategories);
+            
+            // Broadcast updated state
+            io.emit('stateUpdate', quizState);
+        }
     });
     
     // Handle quiz reset
