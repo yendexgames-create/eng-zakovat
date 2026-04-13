@@ -15,6 +15,7 @@ class QuizApp {
         this.lastSetupTime = '0';
         this.lastStartedTime = '0';
         this.currentSound = null;
+        this.timeUpCalled = false;
         
         // Socket.io connection
         this.socket = null;
@@ -536,6 +537,7 @@ class QuizApp {
         
         this.currentCategory = category;
         this.currentQuestionIndex = 0;
+        this.timeUpCalled = false; // Reset timeUp flag
         
         // Send category selection to server
         this.socket.emit('selectCategory', category);
@@ -640,6 +642,9 @@ class QuizApp {
             return;
         }
         
+        // Reset timeUp flag
+        this.timeUpCalled = false;
+        
         // Show timer
         timerContainer.classList.remove('hidden');
         stopwatchDisplay.classList.remove('hidden');
@@ -677,12 +682,22 @@ class QuizApp {
     }
 
     timeUp() {
+        // Prevent multiple timeUp calls
+        if (this.timeUpCalled) {
+            console.log('TimeUp already called, skipping...');
+            return;
+        }
+        
+        this.timeUpCalled = true;
+        console.log('TimeUp called - setting flag');
+        
         // Play time's up sound
         this.playSound('timeup');
         
         // Clear timer
         if (this.currentTimerInterval) {
             clearInterval(this.currentTimerInterval);
+            this.currentTimerInterval = null;
         }
         
         // Send time up signal to server
