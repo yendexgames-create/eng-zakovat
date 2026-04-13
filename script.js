@@ -642,10 +642,17 @@ class QuizApp {
         const currentSetupTime = this.safeGetItem('quizSetupTime') || '0';
         const currentStartedTime = this.safeGetItem('quizStartedTime') || '0';
         
+        console.log('=== CHECK QUIZ STATUS DEBUG ===');
+        console.log('quizSetup:', quizSetup);
+        console.log('quizActivated:', quizActivated);
+        console.log('currentSetupTime:', currentSetupTime);
+        console.log('currentStartedTime:', currentStartedTime);
+        
         // Always reload scores to ensure they're up to date
         const storedScores = this.safeGetItem('quizScores');
         if (storedScores) {
             this.scores = JSON.parse(storedScores);
+            console.log('Loaded scores:', this.scores);
         }
         
         // Store last known times
@@ -654,6 +661,7 @@ class QuizApp {
         
         // Check if setup time changed (new setup from index.html)
         if (currentSetupTime !== this.lastSetupTime && currentSetupTime !== '0') {
+            console.log('Setup time changed, updating UI');
             this.lastSetupTime = currentSetupTime;
             // Don't reload immediately, just update UI
             this.updateUIForSetup();
@@ -662,6 +670,7 @@ class QuizApp {
         
         // Check if quiz was just started - UPDATE UI INSTEAD OF RELOAD
         if (currentStartedTime !== this.lastStartedTime && currentStartedTime !== '0') {
+            console.log('Quiz started, updating UI');
             this.lastStartedTime = currentStartedTime;
             // Don't reload immediately, just update UI
             this.updateUIForActivation();
@@ -670,6 +679,7 @@ class QuizApp {
         
         // If quiz was just set up, refresh to show teams
         if (quizSetup === 'true') {
+            console.log('Quiz is set up, showing teams');
             const teamsPreview = document.getElementById('teamsPreview');
             const teamsSidebar = document.querySelector('.teams-sidebar');
             const startQuizBtn = document.getElementById('startQuizBtn');
@@ -690,6 +700,7 @@ class QuizApp {
         
         // If quiz is activated, show category selection
         if (quizActivated === 'true') {
+            console.log('Quiz is activated, showing category selection');
             const welcomeSection = document.getElementById('welcomeSection');
             const categorySection = document.querySelector('.category-section');
             
@@ -697,6 +708,7 @@ class QuizApp {
                 this.showCategorySelection();
             }
         }
+        console.log('=== CHECK QUIZ STATUS END ===');
     }
 
     updateUIForSetup() {
@@ -887,50 +899,43 @@ class QuizApp {
     }
 
     displayTeams() {
+        console.log('=== DISPLAY TEAMS DEBUG ===');
+        console.log('Current teams:', this.teams);
+        console.log('Current scores:', this.scores);
+        
         const teamsList = document.getElementById('teamsList');
         teamsList.innerHTML = '';
 
         // Load teams from localStorage if not available
         if (!this.teams || this.teams.length === 0) {
-            const storedTeams = localStorage.getItem('quizTeams');
+            const storedTeams = this.safeGetItem('quizTeams');
+            console.log('Loading teams from localStorage:', storedTeams);
             if (storedTeams) {
                 this.teams = JSON.parse(storedTeams);
+                console.log('Loaded teams:', this.teams);
             }
         }
 
-        // Load scores from localStorage if not available
+        // Load scores if not available
         if (!this.scores || Object.keys(this.scores).length === 0) {
-            const storedScores = localStorage.getItem('quizScores');
+            const storedScores = this.safeGetItem('quizScores');
+            console.log('Loading scores from localStorage:', storedScores);
             if (storedScores) {
                 this.scores = JSON.parse(storedScores);
+                console.log('Loaded scores:', this.scores);
             }
         }
 
-        // Sort teams by score (highest first)
+        // Sort teams by score
         const sortedTeams = [...this.teams].sort((a, b) => {
             const scoreA = this.scores[a.id] || 0;
             const scoreB = this.scores[b.id] || 0;
             return scoreB - scoreA;
         });
 
+        // Display teams
         sortedTeams.forEach((team, index) => {
             const score = this.scores[team.id] || 0;
-            const rankNumber = index + 1;
-            let rankClass = '';
-            let rankText = rankNumber.toString();
-
-            // Add special classes for top 3
-            if (rankNumber === 1) {
-                rankClass = 'gold';
-                rankText = '1';
-            } else if (rankNumber === 2) {
-                rankClass = 'silver';
-                rankText = '2';
-            } else if (rankNumber === 3) {
-                rankClass = 'bronze';
-                rankText = '3';
-            }
-
             const teamItem = document.createElement('div');
             teamItem.className = 'team-item';
             teamItem.setAttribute('data-team-id', team.id);
