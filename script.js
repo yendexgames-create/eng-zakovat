@@ -229,19 +229,91 @@ class QuizApp {
     }
 
     checkScoringPhase() {
+        // Clear any old scoring data first
+        this.clearOldScoringData();
+        
         const scoringPhase = localStorage.getItem('scoringPhase');
-        if (scoringPhase === 'true') {
+        const timeUpSignal = localStorage.getItem('timeUpSignal');
+        
+        // Only show scoring if there's an active scoring phase or time up signal
+        if (scoringPhase === 'true' || timeUpSignal) {
             this.showScoringSection();
+        } else {
+            // Make sure we're in normal setup mode
+            this.ensureNormalMode();
+        }
+        
+        // Listen for time up signals from questions device
+        this.listenForTimeUpSignals();
+    }
+
+    clearOldScoringData() {
+        // Check for old incomplete scoring data and clear it
+        const scoringPhase = localStorage.getItem('scoringPhase');
+        const timeUpSignal = localStorage.getItem('timeUpSignal');
+        const scoringCompleted = localStorage.getItem('scoringCompleted');
+        
+        // If scoring was completed but still showing, clear everything
+        if (scoringCompleted && (!scoringPhase || scoringPhase !== 'true')) {
+            localStorage.removeItem('scoringPhase');
+            localStorage.removeItem('currentQuestion');
+            localStorage.removeItem('timeUpSignal');
+            localStorage.removeItem('scoringCompleted');
         }
     }
 
+    ensureNormalMode() {
+        // Force normal setup mode - show header and setup
+        const scoringSection = document.getElementById('scoringSection');
+        const header = document.querySelector('.header');
+        const setupSection = document.querySelector('.setup-section');
+        
+        if (scoringSection) {
+            scoringSection.classList.add('hidden');
+            scoringSection.innerHTML = ''; // Clear content too
+        }
+        if (header) header.classList.remove('hidden'); // Show header in normal mode
+        if (setupSection) setupSection.classList.remove('hidden');
+    }
+
+    listenForTimeUpSignals() {
+        const timeUpListener = (e) => {
+            if (e.key === 'timeUpSignal') {
+                // Time up signal received, show scoring section
+                this.showScoringSection();
+            }
+        };
+        
+        window.addEventListener('storage', timeUpListener);
+    }
+
     showScoringSection() {
-        // Hide setup section
+        // Hide header and replace setup section content with scoring
+        const header = document.querySelector('.header');
         const setupSection = document.querySelector('.setup-section');
         const scoringSection = document.getElementById('scoringSection');
         
-        if (setupSection) setupSection.classList.add('hidden');
-        if (scoringSection) scoringSection.classList.remove('hidden');
+        if (header) header.classList.add('hidden');
+        
+        // Replace setup section content with scoring content
+        if (setupSection) {
+            setupSection.innerHTML = `
+                <div class="card">
+                    <h2>Score This Question</h2>
+                    <div id="scoringQuestion" class="scoring-question"></div>
+                    <div id="teamScores" class="team-scores">
+                        <!-- Team scoring inputs will be generated here -->
+                    </div>
+                    <div class="scoring-actions">
+                        <button id="submitScores" class="btn btn-primary">Submit Scores</button>
+                        <button id="skipScoring" class="btn btn-secondary">Skip Scoring</button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Hide the separate scoring section since we're using setup section
+        if (scoringSection) scoringSection.classList.add('hidden');
         
         // Load teams and current question
         const storedTeams = localStorage.getItem('quizTeams');
@@ -257,6 +329,9 @@ class QuizApp {
         // Display question and team scoring inputs
         this.displayScoringQuestion();
         this.generateTeamScoringInputs();
+        
+        // Re-bind events for new buttons
+        this.bindScoringEvents();
     }
 
     displayScoringQuestion() {
@@ -292,36 +367,141 @@ class QuizApp {
         });
     }
 
+    bindScoringEvents() {
+        const submitScoresBtn = document.getElementById('submitScores');
+        const skipScoringBtn = document.getElementById('skipScoring');
+
+        if (submitScoresBtn) {
+            submitScoresBtn.addEventListener('click', () => this.submitScores());
+        }
+
+        if (skipScoringBtn) {
+            skipScoringBtn.addEventListener('click', () => this.skipScoring());
+        }
+    }
+
     submitScores() {
         const scores = {};
+        let hasScore = false;
         
-        // Collect scores from radio buttons
+        // Collect scores from all team inputs
         this.teams.forEach(team => {
-            const selectedScore = document.querySelector(`input[name="score-${team.id}"]:checked`);
-            if (selectedScore) {
-                scores[team.id] = parseInt(selectedScore.value);
-            } else {
-                scores[team.id] = 0; // Default if no score selected
+            const scoreInput = document.querySelector(`input[name="score-${team.id}"]:checked`);
+            const score = parseInt(scoreInput.value) || 0;
+            if (score > 0) {
+                scores[team.id] = score;
+                hasScore = true;
             }
         });
         
-        // Store scores with timestamp for animation trigger
+        if (!hasScore) {
+            alert('Iltimos, kamida bitta jamoaga ball bering!');
+            return;
+        }
+        
+        // Always load current scores from localStorage first
+        const storedScores = localStorage.getItem('quizScores');
+        if (storedScores) {
+            this.scores = JSON.parse(storedScores);
+        } else {
+            this.scores = {};
+        }
+        
+        // Update local scores - ONLY ADD NEW SCORES
+        Object.keys(scores).forEach(teamId => {
+            const oldScore = this.scores[teamId] || 0;
+            const newScore = scores[teamId];
+            this.scores[teamId] = oldScore + newScore;
+        });
+        
+        // Save final scores directly to quizScores
+        localStorage.setItem('quizScores', JSON.stringify(this.scores));
+        
+        // Also save new scores for animation
         localStorage.setItem('newScores', JSON.stringify(scores));
         localStorage.setItem('scoresTimestamp', Date.now().toString());
+        
+        // Send scoring completion signal to questions device
+        localStorage.setItem('scoringCompleted', Date.now().toString());
+        
+        // Send auto-next signal to questions.html after animations complete
+        setTimeout(() => {
+            localStorage.setItem('autoNextQuestion', Date.now().toString());
+        }, 2000); // Wait for animations to complete
+        
+        // Send refresh signal to questions.html after a small delay
+        setTimeout(() => {
+            localStorage.setItem('refreshQuestions', Date.now().toString());
+        }, 100);
         
         // Clear scoring phase
         localStorage.removeItem('scoringPhase');
         localStorage.removeItem('currentQuestion');
+        localStorage.removeItem('timeUpSignal');
+        // Don't remove scoringCompleted here - let questions page handle it
         
-        // Redirect back to questions page
-        window.location.href = 'questions.html';
+        // Show completion message and restore setup
+        this.restoreSetupSection();
     }
 
     skipScoring() {
-        // Clear scoring phase and redirect
+        // Send scoring completion signal even when skipping
+        localStorage.setItem('scoringCompleted', Date.now().toString());
+        
+        // Send refresh signal to questions.html after a small delay
+        setTimeout(() => {
+            localStorage.setItem('refreshQuestions', Date.now().toString());
+        }, 100);
+        
+        // Clear all scoring data completely
         localStorage.removeItem('scoringPhase');
         localStorage.removeItem('currentQuestion');
-        window.location.href = 'questions.html';
+        localStorage.removeItem('timeUpSignal');
+        localStorage.removeItem('scoringCompleted');
+        
+        // Restore setup section
+        this.restoreSetupSection();
+    }
+
+    restoreSetupSection() {
+        const setupSection = document.querySelector('.setup-section');
+        const header = document.querySelector('.header');
+        
+        if (setupSection) {
+            setupSection.innerHTML = `
+                <div class="card">
+                    <h2>Team Setup</h2>
+                    
+                    <div class="input-group">
+                        <label for="teamCount">Number of Teams:</label>
+                        <input type="number" id="teamCount" min="2" max="10" value="2" class="number-input">
+                        <button id="generateInputs" class="btn btn-secondary">Generate Team Inputs</button>
+                    </div>
+
+                    <div id="teamInputs" class="team-inputs">
+                        <!-- Team inputs will be generated here -->
+                    </div>
+
+                    <div class="action-buttons">
+                        <button id="startQuiz" class="btn btn-primary" disabled>Setup Quiz</button>
+                    </div>
+                    <div id="setupStatus" class="setup-status hidden">
+                        <div class="status-message">
+                            <h3>Quiz Setup Complete!</h3>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Show header again
+        if (header) header.classList.remove('hidden');
+        
+        // Reset completed categories when new teams are added
+        localStorage.removeItem('completedCategories');
+        
+        // Re-bind setup events
+        this.bindEvents();
     }
 
     checkTeamInputs() {
@@ -344,6 +524,9 @@ class QuizApp {
         this.teams.forEach(team => {
             this.scores[team.id] = 0;
         });
+
+        // Reset completed categories for new teams
+        localStorage.setItem('completedCategories', JSON.stringify([]));
 
         // Store teams data with timestamp
         localStorage.setItem('quizTeams', JSON.stringify(this.teams));
@@ -388,11 +571,18 @@ class QuizApp {
         
         // Load teams data
         const storedTeams = localStorage.getItem('quizTeams');
+        const storedScores = localStorage.getItem('quizScores');
         const quizSetup = localStorage.getItem('quizSetup');
         
         if (storedTeams) {
             this.teams = JSON.parse(storedTeams);
             this.displayWelcomeTeams();
+        }
+        
+        if (storedScores) {
+            this.scores = JSON.parse(storedScores);
+        } else {
+            this.scores = {};
         }
         
         // Check if quiz is set up - show teams sidebar
@@ -409,6 +599,10 @@ class QuizApp {
         if (quizActivated === 'true') {
             this.showCategorySelection();
             clearInterval(this.refreshInterval);
+            
+            // Load completed categories and update buttons
+            const completedCategories = localStorage.getItem('completedCategories') ? JSON.parse(localStorage.getItem('completedCategories')) : [];
+            this.updateCategoryButtons(completedCategories);
         }
     }
 
@@ -418,6 +612,12 @@ class QuizApp {
         const currentSetupTime = localStorage.getItem('quizSetupTime') || '0';
         const currentStartedTime = localStorage.getItem('quizStartedTime') || '0';
         
+        // Always reload scores to ensure they're up to date
+        const storedScores = localStorage.getItem('quizScores');
+        if (storedScores) {
+            this.scores = JSON.parse(storedScores);
+        }
+        
         // Store last known times
         this.lastSetupTime = this.lastSetupTime || currentSetupTime;
         this.lastStartedTime = this.lastStartedTime || currentStartedTime;
@@ -425,14 +625,16 @@ class QuizApp {
         // Check if setup time changed (new setup from index.html)
         if (currentSetupTime !== this.lastSetupTime && currentSetupTime !== '0') {
             this.lastSetupTime = currentSetupTime;
-            location.reload();
+            // Don't reload immediately, just update UI
+            this.updateUIForSetup();
             return;
         }
         
-        // Check if quiz was just started - INSTANT REFRESH
+        // Check if quiz was just started - UPDATE UI INSTEAD OF RELOAD
         if (currentStartedTime !== this.lastStartedTime && currentStartedTime !== '0') {
             this.lastStartedTime = currentStartedTime;
-            location.reload();
+            // Don't reload immediately, just update UI
+            this.updateUIForActivation();
             return;
         }
         
@@ -443,25 +645,59 @@ class QuizApp {
             const startQuizBtn = document.getElementById('startQuizBtn');
             
             if (teamsPreview && teamsPreview.classList.contains('hidden')) {
-                location.reload();
+                this.updateUIForSetup();
             }
             
             if (teamsSidebar && teamsSidebar.classList.contains('hidden')) {
-                this.displayTeams();
                 teamsSidebar.classList.remove('hidden');
+                this.displayTeams();
             }
             
-            // Show start button for admin
-            if (startQuizBtn && startQuizBtn.classList.contains('hidden')) {
-                startQuizBtn.classList.remove('hidden');
+            if (startQuizBtn && !startQuizBtn.classList.contains('hidden')) {
+                startQuizBtn.classList.add('hidden');
             }
         }
         
-        // If quiz was activated, show categories
+        // If quiz is activated, show category selection
         if (quizActivated === 'true') {
-            this.showCategorySelection();
-            clearInterval(this.refreshInterval);
+            const welcomeSection = document.getElementById('welcomeSection');
+            const categorySection = document.querySelector('.category-section');
+            
+            if (welcomeSection && !welcomeSection.classList.contains('hidden')) {
+                this.showCategorySelection();
+            }
         }
+    }
+
+    updateUIForSetup() {
+        const teamsPreview = document.getElementById('teamsPreview');
+        const teamsSidebar = document.querySelector('.teams-sidebar');
+        const startQuizBtn = document.getElementById('startQuizBtn');
+        
+        if (teamsPreview) {
+            teamsPreview.classList.remove('hidden');
+        }
+        if (teamsSidebar) {
+            teamsSidebar.classList.remove('hidden');
+            this.displayTeams();
+        }
+        if (startQuizBtn) {
+            startQuizBtn.classList.add('hidden');
+        }
+    }
+
+    updateUIForActivation() {
+        const welcomeSection = document.getElementById('welcomeSection');
+        const categorySection = document.querySelector('.category-section');
+        
+        if (welcomeSection) {
+            welcomeSection.classList.add('hidden');
+        }
+        if (categorySection) {
+            categorySection.classList.remove('hidden');
+        }
+        
+        this.showCategorySelection();
     }
 
     displayWelcomeTeams() {
@@ -478,20 +714,51 @@ class QuizApp {
 
     activateQuiz() {
         localStorage.setItem('quizActivated', 'true');
-        localStorage.setItem('quizActivated', 'true');
         localStorage.setItem('quizStartedTime', Date.now().toString());
         this.showCategorySelection();
     }
 
     showCategorySelection() {
+        console.log('=== SHOW CATEGORY SELECTION DEBUG ===');
+        
         const welcomeSection = document.getElementById('welcomeSection');
         const categorySection = document.querySelector('.category-section');
         
+        console.log('Before hiding welcome section, welcomeSection.hidden:', welcomeSection ? welcomeSection.classList.contains('hidden') : 'not found');
+        console.log('Before showing category section, categorySection.hidden:', categorySection ? categorySection.classList.contains('hidden') : 'not found');
+        
         welcomeSection.classList.add('hidden');
         categorySection.classList.remove('hidden');
+        
+        console.log('After hiding welcome section, welcomeSection.hidden:', welcomeSection ? welcomeSection.classList.contains('hidden') : 'not found');
+        console.log('After showing category section, categorySection.hidden:', categorySection ? categorySection.classList.contains('hidden') : 'not found');
+        
+        // Update category buttons to show completed status
+        const completedCategories = localStorage.getItem('completedCategories') ? JSON.parse(localStorage.getItem('completedCategories')) : [];
+        console.log('Loading completed categories from localStorage:', completedCategories);
+        console.log('Raw localStorage value:', localStorage.getItem('completedCategories'));
+        
+        this.updateCategoryButtons(completedCategories);
+        console.log('=== SHOW CATEGORY SELECTION END ===');
     }
 
     selectCategory(category) {
+        console.log('=== SELECT CATEGORY DEBUG ===');
+        console.log('Selected category:', category);
+        console.log('Full questions object:', this.questions);
+        console.log('Questions for this category:', this.questions[category]);
+        console.log('Questions array length:', this.questions[category] ? this.questions[category].length : 'undefined');
+        
+        // Check if category is already completed
+        const completedCategories = localStorage.getItem('completedCategories') ? JSON.parse(localStorage.getItem('completedCategories')) : [];
+        console.log('Completed categories check:', completedCategories);
+        console.log(`Is ${category} already completed?`, completedCategories.includes(category));
+        
+        if (completedCategories.includes(category)) {
+            console.log(`Category ${category} is already completed, cannot select again`);
+            return; // Don't allow selecting completed categories
+        }
+        
         this.currentCategory = category;
         this.currentQuestionIndex = 0;
         
@@ -504,19 +771,110 @@ class QuizApp {
         }
         if (storedScores) {
             this.scores = JSON.parse(storedScores);
+        } else {
+            this.scores = {};
         }
 
         // Set current questions
         this.currentQuestions = this.questions[category];
         this.currentQuestion = this.currentQuestions[this.currentQuestionIndex];
+        
+        console.log('After setting:');
+        console.log('currentQuestions:', this.currentQuestions);
+        console.log('currentQuestionIndex:', this.currentQuestionIndex);
+        console.log('currentQuestion:', this.currentQuestion);
 
         this.displayTeams();
         this.showQuestion();
+        
+        // Update category button states
+        this.updateCategoryButtons(completedCategories);
+        console.log('=== SELECT CATEGORY END ===');
+    }
+    
+    updateCategoryButtons(completedCategories) {
+        console.log('=== UPDATE CATEGORY BUTTONS DEBUG ===');
+        console.log('Completed categories from localStorage:', completedCategories);
+        
+        const categoryButtons = document.querySelectorAll('.category-btn');
+        console.log('Found category buttons:', categoryButtons.length);
+        
+        categoryButtons.forEach(button => {
+            const category = button.dataset.category;
+            console.log(`Processing button for category: ${category}`);
+            console.log(`Is ${category} in completed categories?`, completedCategories.includes(category));
+            
+            if (completedCategories.includes(category)) {
+                console.log(`Marking ${category} as completed`);
+                button.classList.add('completed');
+                button.disabled = true;
+                button.innerHTML = `
+                    <div class="category-icon">Check</div>
+                    <span>${category.charAt(0).toUpperCase() + category.slice(1)} (Completed)</span>
+                `;
+            } else {
+                console.log(`Marking ${category} as available`);
+                button.classList.remove('completed');
+                button.disabled = false;
+                // Restore original content based on category
+                const categoryIcons = {
+                    'music': 'Music',
+                    'sports': 'Sports',
+                    'art': 'Art',
+                    'mathematics': 'Math',
+                    'geography': 'Geo'
+                };
+                
+                const icon = categoryIcons[category] || category.charAt(0).toUpperCase() + category.slice(1);
+                button.innerHTML = `
+                    <div class="category-icon">${icon}</div>
+                    <span>${category.charAt(0).toUpperCase() + category.slice(1)}</span>
+                `;
+            }
+        });
+        console.log('=== UPDATE CATEGORY BUTTONS END ===');
+    }
+    
+    markCategoryCompleted(category) {
+        console.log('=== MARK CATEGORY COMPLETED DEBUG ===');
+        console.log('Category to mark as completed:', category);
+        
+        const completedCategories = localStorage.getItem('completedCategories') ? JSON.parse(localStorage.getItem('completedCategories')) : [];
+        console.log('Current completed categories before adding:', completedCategories);
+        
+        if (!completedCategories.includes(category)) {
+            completedCategories.push(category);
+            localStorage.setItem('completedCategories', JSON.stringify(completedCategories));
+            console.log('Updated completed categories after adding:', completedCategories);
+            console.log('Saved to localStorage:', localStorage.getItem('completedCategories'));
+            
+            // Update buttons immediately
+            this.updateCategoryButtons(completedCategories);
+        } else {
+            console.log(`Category ${category} is already in completed categories, not adding again`);
+        }
+        console.log('=== MARK CATEGORY COMPLETED END ===');
     }
 
     displayTeams() {
         const teamsList = document.getElementById('teamsList');
         teamsList.innerHTML = '';
+
+        // Load teams from localStorage if not available
+        if (!this.teams || this.teams.length === 0) {
+            const storedTeams = localStorage.getItem('quizTeams');
+            if (storedTeams) {
+                this.teams = JSON.parse(storedTeams);
+            }
+        }
+
+        // Load scores from localStorage if not available
+        if (!this.scores || Object.keys(this.scores).length === 0) {
+            const storedScores = localStorage.getItem('quizScores');
+            if (storedScores) {
+                this.scores = JSON.parse(storedScores);
+            }
+        }
 
         // Sort teams by score (highest first)
         const sortedTeams = [...this.teams].sort((a, b) => {
@@ -545,6 +903,7 @@ class QuizApp {
 
             const teamItem = document.createElement('div');
             teamItem.className = 'team-item';
+            teamItem.setAttribute('data-team-id', team.id);
             teamItem.innerHTML = `
                 <div class="team-rank ${rankClass}">${rankText}</div>
                 <div class="team-name">${team.name}</div>
@@ -560,22 +919,21 @@ class QuizApp {
         const newScores = localStorage.getItem('newScores');
         const scoresTimestamp = localStorage.getItem('scoresTimestamp');
         
+        // Load final scores from localStorage (submitScores already calculated them)
+        const storedScores = localStorage.getItem('quizScores');
+        if (storedScores) {
+            this.scores = JSON.parse(storedScores);
+        } else {
+            this.scores = {};
+        }
+        
         if (newScores && scoresTimestamp && scoresTimestamp !== this.lastScoresTime) {
             this.lastScoresTime = scoresTimestamp;
             const scores = JSON.parse(newScores);
             
-            // Load current scores
-            const storedScores = localStorage.getItem('quizScores');
-            if (storedScores) {
-                this.scores = JSON.parse(storedScores);
-            }
-            
-            // Apply scores to teams
-            Object.keys(scores).forEach(teamId => {
-                this.scores[teamId] = (this.scores[teamId] || 0) + scores[teamId];
-            });
-            
-            // Save updated scores
+            // DON'T add scores again - submitScores already did this
+            // Just animate score updates
+            // Save updated scores (already final)
             localStorage.setItem('quizScores', JSON.stringify(this.scores));
             
             // Animate score updates
@@ -584,109 +942,142 @@ class QuizApp {
             // Clear new scores
             localStorage.removeItem('newScores');
         }
+        
+        // Always refresh display after checking
+        this.displayTeams();
     }
 
-    animateScoreUpdates(newScores) {
-        const teamsList = document.getElementById('teamsList');
-        const teamItems = teamsList.querySelectorAll('.team-item');
+animateScoreUpdates(scores) {
+    // Animate each team's score update with longer delays
+    Object.keys(scores).forEach((teamId, index) => {
+        const scoreValue = scores[teamId];
+        if (scoreValue > 0) {
+            setTimeout(() => {
+                this.animateSingleTeamScore(teamId, scoreValue);
+            }, index * 200); // Reduced stagger delay
+        }
+    });
+    
+    // Calculate total animation time and trigger reorder after all animations complete
+    const totalScoreAnimationTime = Object.keys(scores).length * 200 + 2500; // 2.5s for individual animations
+    setTimeout(() => {
+        this.reorderTeamsWithJumpAnimation();
+    }, totalScoreAnimationTime);
+}
+
+animateSingleTeamScore(teamId, scoreValue) {
+        const teamCard = document.querySelector(`[data-team-id="${teamId}"]`);
+        if (!teamCard) return;
         
-        // Animate each team's score update
-        this.teams.forEach((team, index) => {
-            const scoreIncrease = newScores[team.id] || 0;
-            if (scoreIncrease > 0) {
-                const teamItem = teamItems[index];
-                const scoreValue = teamItem.querySelector('.team-score-value');
-                
-                // Add animation class
-                teamItem.classList.add('score-update-animation');
-                
-                // Show floating score increase
-                const floatingScore = document.createElement('div');
-                floatingScore.className = 'floating-score';
-                floatingScore.textContent = `+${scoreIncrease}`;
-                teamItem.appendChild(floatingScore);
-                
-                // Update score with animation
-                setTimeout(() => {
-                    const currentScore = this.scores[team.id];
-                    this.animateNumber(scoreValue, currentScore - scoreIncrease, currentScore, 1000);
-                }, 300);
-                
-                // Remove animation classes after animation
-                setTimeout(() => {
-                    teamItem.classList.remove('score-update-animation');
-                    floatingScore.remove();
-                }, 1500);
-            }
-        });
+        // Add score update animation
+        teamCard.classList.add('score-update-animation');
         
-        // Re-sort teams after all animations complete
+        // Create floating score element with actual score value
+        const floatingScore = document.createElement('div');
+        floatingScore.className = 'floating-score';
+        floatingScore.textContent = `+${scoreValue}`; // Show actual score value
+        teamCard.appendChild(floatingScore);
+        
+        // Animate score number with shorter duration
+        const scoreElement = teamCard.querySelector('.team-score-value');
+        if (scoreElement) {
+            // Use CORRECT score from this.scores, not from DOM
+            const oldScore = (this.scores[teamId] || 0) - scoreValue;
+            const targetScore = this.scores[teamId] || 0;
+            this.animateNumber(scoreElement, oldScore, targetScore, 1500); // Shorter animation
+        }
+        
+        // Remove animation classes after completion
         setTimeout(() => {
-            this.animateTeamReordering();
-        }, 2000);
-    }
-
-    animateNumber(element, start, end, duration) {
-        const startTime = performance.now();
-        
-        const animate = (currentTime) => {
-            const elapsed = currentTime - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-            
-            const current = Math.floor(start + (end - start) * progress);
-            element.textContent = current;
-            
-            if (progress < 1) {
-                requestAnimationFrame(animate);
+            teamCard.classList.remove('score-update-animation');
+            if (floatingScore.parentNode) {
+                floatingScore.remove();
             }
-        };
-        
-        requestAnimationFrame(animate);
+        }, 2000); // Shorter duration to match 3-second timeline
     }
 
-    animateTeamReordering() {
-        const teamsList = document.getElementById('teamsList');
-        
-        // Get current order and new order
-        const currentItems = Array.from(teamsList.querySelectorAll('.team-item'));
-        const sortedTeams = [...this.teams].sort((a, b) => {
-            const scoreA = this.scores[a.id] || 0;
-            const scoreB = this.scores[b.id] || 0;
-            return scoreB - scoreA;
-        });
-        
-        // Reorder with animation
-        sortedTeams.forEach((team, newIndex) => {
-            const oldIndex = this.teams.findIndex(t => t.id === team.id);
-            const currentItem = currentItems[oldIndex];
+animateNumber(element, start, end, duration) {
+    const startTime = performance.now();
+    const animate = (currentTime) => {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
             
-            if (currentItem) {
-                // Add reordering animation
-                currentItem.classList.add('reordering-animation');
+        // Easing function for smooth animation
+        const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+        const current = Math.round(start + (end - start) * easeOutQuart);
+            
+        element.textContent = current;
+            
+        if (progress < 1) {
+            requestAnimationFrame(animate);
+        }
+    };
+        
+    requestAnimationFrame(animate);
+}
+
+reorderTeamsWithJumpAnimation() {
+    const teamsContainer = document.querySelector('.teams-list');
+    if (!teamsContainer) return;
+        
+    const teamCards = Array.from(teamsContainer.querySelectorAll('.team-item'));
+    const currentOrder = teamCards.map(card => parseInt(card.dataset.teamId));
+    
+    // Get current scores and sort teams
+    const teamsWithScores = currentOrder.map(teamId => ({
+        id: teamId,
+        score: this.scores[teamId] || 0,
+        card: teamCards.find(card => parseInt(card.dataset.teamId) === teamId)
+    }));
+        
+    teamsWithScores.sort((a, b) => b.score - a.score);
+    
+    // Check if order changed
+    const newOrder = teamsWithScores.map(team => team.id);
+    const orderChanged = !currentOrder.every((id, index) => id === newOrder[index]);
+    
+    if (orderChanged) {
+        // Animate teams moving to new positions
+        teamsWithScores.forEach((team, newIndex) => {
+            const oldIndex = currentOrder.indexOf(team.id);
                 
-                // Move to new position
+            if (oldIndex !== newIndex) {
+                if (oldIndex > newIndex) {
+                    // Team is moving up (jumping forward)
+                    team.card.classList.add('jumping', 'moving-up');
+                } else {
+                    // Team is moving down
+                    team.card.classList.add('moving-down');
+                }
+                    
+                // Set new position
+                team.card.style.order = newIndex;
+                    
+                // Remove animation classes after shorter duration
                 setTimeout(() => {
-                    teamsList.appendChild(currentItem);
-                }, oldIndex * 100);
-                
-                // Highlight rank change
-                setTimeout(() => {
-                    currentItem.classList.add('rank-highlight');
+                    team.card.classList.remove('jumping', 'moving-up', 'moving-down');
+                }, 1500); // Shorter animation duration
+            }
+        });
+            
+        // Highlight new rankings
+        setTimeout(() => {
+            teamsWithScores.forEach((team, index) => {
+                if (index < 3) { // Top 3 teams
+                    team.card.classList.add('rank-highlight');
                     setTimeout(() => {
-                        currentItem.classList.remove('rank-highlight');
-                    }, 1000);
-                }, (oldIndex * 100) + 500);
-            }
-        });
-        
-        // Update teams array order
-        this.teams = sortedTeams;
+                        team.card.classList.remove('rank-highlight');
+                    }, 1000); // Shorter highlight duration
+                }
+            });
+        }, 1600);
         
         // Refresh display after reordering
         setTimeout(() => {
             this.displayTeams();
-        }, 2500);
+        }, 3000); // Total 3 seconds for all animations
     }
+}
 
     showQuestion() {
         const categorySection = document.querySelector('.category-section');
@@ -723,25 +1114,35 @@ class QuizApp {
     }
 
     showQuestionAfterCountdown(categoryDisplay, questionNumber, questionText, stopwatchDisplay, timerTime, timerCircle) {
-        // Display question info
+        // Display question info - use currentQuestionIndex + 1 for display
         categoryDisplay.textContent = this.currentCategory.charAt(0).toUpperCase() + this.currentCategory.slice(1);
         questionNumber.textContent = `Question ${this.currentQuestionIndex + 1} of ${this.currentQuestions.length}`;
         questionText.textContent = this.currentQuestion.question;
-
+        
         // Show question text
         questionText.classList.remove('hidden');
 
-        // Start stopwatch
-        this.startStopwatch(stopwatchDisplay, timerTime, timerCircle);
+        // Show stopwatch and start timer
+        stopwatchDisplay.classList.remove('hidden');
+        this.startStopwatch(timerTime, timerCircle);
+
+        // Hide next question button - it will only show on TIME'S UP
+        const nextBtn = document.getElementById('nextQuestion');
+        if (nextBtn) {
+            nextBtn.classList.add('hidden');
+        }
+
+        // Show answer options
+        this.showAnswerOptions();
     }
 
-    startCountdown(countdownDisplay, countdownNumber, stopwatchDisplay, timerTime, timerCircle, callback) {
+startCountdown(countdownDisplay, countdownNumber, stopwatchDisplay, timerTime, timerCircle, callback) {
         let count = 3;
-        
+
         // Show countdown
         countdownDisplay.classList.remove('hidden');
         countdownNumber.textContent = count;
-        
+
         const countdownInterval = setInterval(() => {
             count--;
             
@@ -761,16 +1162,15 @@ class QuizApp {
         }, 1000);
     }
 
-    startStopwatch(stopwatchDisplay, timerTime, timerCircle) {
-        let timeLeft = 30; // 30 seconds
+    startStopwatch(timerTime, timerCircle) {
+        let timeLeft = 30;
         
         // Show stopwatch
-        stopwatchDisplay.classList.remove('hidden');
-        timerTime.textContent = timeLeft;
+        timerTime.textContent = timeLeft.toString();
         
         const stopwatchInterval = setInterval(() => {
             timeLeft--;
-            timerTime.textContent = timeLeft;
+            timerTime.textContent = timeLeft.toString();
             
             // Add warning classes
             if (timeLeft <= 10 && timeLeft > 5) {
@@ -779,10 +1179,16 @@ class QuizApp {
             } else if (timeLeft <= 5) {
                 timerCircle.classList.add('danger');
                 timerCircle.classList.remove('warning');
-                // Play warning sound
+            }
+            
+            // Play warning sounds
+            if (timeLeft === 10) {
+                this.playSound('warning');
+            } else if (timeLeft === 5) {
                 this.playSound('warning');
             }
             
+            // Time's up
             if (timeLeft <= 0) {
                 clearInterval(stopwatchInterval);
                 this.timeUp();
@@ -797,9 +1203,10 @@ class QuizApp {
         // Play time up sound
         this.playSound('timeup');
         
-        // Set scoring phase flag
+        // Set scoring phase flag and send signal to admin device
         localStorage.setItem('scoringPhase', 'true');
         localStorage.setItem('currentQuestion', JSON.stringify(this.currentQuestion));
+        localStorage.setItem('timeUpSignal', Date.now().toString());
         
         // Show only TIME'S UP! message
         const questionText = document.getElementById('questionText');
@@ -807,24 +1214,44 @@ class QuizApp {
             <div style="color: #e74c3c; font-size: 2rem; font-weight: 800;">
                 TIME'S UP!
             </div>
+            <div style="color: #4a90e2; font-size: 1.2rem; margin-top: 15px;">
+                Waiting for scoring from admin...
+            </div>
         `;
         
         // Hide stopwatch
         document.getElementById('stopwatchDisplay').classList.add('hidden');
         
-        // Show scoring message and redirect to index.html
-        setTimeout(() => {
-            questionText.innerHTML = `
-                <div style="color: #4a90e2; font-size: 1.5rem; font-weight: 600;">
-                    Redirecting to scoring page...
-                </div>
-            `;
+        // Listen for scoring completion
+        this.listenForScoringCompletion();
+    }
+
+    listenForScoringCompletion() {
+        // Listen for both scoring completion and refresh signals
+        const scoringCompleteListener = (e) => {
+            if (e.key === 'scoringCompleted') {
+                // Scoring completed, show completion message
+                const questionText = document.getElementById('questionText');
+                questionText.innerHTML = `
+                    <div style="color: #27ae60; font-size: 1.5rem; font-weight: 600;">
+                        Scoring Complete!
+                    </div>
+                `;
+            }
             
-            // Redirect to index.html for scoring
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 1500);
-        }, 2000);
+            if (e.key === 'autoNextQuestion') {
+                // Auto-next question after scoring
+                console.log('Auto-next signal received - going to next question');
+                this.goToNextQuestion();
+            }
+            
+            if (e.key === 'refreshQuestions') {
+                // Check for new scores and animate immediately
+                this.checkForNewScores();
+            }
+        };
+        
+        window.addEventListener('storage', scoringCompleteListener);
     }
 
     playSound(type) {
@@ -853,36 +1280,142 @@ class QuizApp {
                 oscillator.frequency.value = 400;
                 gainNode.gain.value = 0.3;
                 oscillator.start();
-                oscillator.stop(audioContext.currentTime + 0.5);
+                oscillator.stop(audioContext.currentTime + 0.3);
                 break;
         }
     }
 
-    nextQuestion() {
-        this.currentQuestionIndex++;
+    startStopwatch(timerTime, timerCircle) {
+        let timeLeft = 30;
         
-        if (this.currentQuestionIndex < this.questions[this.currentCategory].length) {
-            this.showQuestion();
-        } else {
-            this.endQuiz();
-        }
+        const stopwatchInterval = setInterval(() => {
+            timeLeft--;
+            timerTime.textContent = timeLeft;
+            
+            // Update timer circle
+            const percentage = (timeLeft / 30) * 100;
+            timerCircle.style.background = `conic-gradient(#4a90e2 ${percentage}%, #e9ecef ${percentage}%)`;
+            
+            // Play warning sounds
+            if (timeLeft === 10) {
+                this.playSound('warning');
+            } else if (timeLeft === 5) {
+                this.playSound('warning');
+            }
+            
+            // Time's up
+            if (timeLeft <= 0) {
+                clearInterval(stopwatchInterval);
+                this.timeUp();
+            }
+        }, 1000);
+        
+        this.currentTimerInterval = stopwatchInterval;
     }
 
-    endQuiz() {
-        // Clear any running timers
+    timeUp() {
+        // Play time's up sound
+        this.playSound('timeup');
+        
+        // Clear timer
         if (this.currentTimerInterval) {
             clearInterval(this.currentTimerInterval);
         }
         
-        // Show quiz completion message
-        const questionSection = document.getElementById('questionSection');
-        questionSection.innerHTML = `
-            <div class="card">
-                <h2>Quiz Completed!</h2>
-                <p>Great job! You've completed the ${this.currentCategory} category.</p>
-                <button class="btn btn-primary" onclick="location.reload()">Start New Quiz</button>
+        // Set scoring phase flag and send signal to admin device
+        localStorage.setItem('scoringPhase', 'true');
+        localStorage.setItem('currentQuestion', JSON.stringify(this.currentQuestion));
+        localStorage.setItem('timeUpSignal', Date.now().toString());
+        
+        // Show only TIME'S UP! message
+        const questionText = document.getElementById('questionText');
+        questionText.innerHTML = `
+            <div style="color: #e74c3c; font-size: 2rem; font-weight: 800;">
+                TIME'S UP!
+            </div>
+            <div style="color: #4a90e2; font-size: 1.2rem; margin-top: 15px;">
+                Waiting for scoring from admin...
             </div>
         `;
+        
+        // Hide stopwatch
+        document.getElementById('stopwatchDisplay').classList.add('hidden');
+        
+        // Listen for scoring completion
+        this.listenForScoringCompletion();
+    }
+
+    listenForScoringCompletion() {
+        // Remove existing listener to avoid duplicates
+        if (this.scoringCompleteListener) {
+            window.removeEventListener('storage', this.scoringCompleteListener);
+        }
+        
+        // Create new listener
+        this.scoringCompleteListener = (e) => {
+            console.log('Storage event received:', e.key);
+            
+            if (e.key === 'scoringCompleted') {
+                // Scoring completed, show completion message
+                const questionText = document.getElementById('questionText');
+                questionText.innerHTML = `
+                    <div style="color: #27ae60; font-size: 1.5rem; font-weight: 600;">
+                        Scoring Complete!
+                    </div>
+                `;
+            }
+            
+            if (e.key === 'autoNextQuestion') {
+                // Auto-next question after scoring
+                console.log('Auto-next signal received - going to next question');
+                // Wait for animations to complete, then go to next question
+                setTimeout(() => {
+                    this.goToNextQuestion();
+                }, 3000); // 3 seconds for animations
+            }
+            
+            if (e.key === 'refreshQuestions') {
+                // Check for new scores and animate immediately
+                this.checkForNewScores();
+            }
+        };
+        
+        window.addEventListener('storage', this.scoringCompleteListener);
+    }
+
+    goToNextQuestion() {
+        console.log('goToNextQuestion called - proceeding to next question');
+        this.nextQuestion();
+    }
+
+    nextQuestion() {
+        console.log('=== NEXT QUESTION DEBUG ===');
+        console.log('Current category:', this.currentCategory);
+        console.log('Current question index before increment:', this.currentQuestionIndex);
+        console.log('Questions array for this category:', this.questions[this.currentCategory]);
+        console.log('Questions array length:', this.questions[this.currentCategory] ? this.questions[this.currentCategory].length : 'undefined');
+        
+        this.currentQuestionIndex++;
+        console.log('Current question index after increment:', this.currentQuestionIndex);
+        
+        if (this.questions[this.currentCategory] && this.currentQuestionIndex < this.questions[this.currentCategory].length) {
+            console.log('Showing next question');
+            // Update current question object
+            this.currentQuestion = this.questions[this.currentCategory][this.currentQuestionIndex];
+            this.showQuestion();
+        } else {
+            console.log('Category completed - marking as completed');
+            // Mark this category as completed
+            this.markCategoryCompleted(this.currentCategory);
+            
+            // Update category buttons immediately
+            const completedCategories = localStorage.getItem('completedCategories') ? JSON.parse(localStorage.getItem('completedCategories')) : [];
+            this.updateCategoryButtons(completedCategories);
+            
+            // Show category selection again
+            this.showCategorySelection();
+        }
+        console.log('=== NEXT QUESTION END ===');
     }
 }
 
