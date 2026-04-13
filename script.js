@@ -378,46 +378,143 @@ class QuizApp {
     }
 
     bindEvents() {
+        console.log('=== BIND EVENTS DEBUG ===');
+        
         const teamCountInput = document.getElementById('teamCount');
         const generateBtn = document.getElementById('generateInputs');
         const startBtn = document.getElementById('startQuiz');
         const submitScoresBtn = document.getElementById('submitScores');
         const skipScoringBtn = document.getElementById('skipScoring');
 
+        console.log('Found elements:');
+        console.log('teamCountInput:', teamCountInput);
+        console.log('generateBtn:', generateBtn);
+        console.log('startBtn:', startBtn);
+        console.log('submitScoresBtn:', submitScoresBtn);
+        console.log('skipScoringBtn:', skipScoringBtn);
+
         if (teamCountInput) {
+            console.log('Binding teamCountInput change event');
             teamCountInput.addEventListener('change', () => this.generateTeamInputs());
+        } else {
+            console.warn('teamCountInput not found');
         }
 
         if (generateBtn) {
+            console.log('Binding generateBtn click event');
             generateBtn.addEventListener('click', () => this.generateTeamInputs());
+        } else {
+            console.warn('generateBtn not found');
         }
 
         if (startBtn) {
+            console.log('Binding startBtn click event');
             startBtn.addEventListener('click', () => this.setupQuiz());
+        } else {
+            console.warn('startBtn not found');
         }
 
         if (submitScoresBtn) {
+            console.log('Binding submitScoresBtn click event');
             submitScoresBtn.addEventListener('click', () => this.submitScores());
+        } else {
+            console.warn('submitScoresBtn not found');
         }
 
         if (skipScoringBtn) {
+            console.log('Binding skipScoringBtn click event');
             skipScoringBtn.addEventListener('click', () => this.skipScoring());
+        } else {
+            console.warn('skipScoringBtn not found');
         }
 
         // Category buttons
         const categoryBtns = document.querySelectorAll('.category-btn');
+        console.log('Found category buttons:', categoryBtns.length);
         categoryBtns.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const category = e.currentTarget.dataset.category;
-                this.selectCategory(category);
-            });
+            btn.addEventListener('click', () => this.selectCategory(btn.dataset.category));
         });
 
         // Next question button
         const nextBtn = document.getElementById('nextQuestion');
         if (nextBtn) {
+            console.log('Binding nextBtn click event');
             nextBtn.addEventListener('click', () => this.nextQuestion());
+        } else {
+            console.warn('nextBtn not found');
         }
+        
+        console.log('=== BIND EVENTS END ===');
+    }
+
+    setupQuiz() {
+        console.log('=== SETUP QUIZ DEBUG ===');
+        
+        const teamInputs = document.querySelectorAll('.team-input input');
+        console.log('Found team inputs:', teamInputs.length);
+        
+        const teamNames = [];
+        let hasEmptyInput = false;
+
+        teamInputs.forEach((input, index) => {
+            const name = input.value.trim();
+            console.log(`Team ${index + 1} input: "${name}"`);
+            
+            if (name === '') {
+                hasEmptyInput = true;
+                console.warn(`Team ${index + 1} input is empty`);
+            } else {
+                teamNames.push(name);
+            }
+        });
+
+        if (hasEmptyInput) {
+            console.warn('Empty team inputs found, stopping setup');
+            alert('Please fill in all team names');
+            return;
+        }
+
+        if (teamNames.length < 2) {
+            console.warn('Not enough teams, stopping setup');
+            alert('Please enter at least 2 teams');
+            return;
+        }
+
+        console.log('Team names:', teamNames);
+
+        // Create team objects
+        this.teams = teamNames.map((name, index) => ({
+            id: index + 1,
+            name: name,
+            score: 0
+        }));
+
+        console.log('Created teams:', this.teams);
+
+        // Initialize scores
+        this.teams.forEach(team => {
+            this.scores[team.id] = 0;
+        });
+
+        console.log('Initialized scores:', this.scores);
+
+        // Reset completed categories for new teams
+        this.safeSetItem('completedCategories', JSON.stringify([]));
+
+        // Store teams data with timestamp
+        this.safeSetItem('quizTeams', JSON.stringify(this.teams));
+        this.safeSetItem('quizScores', JSON.stringify(this.scores));
+        this.safeSetItem('quizSetup', 'true');
+        this.safeSetItem('quizSetupTime', Date.now().toString());
+
+        console.log('Data saved to storage');
+
+        // Show setup status but don't auto-navigate
+        this.showSetupStatus();
+        
+        // Admin must manually click "Open Questions Page"
+        console.log('Quiz setup complete. Admin must manually navigate to questions page.');
+        console.log('=== SETUP QUIZ END ===');
     }
 
     generateTeamInputs() {
@@ -717,50 +814,15 @@ class QuizApp {
         // Reset completed categories when new teams are added
         localStorage.removeItem('completedCategories');
         
-        // Re-bind setup events
-        this.bindEvents();
-    }
-
-    checkTeamInputs() {
-        const teamInputs = document.querySelectorAll('#teamInputs .text-input');
-        const startBtn = document.getElementById('startQuiz');
-        const allFilled = Array.from(teamInputs).every(input => input.value.trim() !== '');
-
-        startBtn.disabled = !allFilled;
-    }
-
-    setupQuiz() {
-        const teamInputs = document.querySelectorAll('#teamInputs .text-input');
-        this.teams = Array.from(teamInputs).map((input, index) => ({
-            id: index + 1,
-            name: input.value.trim(),
-            score: 0
-        }));
-
-        // Initialize scores
-        this.teams.forEach(team => {
-            this.scores[team.id] = 0;
-        });
-
-        // Reset completed categories for new teams
-        this.safeSetItem('completedCategories', JSON.stringify([]));
-
-        // Store teams data with timestamp
-        this.safeSetItem('quizTeams', JSON.stringify(this.teams));
-        this.safeSetItem('quizScores', JSON.stringify(this.scores));
-        this.safeSetItem('quizSetup', 'true');
-        this.safeSetItem('quizSetupTime', Date.now().toString());
-
-        // Show setup status but don't auto-navigate
-        this.showSetupStatus();
+// Send auto-next signal to questions.html after animations complete
+setTimeout(() => {
+    this.safeSetItem('autoNextQuestion', Date.now().toString());
+}, 2000); // Wait for animations to complete
         
-        // Admin must manually click "Open Questions Page"
-        console.log('Quiz setup complete. Admin must manually navigate to questions page.');
-    }
-
-    initializeQuestionsPage() {
-        const categorySection = document.querySelector('.category-section');
-        const startQuizBtn = document.getElementById('startQuizBtn');
+// Send refresh signal to questions.html after a small delay
+setTimeout(() => {
+    this.safeSetItem('refreshQuestions', Date.now().toString());
+}, 100);
         const teamsPreview = document.getElementById('teamsPreview');
         const teamsSidebar = document.querySelector('.teams-sidebar');
         
