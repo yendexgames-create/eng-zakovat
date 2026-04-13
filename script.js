@@ -570,6 +570,49 @@ class QuizApp {
         this.checkTeamInputs();
     }
 
+    checkTeamInputs() {
+        console.log('=== CHECK TEAM INPUTS DEBUG ===');
+        
+        const teamInputs = document.querySelectorAll('.team-input input');
+        const startBtn = document.getElementById('startQuiz');
+        
+        console.log('Found team inputs:', teamInputs.length);
+        console.log('Start button:', startBtn);
+        
+        let allFilled = true;
+        let filledCount = 0;
+        
+        teamInputs.forEach((input, index) => {
+            const value = input.value.trim();
+            console.log(`Input ${index + 1}: "${value}"`);
+            
+            if (value !== '') {
+                filledCount++;
+            } else {
+                allFilled = false;
+            }
+        });
+        
+        console.log(`Filled inputs: ${filledCount}/${teamInputs.length}`);
+        console.log('All filled:', allFilled);
+        
+        if (startBtn) {
+            if (allFilled && filledCount >= 2) {
+                console.log('Enabling start button');
+                startBtn.disabled = false;
+                startBtn.style.cursor = 'pointer';
+                startBtn.style.opacity = '1';
+            } else {
+                console.log('Disabling start button');
+                startBtn.disabled = true;
+                startBtn.style.cursor = 'not-allowed';
+                startBtn.style.opacity = '0.6';
+            }
+        }
+        
+        console.log('=== CHECK TEAM INPUTS END ===');
+    }
+
     checkScoringPhase() {
         // Clear any old scoring data first
         this.clearOldScoringData();
