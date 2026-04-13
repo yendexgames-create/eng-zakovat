@@ -7,6 +7,9 @@ class QuizApp {
         this.questions = {};
         this.scores = {};
         
+        // Check if localStorage is available (for Netlify deployment)
+        this.isLocalStorageAvailable = this.checkLocalStorage();
+        
         this.initializeQuestions();
         this.bindEvents();
         
@@ -16,6 +19,44 @@ class QuizApp {
         } else {
             // Check for scoring phase on index.html
             this.checkScoringPhase();
+        }
+    }
+
+    checkLocalStorage() {
+        try {
+            const test = 'test';
+            localStorage.setItem(test, test);
+            localStorage.removeItem(test);
+            return true;
+        } catch (e) {
+            console.warn('localStorage is not available:', e);
+            return false;
+        }
+    }
+    
+    // Safe localStorage methods
+    safeSetItem(key, value) {
+        if (this.isLocalStorageAvailable) {
+            localStorage.setItem(key, value);
+        } else {
+            console.warn('localStorage not available, cannot set:', key);
+        }
+    }
+    
+    safeGetItem(key) {
+        if (this.isLocalStorageAvailable) {
+            return localStorage.getItem(key);
+        } else {
+            console.warn('localStorage not available, cannot get:', key);
+            return null;
+        }
+    }
+    
+    safeRemoveItem(key) {
+        if (this.isLocalStorageAvailable) {
+            localStorage.removeItem(key);
+        } else {
+            console.warn('localStorage not available, cannot remove:', key);
         }
     }
 
@@ -415,29 +456,29 @@ class QuizApp {
         });
         
         // Save final scores directly to quizScores
-        localStorage.setItem('quizScores', JSON.stringify(this.scores));
+        this.safeSetItem('quizScores', JSON.stringify(this.scores));
         
         // Also save new scores for animation
-        localStorage.setItem('newScores', JSON.stringify(scores));
-        localStorage.setItem('scoresTimestamp', Date.now().toString());
+        this.safeSetItem('newScores', JSON.stringify(scores));
+        this.safeSetItem('scoresTimestamp', Date.now().toString());
         
         // Send scoring completion signal to questions device
-        localStorage.setItem('scoringCompleted', Date.now().toString());
+        this.safeSetItem('scoringCompleted', Date.now().toString());
         
         // Send auto-next signal to questions.html after animations complete
         setTimeout(() => {
-            localStorage.setItem('autoNextQuestion', Date.now().toString());
+            this.safeSetItem('autoNextQuestion', Date.now().toString());
         }, 2000); // Wait for animations to complete
         
         // Send refresh signal to questions.html after a small delay
         setTimeout(() => {
-            localStorage.setItem('refreshQuestions', Date.now().toString());
+            this.safeSetItem('refreshQuestions', Date.now().toString());
         }, 100);
         
         // Clear scoring phase
-        localStorage.removeItem('scoringPhase');
-        localStorage.removeItem('currentQuestion');
-        localStorage.removeItem('timeUpSignal');
+        this.safeRemoveItem('scoringPhase');
+        this.safeRemoveItem('currentQuestion');
+        this.safeRemoveItem('timeUpSignal');
         // Don't remove scoringCompleted here - let questions page handle it
         
         // Show completion message and restore setup
@@ -446,20 +487,20 @@ class QuizApp {
 
     skipScoring() {
         // Send scoring completion signal even when skipping
-        localStorage.setItem('scoringCompleted', Date.now().toString());
+        this.safeSetItem('scoringCompleted', Date.now().toString());
         
         // Send refresh signal to questions.html after a small delay
         setTimeout(() => {
-            localStorage.setItem('refreshQuestions', Date.now().toString());
+            this.safeSetItem('refreshQuestions', Date.now().toString());
         }, 100);
         
-        // Clear all scoring data completely
-        localStorage.removeItem('scoringPhase');
-        localStorage.removeItem('currentQuestion');
-        localStorage.removeItem('timeUpSignal');
-        localStorage.removeItem('scoringCompleted');
+        // Clear scoring phase
+        this.safeRemoveItem('scoringPhase');
+        this.safeRemoveItem('currentQuestion');
+        this.safeRemoveItem('timeUpSignal');
+        this.safeRemoveItem('scoringCompleted');
         
-        // Restore setup section
+        // Show completion message and restore setup
         this.restoreSetupSection();
     }
 
@@ -526,13 +567,13 @@ class QuizApp {
         });
 
         // Reset completed categories for new teams
-        localStorage.setItem('completedCategories', JSON.stringify([]));
+        this.safeSetItem('completedCategories', JSON.stringify([]));
 
         // Store teams data with timestamp
-        localStorage.setItem('quizTeams', JSON.stringify(this.teams));
-        localStorage.setItem('quizScores', JSON.stringify(this.scores));
-        localStorage.setItem('quizSetup', 'true');
-        localStorage.setItem('quizSetupTime', Date.now().toString());
+        this.safeSetItem('quizTeams', JSON.stringify(this.teams));
+        this.safeSetItem('quizScores', JSON.stringify(this.scores));
+        this.safeSetItem('quizSetup', 'true');
+        this.safeSetItem('quizSetupTime', Date.now().toString());
 
         // Show setup status but don't auto-navigate
         this.showSetupStatus();
@@ -541,25 +582,16 @@ class QuizApp {
         console.log('Quiz setup complete. Admin must manually navigate to questions page.');
     }
 
-    showSetupStatus() {
-        const setupStatus = document.getElementById('setupStatus');
-        const startBtn = document.getElementById('startQuiz');
-        
-        setupStatus.classList.remove('hidden');
-        startBtn.disabled = true;
-    }
-
     initializeQuestionsPage() {
-        const welcomeSection = document.getElementById('welcomeSection');
         const categorySection = document.querySelector('.category-section');
         const startQuizBtn = document.getElementById('startQuizBtn');
         const teamsPreview = document.getElementById('teamsPreview');
         const teamsSidebar = document.querySelector('.teams-sidebar');
         
         // Store initial timestamps
-        this.lastSetupTime = localStorage.getItem('quizSetupTime') || '0';
-        this.lastStartedTime = localStorage.getItem('quizStartedTime') || '0';
-        this.lastScoresTime = localStorage.getItem('scoresTimestamp') || '0';
+        this.lastSetupTime = this.safeGetItem('quizSetupTime') || '0';
+        this.lastStartedTime = this.safeGetItem('quizStartedTime') || '0';
+        this.lastScoresTime = this.safeGetItem('scoresTimestamp') || '0';
         
         // Auto-refresh every 2 seconds to check for quiz setup and activation
         this.refreshInterval = setInterval(() => {
@@ -570,13 +602,11 @@ class QuizApp {
         this.checkForNewScores();
         
         // Load teams data
-        const storedTeams = localStorage.getItem('quizTeams');
-        const storedScores = localStorage.getItem('quizScores');
-        const quizSetup = localStorage.getItem('quizSetup');
+        const storedTeams = this.safeGetItem('quizTeams');
+        const storedScores = this.safeGetItem('quizScores');
         
         if (storedTeams) {
             this.teams = JSON.parse(storedTeams);
-            this.displayWelcomeTeams();
         }
         
         if (storedScores) {
@@ -586,34 +616,34 @@ class QuizApp {
         }
         
         // Check if quiz is set up - show teams sidebar
+        const quizSetup = this.safeGetItem('quizSetup');
         if (quizSetup === 'true') {
             teamsPreview.classList.remove('hidden');
             if (teamsSidebar) {
                 teamsSidebar.classList.remove('hidden');
-                this.displayTeams();
             }
         }
         
         // Check if quiz is activated
-        const quizActivated = localStorage.getItem('quizActivated');
+        const quizActivated = this.safeGetItem('quizActivated');
         if (quizActivated === 'true') {
             this.showCategorySelection();
             clearInterval(this.refreshInterval);
             
             // Load completed categories and update buttons
-            const completedCategories = localStorage.getItem('completedCategories') ? JSON.parse(localStorage.getItem('completedCategories')) : [];
+            const completedCategories = this.safeGetItem('completedCategories') ? JSON.parse(this.safeGetItem('completedCategories')) : [];
             this.updateCategoryButtons(completedCategories);
         }
     }
 
     checkQuizStatus() {
-        const quizSetup = localStorage.getItem('quizSetup');
-        const quizActivated = localStorage.getItem('quizActivated');
-        const currentSetupTime = localStorage.getItem('quizSetupTime') || '0';
-        const currentStartedTime = localStorage.getItem('quizStartedTime') || '0';
+        const quizSetup = this.safeGetItem('quizSetup');
+        const quizActivated = this.safeGetItem('quizActivated');
+        const currentSetupTime = this.safeGetItem('quizSetupTime') || '0';
+        const currentStartedTime = this.safeGetItem('quizStartedTime') || '0';
         
         // Always reload scores to ensure they're up to date
-        const storedScores = localStorage.getItem('quizScores');
+        const storedScores = this.safeGetItem('quizScores');
         if (storedScores) {
             this.scores = JSON.parse(storedScores);
         }
