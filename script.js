@@ -600,7 +600,7 @@ class QuizApp {
         sortedTeams.forEach(team => {
             const teamItem = document.createElement('div');
             teamItem.className = 'team-item';
-            teamItem.dataset.teamId = team.id;
+            teamItem.dataset.teamId = team.id; // Make sure this is set correctly
             
             const score = this.scores[team.id] || 0;
             
@@ -612,6 +612,7 @@ class QuizApp {
             `;
             
             teamsList.appendChild(teamItem);
+            console.log(`Created team item for ${team.name} with ID ${team.id} and score ${score}`);
         });
     }
 
@@ -748,8 +749,11 @@ class QuizApp {
             return;
         }
         
-        // Reset timeUp flag
+        // Reset flags
         this.timeUpCalled = false;
+        this.isAnimating = false;
+        
+        console.log('Timer started - flags reset');
         
         // Show timer
         timerContainer.classList.remove('hidden');
@@ -891,6 +895,8 @@ class QuizApp {
         console.log('goToNextQuestion called - proceeding to next question');
         // Reset timeUp flag for next question
         this.timeUpCalled = false;
+        // Also reset animation flag
+        this.isAnimating = false;
         this.nextQuestion();
     }
 
@@ -946,11 +952,17 @@ class QuizApp {
     
     animateSingleTeamScore(teamId, scoreValue) {
         const teamCard = document.querySelector(`[data-team-id="${teamId}"]`);
-        if (!teamCard) return;
+        if (!teamCard) {
+            console.log('Team card not found for team:', teamId);
+            return;
+        }
         
         // Find the score element
         const scoreElement = teamCard.querySelector('.team-score');
-        if (!scoreElement) return;
+        if (!scoreElement) {
+            console.log('Score element not found for team:', teamId);
+            return;
+        }
         
         // Get current and target scores
         const currentScore = parseInt(scoreElement.textContent) || 0;
