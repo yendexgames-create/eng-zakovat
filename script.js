@@ -7,9 +7,6 @@ class QuizApp {
         this.questions = {};
         this.scores = {};
         
-        // Check if localStorage is available (for Netlify deployment)
-        this.isLocalStorageAvailable = this.checkLocalStorage();
-        
         this.initializeQuestions();
         this.bindEvents();
         
@@ -20,220 +17,6 @@ class QuizApp {
             // Check for scoring phase on index.html
             this.checkScoringPhase();
         }
-    }
-
-    checkLocalStorage() {
-        try {
-            const test = 'test';
-            localStorage.setItem(test, test);
-            localStorage.removeItem(test);
-            return true;
-        } catch (e) {
-            console.warn('localStorage is not available:', e);
-            return false;
-        }
-    }
-    
-    // Enhanced storage methods with fallback
-    safeSetItem(key, value) {
-        console.log(`=== SAFE SET ITEM ${key} ===`);
-        console.log('Setting value:', value);
-        
-        if (this.isLocalStorageAvailable) {
-            localStorage.setItem(key, value);
-            // Also try to set in sessionStorage for cross-tab sync
-            try {
-                sessionStorage.setItem(key, value);
-            } catch (e) {
-                console.warn('sessionStorage not available:', e);
-            }
-        } else {
-            console.warn('localStorage not available, using fallback:', key);
-            // Fallback to sessionStorage
-            try {
-                sessionStorage.setItem(key, value);
-            } catch (e) {
-                console.warn('sessionStorage not available either:', e);
-            }
-        }
-        
-        // Always set in cookies for cross-device sync
-        this.setCookie(key, value, 7);
-        console.log(`=== SAFE SET ITEM ${key} END ===`);
-    }
-    
-    safeGetItem(key) {
-        console.log(`=== SAFE GET ITEM ${key} ===`);
-        
-        let value = null;
-        
-        if (this.isLocalStorageAvailable) {
-            value = localStorage.getItem(key);
-            console.log('From localStorage:', value);
-        } else {
-            console.warn('localStorage not available, trying sessionStorage:', key);
-            // Fallback to sessionStorage
-            try {
-                value = sessionStorage.getItem(key);
-                console.log('From sessionStorage:', value);
-            } catch (e) {
-                console.warn('sessionStorage not available either:', e);
-            }
-        }
-        
-        // Fallback to cookies if empty
-        if (!value) {
-            value = this.getCookie(key);
-            console.log('From cookie:', value);
-        }
-        
-        console.log(`Final value for ${key}:`, value);
-        console.log(`=== SAFE GET ITEM ${key} END ===`);
-        return value;
-    }
-    
-    safeRemoveItem(key) {
-        console.log(`=== SAFE REMOVE ITEM ${key} ===`);
-        
-        if (this.isLocalStorageAvailable) {
-            localStorage.removeItem(key);
-            // Also remove from sessionStorage
-            try {
-                sessionStorage.removeItem(key);
-            } catch (e) {
-                console.warn('sessionStorage not available:', e);
-            }
-        } else {
-            console.warn('localStorage not available, cannot remove:', key);
-            // Fallback to sessionStorage
-            try {
-                sessionStorage.removeItem(key);
-            } catch (e) {
-                console.warn('sessionStorage not available either:', e);
-            }
-        }
-        
-        // Always remove from cookies
-        this.deleteCookie(key);
-        console.log(`=== SAFE REMOVE ITEM ${key} END ===`);
-    }
-    
-    // Force refresh from all storage sources
-    forceRefreshStorage() {
-        console.log('=== FORCE REFRESH STORAGE ===');
-        
-        // Try localStorage first
-        let teams = null;
-        let scores = null;
-        let quizSetup = null;
-        let quizActivated = null;
-        
-        if (this.isLocalStorageAvailable) {
-            teams = localStorage.getItem('quizTeams');
-            scores = localStorage.getItem('quizScores');
-            quizSetup = localStorage.getItem('quizSetup');
-            quizActivated = localStorage.getItem('quizActivated');
-            console.log('From localStorage:', { teams, scores, quizSetup, quizActivated });
-        }
-        
-        // Fallback to sessionStorage if localStorage is empty
-        if (!teams) {
-            try {
-                teams = sessionStorage.getItem('quizTeams');
-                console.log('From sessionStorage teams:', teams);
-            } catch (e) {
-                console.warn('sessionStorage not available for teams:', e);
-            }
-        }
-        
-        if (!scores) {
-            try {
-                scores = sessionStorage.getItem('quizScores');
-                console.log('From sessionStorage scores:', scores);
-            } catch (e) {
-                console.warn('sessionStorage not available for scores:', e);
-            }
-        }
-        
-        if (!quizSetup) {
-            try {
-                quizSetup = sessionStorage.getItem('quizSetup');
-                console.log('From sessionStorage quizSetup:', quizSetup);
-            } catch (e) {
-                console.warn('sessionStorage not available for quizSetup:', e);
-            }
-        }
-        
-        if (!quizActivated) {
-            try {
-                quizActivated = sessionStorage.getItem('quizActivated');
-                console.log('From sessionStorage quizActivated:', quizActivated);
-            } catch (e) {
-                console.warn('sessionStorage not available for quizActivated:', e);
-            }
-        }
-        
-        // Fallback to cookies if both localStorage and sessionStorage are empty
-        if (!teams) {
-            teams = this.getCookie('quizTeams');
-            console.log('From cookie teams:', teams);
-        }
-        
-        if (!scores) {
-            scores = this.getCookie('quizScores');
-            console.log('From cookie scores:', scores);
-        }
-        
-        if (!quizSetup) {
-            quizSetup = this.getCookie('quizSetup');
-            console.log('From cookie quizSetup:', quizSetup);
-        }
-        
-        if (!quizActivated) {
-            quizActivated = this.getCookie('quizActivated');
-            console.log('From cookie quizActivated:', quizActivated);
-        }
-        
-        // Update local state
-        if (teams) {
-            this.teams = JSON.parse(teams);
-            console.log('Updated teams:', this.teams);
-        }
-        
-        if (scores) {
-            this.scores = JSON.parse(scores);
-            console.log('Updated scores:', this.scores);
-        }
-        
-        console.log('=== FORCE REFRESH STORAGE END ===');
-    }
-    
-    // Cookie methods for cross-device sync
-    setCookie(name, value, days = 7) {
-        const expires = new Date();
-        expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
-        document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/`;
-        console.log(`Set cookie ${name}:`, value);
-    }
-    
-    getCookie(name) {
-        const nameEQ = name + "=";
-        const ca = document.cookie.split(';');
-        for (let i = 0; i < ca.length; i++) {
-            let c = ca[i];
-            while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-            if (c.indexOf(nameEQ) === 0) {
-                const value = decodeURIComponent(c.substring(nameEQ.length, c.length));
-                console.log(`Got cookie ${name}:`, value);
-                return value;
-            }
-        }
-        return null;
-    }
-    
-    deleteCookie(name) {
-        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;`;
-        console.log(`Deleted cookie ${name}`);
     }
 
     initializeQuestions() {
@@ -378,195 +161,46 @@ class QuizApp {
     }
 
     bindEvents() {
-        console.log('=== BIND EVENTS DEBUG ===');
-        
         const teamCountInput = document.getElementById('teamCount');
         const generateBtn = document.getElementById('generateInputs');
         const startBtn = document.getElementById('startQuiz');
         const submitScoresBtn = document.getElementById('submitScores');
         const skipScoringBtn = document.getElementById('skipScoring');
 
-        console.log('Found elements:');
-        console.log('teamCountInput:', teamCountInput);
-        console.log('generateBtn:', generateBtn);
-        console.log('startBtn:', startBtn);
-        console.log('submitScoresBtn:', submitScoresBtn);
-        console.log('skipScoringBtn:', skipScoringBtn);
-
         if (teamCountInput) {
-            console.log('Binding teamCountInput change event');
             teamCountInput.addEventListener('change', () => this.generateTeamInputs());
-        } else {
-            console.warn('teamCountInput not found');
         }
 
         if (generateBtn) {
-            console.log('Binding generateBtn click event');
-            console.log('generateBtn type:', typeof generateBtn);
-            console.log('generateBtn tagName:', generateBtn.tagName);
-            console.log('generateBtn disabled:', generateBtn.disabled);
-            console.log('generateBtn onclick:', generateBtn.onclick);
-            console.log('generateBtn style:', generateBtn.style.cssText);
-            
-            try {
-                generateBtn.addEventListener('click', function(e) {
-                    console.log('Generate Team Inputs button clicked!');
-                    console.log('Event object:', e);
-                    console.log('this:', this);
-                    console.log('window.quizApp:', window.quizApp);
-                    
-                    if (window.quizApp && typeof window.quizApp.generateTeamInputs === 'function') {
-                        window.quizApp.generateTeamInputs();
-                    } else {
-                        console.error('quizApp or generateTeamInputs method not found');
-                        alert('Application error. Please refresh page.');
-                    }
-                });
-                console.log('Event listener added successfully');
-            } catch (error) {
-                console.error('Error adding event listener:', error);
-                alert('Error setting up button. Please refresh the page.');
-            }
-        } else {
-            console.warn('generateBtn not found');
+            generateBtn.addEventListener('click', () => this.generateTeamInputs());
         }
 
         if (startBtn) {
-            console.log('Binding startBtn click event');
-            console.log('startBtn type:', typeof startBtn);
-            console.log('startBtn tagName:', startBtn.tagName);
-            console.log('startBtn onclick:', startBtn.onclick);
-            
-            try {
-                startBtn.addEventListener('click', function(e) {
-                    console.log('Setup Quiz button clicked!');
-                    console.log('Event object:', e);
-                    console.log('this:', this);
-                    console.log('window.quizApp:', window.quizApp);
-                    
-                    if (window.quizApp && typeof window.quizApp.setupQuiz === 'function') {
-                        window.quizApp.setupQuiz();
-                    } else {
-                        console.error('quizApp or setupQuiz method not found');
-                        alert('Application error. Please refresh the page.');
-                    }
-                });
-                console.log('Event listener added successfully');
-            } catch (error) {
-                console.error('Error adding event listener:', error);
-                alert('Error setting up button. Please refresh the page.');
-            }
-        } else {
-            console.warn('startBtn not found');
-            // Try to find it with different selectors
-            const allButtons = document.querySelectorAll('button');
-            console.log('All buttons found:', allButtons.length);
-            allButtons.forEach((btn, index) => {
-                console.log(`Button ${index}:`, btn.id, btn.className, btn.textContent);
-            });
+            startBtn.addEventListener('click', () => this.setupQuiz());
         }
 
         if (submitScoresBtn) {
-            console.log('Binding submitScoresBtn click event');
             submitScoresBtn.addEventListener('click', () => this.submitScores());
-        } else {
-            console.warn('submitScoresBtn not found');
         }
 
         if (skipScoringBtn) {
-            console.log('Binding skipScoringBtn click event');
             skipScoringBtn.addEventListener('click', () => this.skipScoring());
-        } else {
-            console.warn('skipScoringBtn not found');
         }
 
         // Category buttons
         const categoryBtns = document.querySelectorAll('.category-btn');
-        console.log('Found category buttons:', categoryBtns.length);
         categoryBtns.forEach(btn => {
-            btn.addEventListener('click', () => this.selectCategory(btn.dataset.category));
+            btn.addEventListener('click', (e) => {
+                const category = e.currentTarget.dataset.category;
+                this.selectCategory(category);
+            });
         });
 
         // Next question button
         const nextBtn = document.getElementById('nextQuestion');
         if (nextBtn) {
-            console.log('Binding nextBtn click event');
             nextBtn.addEventListener('click', () => this.nextQuestion());
-        } else {
-            console.warn('nextBtn not found');
         }
-        
-        console.log('=== BIND EVENTS END ===');
-    }
-
-    setupQuiz() {
-        console.log('=== SETUP QUIZ DEBUG ===');
-        
-        const teamInputs = document.querySelectorAll('.team-input input');
-        console.log('Found team inputs:', teamInputs.length);
-        
-        const teamNames = [];
-        let hasEmptyInput = false;
-
-        teamInputs.forEach((input, index) => {
-            const name = input.value.trim();
-            console.log(`Team ${index + 1} input: "${name}"`);
-            
-            if (name === '') {
-                hasEmptyInput = true;
-                console.warn(`Team ${index + 1} input is empty`);
-            } else {
-                teamNames.push(name);
-            }
-        });
-
-        if (hasEmptyInput) {
-            console.warn('Empty team inputs found, stopping setup');
-            alert('Please fill in all team names');
-            return;
-        }
-
-        if (teamNames.length < 2) {
-            console.warn('Not enough teams, stopping setup');
-            alert('Please enter at least 2 teams');
-            return;
-        }
-
-        console.log('Team names:', teamNames);
-
-        // Create team objects
-        this.teams = teamNames.map((name, index) => ({
-            id: index + 1,
-            name: name,
-            score: 0
-        }));
-
-        console.log('Created teams:', this.teams);
-
-        // Initialize scores
-        this.teams.forEach(team => {
-            this.scores[team.id] = 0;
-        });
-
-        console.log('Initialized scores:', this.scores);
-
-        // Reset completed categories for new teams
-        this.safeSetItem('completedCategories', JSON.stringify([]));
-
-        // Store teams data with timestamp
-        this.safeSetItem('quizTeams', JSON.stringify(this.teams));
-        this.safeSetItem('quizScores', JSON.stringify(this.scores));
-        this.safeSetItem('quizSetup', 'true');
-        this.safeSetItem('quizSetupTime', Date.now().toString());
-
-        console.log('Data saved to storage');
-
-        // Show setup status but don't auto-navigate
-        this.showSetupStatus();
-        
-        // Admin must manually click "Open Questions Page"
-        console.log('Quiz setup complete. Admin must manually navigate to questions page.');
-        console.log('=== SETUP QUIZ END ===');
     }
 
     generateTeamInputs() {
@@ -592,49 +226,6 @@ class QuizApp {
         });
 
         this.checkTeamInputs();
-    }
-
-    checkTeamInputs() {
-        console.log('=== CHECK TEAM INPUTS DEBUG ===');
-        
-        const teamInputs = document.querySelectorAll('.team-input input');
-        const startBtn = document.getElementById('startQuiz');
-        
-        console.log('Found team inputs:', teamInputs.length);
-        console.log('Start button:', startBtn);
-        
-        let allFilled = true;
-        let filledCount = 0;
-        
-        teamInputs.forEach((input, index) => {
-            const value = input.value.trim();
-            console.log(`Input ${index + 1}: "${value}"`);
-            
-            if (value !== '') {
-                filledCount++;
-            } else {
-                allFilled = false;
-            }
-        });
-        
-        console.log(`Filled inputs: ${filledCount}/${teamInputs.length}`);
-        console.log('All filled:', allFilled);
-        
-        if (startBtn) {
-            if (allFilled && filledCount >= 2) {
-                console.log('Enabling start button');
-                startBtn.disabled = false;
-                startBtn.style.cursor = 'pointer';
-                startBtn.style.opacity = '1';
-            } else {
-                console.log('Disabling start button');
-                startBtn.disabled = true;
-                startBtn.style.cursor = 'not-allowed';
-                startBtn.style.opacity = '0.6';
-            }
-        }
-        
-        console.log('=== CHECK TEAM INPUTS END ===');
     }
 
     checkScoringPhase() {
@@ -824,29 +415,29 @@ class QuizApp {
         });
         
         // Save final scores directly to quizScores
-        this.safeSetItem('quizScores', JSON.stringify(this.scores));
+        localStorage.setItem('quizScores', JSON.stringify(this.scores));
         
         // Also save new scores for animation
-        this.safeSetItem('newScores', JSON.stringify(scores));
-        this.safeSetItem('scoresTimestamp', Date.now().toString());
+        localStorage.setItem('newScores', JSON.stringify(scores));
+        localStorage.setItem('scoresTimestamp', Date.now().toString());
         
         // Send scoring completion signal to questions device
-        this.safeSetItem('scoringCompleted', Date.now().toString());
+        localStorage.setItem('scoringCompleted', Date.now().toString());
         
         // Send auto-next signal to questions.html after animations complete
         setTimeout(() => {
-            this.safeSetItem('autoNextQuestion', Date.now().toString());
+            localStorage.setItem('autoNextQuestion', Date.now().toString());
         }, 2000); // Wait for animations to complete
         
         // Send refresh signal to questions.html after a small delay
         setTimeout(() => {
-            this.safeSetItem('refreshQuestions', Date.now().toString());
+            localStorage.setItem('refreshQuestions', Date.now().toString());
         }, 100);
         
         // Clear scoring phase
-        this.safeRemoveItem('scoringPhase');
-        this.safeRemoveItem('currentQuestion');
-        this.safeRemoveItem('timeUpSignal');
+        localStorage.removeItem('scoringPhase');
+        localStorage.removeItem('currentQuestion');
+        localStorage.removeItem('timeUpSignal');
         // Don't remove scoringCompleted here - let questions page handle it
         
         // Show completion message and restore setup
@@ -855,20 +446,20 @@ class QuizApp {
 
     skipScoring() {
         // Send scoring completion signal even when skipping
-        this.safeSetItem('scoringCompleted', Date.now().toString());
+        localStorage.setItem('scoringCompleted', Date.now().toString());
         
         // Send refresh signal to questions.html after a small delay
         setTimeout(() => {
-            this.safeSetItem('refreshQuestions', Date.now().toString());
+            localStorage.setItem('refreshQuestions', Date.now().toString());
         }, 100);
         
-        // Clear scoring phase
-        this.safeRemoveItem('scoringPhase');
-        this.safeRemoveItem('currentQuestion');
-        this.safeRemoveItem('timeUpSignal');
-        this.safeRemoveItem('scoringCompleted');
+        // Clear all scoring data completely
+        localStorage.removeItem('scoringPhase');
+        localStorage.removeItem('currentQuestion');
+        localStorage.removeItem('timeUpSignal');
+        localStorage.removeItem('scoringCompleted');
         
-        // Show completion message and restore setup
+        // Restore setup section
         this.restoreSetupSection();
     }
 
@@ -909,22 +500,66 @@ class QuizApp {
         // Reset completed categories when new teams are added
         localStorage.removeItem('completedCategories');
         
-// Send auto-next signal to questions.html after animations complete
-setTimeout(() => {
-    this.safeSetItem('autoNextQuestion', Date.now().toString());
-}, 2000); // Wait for animations to complete
+        // Re-bind setup events
+        this.bindEvents();
+    }
+
+    checkTeamInputs() {
+        const teamInputs = document.querySelectorAll('#teamInputs .text-input');
+        const startBtn = document.getElementById('startQuiz');
+        const allFilled = Array.from(teamInputs).every(input => input.value.trim() !== '');
+
+        startBtn.disabled = !allFilled;
+    }
+
+    setupQuiz() {
+        const teamInputs = document.querySelectorAll('#teamInputs .text-input');
+        this.teams = Array.from(teamInputs).map((input, index) => ({
+            id: index + 1,
+            name: input.value.trim(),
+            score: 0
+        }));
+
+        // Initialize scores
+        this.teams.forEach(team => {
+            this.scores[team.id] = 0;
+        });
+
+        // Reset completed categories for new teams
+        localStorage.setItem('completedCategories', JSON.stringify([]));
+
+        // Store teams data with timestamp
+        localStorage.setItem('quizTeams', JSON.stringify(this.teams));
+        localStorage.setItem('quizScores', JSON.stringify(this.scores));
+        localStorage.setItem('quizSetup', 'true');
+        localStorage.setItem('quizSetupTime', Date.now().toString());
+
+        // Show setup status but don't auto-navigate
+        this.showSetupStatus();
         
-// Send refresh signal to questions.html after a small delay
-setTimeout(() => {
-    this.safeSetItem('refreshQuestions', Date.now().toString());
-}, 100);
+        // Admin must manually click "Open Questions Page"
+        console.log('Quiz setup complete. Admin must manually navigate to questions page.');
+    }
+
+    showSetupStatus() {
+        const setupStatus = document.getElementById('setupStatus');
+        const startBtn = document.getElementById('startQuiz');
+        
+        setupStatus.classList.remove('hidden');
+        startBtn.disabled = true;
+    }
+
+    initializeQuestionsPage() {
+        const welcomeSection = document.getElementById('welcomeSection');
+        const categorySection = document.querySelector('.category-section');
+        const startQuizBtn = document.getElementById('startQuizBtn');
         const teamsPreview = document.getElementById('teamsPreview');
         const teamsSidebar = document.querySelector('.teams-sidebar');
         
         // Store initial timestamps
-        this.lastSetupTime = this.safeGetItem('quizSetupTime') || '0';
-        this.lastStartedTime = this.safeGetItem('quizStartedTime') || '0';
-        this.lastScoresTime = this.safeGetItem('scoresTimestamp') || '0';
+        this.lastSetupTime = localStorage.getItem('quizSetupTime') || '0';
+        this.lastStartedTime = localStorage.getItem('quizStartedTime') || '0';
+        this.lastScoresTime = localStorage.getItem('scoresTimestamp') || '0';
         
         // Auto-refresh every 2 seconds to check for quiz setup and activation
         this.refreshInterval = setInterval(() => {
@@ -935,11 +570,13 @@ setTimeout(() => {
         this.checkForNewScores();
         
         // Load teams data
-        const storedTeams = this.safeGetItem('quizTeams');
-        const storedScores = this.safeGetItem('quizScores');
+        const storedTeams = localStorage.getItem('quizTeams');
+        const storedScores = localStorage.getItem('quizScores');
+        const quizSetup = localStorage.getItem('quizSetup');
         
         if (storedTeams) {
             this.teams = JSON.parse(storedTeams);
+            this.displayWelcomeTeams();
         }
         
         if (storedScores) {
@@ -949,43 +586,36 @@ setTimeout(() => {
         }
         
         // Check if quiz is set up - show teams sidebar
-        const quizSetup = this.safeGetItem('quizSetup');
         if (quizSetup === 'true') {
             teamsPreview.classList.remove('hidden');
             if (teamsSidebar) {
                 teamsSidebar.classList.remove('hidden');
+                this.displayTeams();
             }
         }
         
         // Check if quiz is activated
-        const quizActivated = this.safeGetItem('quizActivated');
+        const quizActivated = localStorage.getItem('quizActivated');
         if (quizActivated === 'true') {
             this.showCategorySelection();
             clearInterval(this.refreshInterval);
             
             // Load completed categories and update buttons
-            const completedCategories = this.safeGetItem('completedCategories') ? JSON.parse(this.safeGetItem('completedCategories')) : [];
+            const completedCategories = localStorage.getItem('completedCategories') ? JSON.parse(localStorage.getItem('completedCategories')) : [];
             this.updateCategoryButtons(completedCategories);
         }
     }
 
     checkQuizStatus() {
-        const quizSetup = this.safeGetItem('quizSetup');
-        const quizActivated = this.safeGetItem('quizActivated');
-        const currentSetupTime = this.safeGetItem('quizSetupTime') || '0';
-        const currentStartedTime = this.safeGetItem('quizStartedTime') || '0';
-        
-        console.log('=== CHECK QUIZ STATUS DEBUG ===');
-        console.log('quizSetup:', quizSetup);
-        console.log('quizActivated:', quizActivated);
-        console.log('currentSetupTime:', currentSetupTime);
-        console.log('currentStartedTime:', currentStartedTime);
+        const quizSetup = localStorage.getItem('quizSetup');
+        const quizActivated = localStorage.getItem('quizActivated');
+        const currentSetupTime = localStorage.getItem('quizSetupTime') || '0';
+        const currentStartedTime = localStorage.getItem('quizStartedTime') || '0';
         
         // Always reload scores to ensure they're up to date
-        const storedScores = this.safeGetItem('quizScores');
+        const storedScores = localStorage.getItem('quizScores');
         if (storedScores) {
             this.scores = JSON.parse(storedScores);
-            console.log('Loaded scores:', this.scores);
         }
         
         // Store last known times
@@ -994,31 +624,26 @@ setTimeout(() => {
         
         // Check if setup time changed (new setup from index.html)
         if (currentSetupTime !== this.lastSetupTime && currentSetupTime !== '0') {
-            console.log('Setup time changed, updating UI');
             this.lastSetupTime = currentSetupTime;
-            // Don't reload immediately, just update UI
-            this.updateUIForSetup();
+            location.reload();
             return;
         }
         
-        // Check if quiz was just started - UPDATE UI INSTEAD OF RELOAD
+        // Check if quiz was just started - INSTANT REFRESH
         if (currentStartedTime !== this.lastStartedTime && currentStartedTime !== '0') {
-            console.log('Quiz started, updating UI');
             this.lastStartedTime = currentStartedTime;
-            // Don't reload immediately, just update UI
-            this.updateUIForActivation();
+            location.reload();
             return;
         }
         
         // If quiz was just set up, refresh to show teams
         if (quizSetup === 'true') {
-            console.log('Quiz is set up, showing teams');
             const teamsPreview = document.getElementById('teamsPreview');
             const teamsSidebar = document.querySelector('.teams-sidebar');
             const startQuizBtn = document.getElementById('startQuizBtn');
             
             if (teamsPreview && teamsPreview.classList.contains('hidden')) {
-                this.updateUIForSetup();
+                location.reload();
             }
             
             if (teamsSidebar && teamsSidebar.classList.contains('hidden')) {
@@ -1033,7 +658,6 @@ setTimeout(() => {
         
         // If quiz is activated, show category selection
         if (quizActivated === 'true') {
-            console.log('Quiz is activated, showing category selection');
             const welcomeSection = document.getElementById('welcomeSection');
             const categorySection = document.querySelector('.category-section');
             
@@ -1041,38 +665,6 @@ setTimeout(() => {
                 this.showCategorySelection();
             }
         }
-        console.log('=== CHECK QUIZ STATUS END ===');
-    }
-
-    updateUIForSetup() {
-        const teamsPreview = document.getElementById('teamsPreview');
-        const teamsSidebar = document.querySelector('.teams-sidebar');
-        const startQuizBtn = document.getElementById('startQuizBtn');
-        
-        if (teamsPreview) {
-            teamsPreview.classList.remove('hidden');
-        }
-        if (teamsSidebar) {
-            teamsSidebar.classList.remove('hidden');
-            this.displayTeams();
-        }
-        if (startQuizBtn) {
-            startQuizBtn.classList.add('hidden');
-        }
-    }
-
-    updateUIForActivation() {
-        const welcomeSection = document.getElementById('welcomeSection');
-        const categorySection = document.querySelector('.category-section');
-        
-        if (welcomeSection) {
-            welcomeSection.classList.add('hidden');
-        }
-        if (categorySection) {
-            categorySection.classList.remove('hidden');
-        }
-        
-        this.showCategorySelection();
     }
 
     displayWelcomeTeams() {
@@ -1094,27 +686,15 @@ setTimeout(() => {
     }
 
     showCategorySelection() {
-        console.log('=== SHOW CATEGORY SELECTION DEBUG ===');
-        
         const welcomeSection = document.getElementById('welcomeSection');
         const categorySection = document.querySelector('.category-section');
-        
-        console.log('Before hiding welcome section, welcomeSection.hidden:', welcomeSection ? welcomeSection.classList.contains('hidden') : 'not found');
-        console.log('Before showing category section, categorySection.hidden:', categorySection ? categorySection.classList.contains('hidden') : 'not found');
         
         welcomeSection.classList.add('hidden');
         categorySection.classList.remove('hidden');
         
-        console.log('After hiding welcome section, welcomeSection.hidden:', welcomeSection ? welcomeSection.classList.contains('hidden') : 'not found');
-        console.log('After showing category section, categorySection.hidden:', categorySection ? categorySection.classList.contains('hidden') : 'not found');
-        
         // Update category buttons to show completed status
         const completedCategories = localStorage.getItem('completedCategories') ? JSON.parse(localStorage.getItem('completedCategories')) : [];
-        console.log('Loading completed categories from localStorage:', completedCategories);
-        console.log('Raw localStorage value:', localStorage.getItem('completedCategories'));
-        
         this.updateCategoryButtons(completedCategories);
-        console.log('=== SHOW CATEGORY SELECTION END ===');
     }
 
     selectCategory(category) {
@@ -1124,22 +704,13 @@ setTimeout(() => {
         console.log('Questions for this category:', this.questions[category]);
         console.log('Questions array length:', this.questions[category] ? this.questions[category].length : 'undefined');
         
-        // Check if category is already completed
-        const completedCategories = localStorage.getItem('completedCategories') ? JSON.parse(localStorage.getItem('completedCategories')) : [];
-        console.log('Completed categories check:', completedCategories);
-        console.log(`Is ${category} already completed?`, completedCategories.includes(category));
-        
-        if (completedCategories.includes(category)) {
-            console.log(`Category ${category} is already completed, cannot select again`);
-            return; // Don't allow selecting completed categories
-        }
-        
         this.currentCategory = category;
         this.currentQuestionIndex = 0;
         
         // Load teams and scores
         const storedTeams = localStorage.getItem('quizTeams');
         const storedScores = localStorage.getItem('quizScores');
+        const completedCategories = localStorage.getItem('completedCategories') ? JSON.parse(localStorage.getItem('completedCategories')) : [];
         
         if (storedTeams) {
             this.teams = JSON.parse(storedTeams);
@@ -1168,27 +739,18 @@ setTimeout(() => {
     }
     
     updateCategoryButtons(completedCategories) {
-        console.log('=== UPDATE CATEGORY BUTTONS DEBUG ===');
-        console.log('Completed categories from localStorage:', completedCategories);
-        
         const categoryButtons = document.querySelectorAll('.category-btn');
-        console.log('Found category buttons:', categoryButtons.length);
-        
         categoryButtons.forEach(button => {
             const category = button.dataset.category;
-            console.log(`Processing button for category: ${category}`);
-            console.log(`Is ${category} in completed categories?`, completedCategories.includes(category));
             
             if (completedCategories.includes(category)) {
-                console.log(`Marking ${category} as completed`);
                 button.classList.add('completed');
                 button.disabled = true;
                 button.innerHTML = `
-                    <div class="category-icon">Check</div>
+                    <div class="category-icon">✓</div>
                     <span>${category.charAt(0).toUpperCase() + category.slice(1)} (Completed)</span>
                 `;
             } else {
-                console.log(`Marking ${category} as available`);
                 button.classList.remove('completed');
                 button.disabled = false;
                 // Restore original content based on category
@@ -1207,68 +769,64 @@ setTimeout(() => {
                 `;
             }
         });
-        console.log('=== UPDATE CATEGORY BUTTONS END ===');
     }
     
     markCategoryCompleted(category) {
-        console.log('=== MARK CATEGORY COMPLETED DEBUG ===');
-        console.log('Category to mark as completed:', category);
-        
         const completedCategories = localStorage.getItem('completedCategories') ? JSON.parse(localStorage.getItem('completedCategories')) : [];
-        console.log('Current completed categories before adding:', completedCategories);
-        
         if (!completedCategories.includes(category)) {
             completedCategories.push(category);
             localStorage.setItem('completedCategories', JSON.stringify(completedCategories));
-            console.log('Updated completed categories after adding:', completedCategories);
-            console.log('Saved to localStorage:', localStorage.getItem('completedCategories'));
             
             // Update buttons immediately
             this.updateCategoryButtons(completedCategories);
-        } else {
-            console.log(`Category ${category} is already in completed categories, not adding again`);
         }
-        console.log('=== MARK CATEGORY COMPLETED END ===');
     }
 
     displayTeams() {
-        console.log('=== DISPLAY TEAMS DEBUG ===');
-        console.log('Current teams:', this.teams);
-        console.log('Current scores:', this.scores);
-        
         const teamsList = document.getElementById('teamsList');
         teamsList.innerHTML = '';
 
         // Load teams from localStorage if not available
         if (!this.teams || this.teams.length === 0) {
-            const storedTeams = this.safeGetItem('quizTeams');
-            console.log('Loading teams from localStorage:', storedTeams);
+            const storedTeams = localStorage.getItem('quizTeams');
             if (storedTeams) {
                 this.teams = JSON.parse(storedTeams);
-                console.log('Loaded teams:', this.teams);
             }
         }
 
-        // Load scores if not available
+        // Load scores from localStorage if not available
         if (!this.scores || Object.keys(this.scores).length === 0) {
-            const storedScores = this.safeGetItem('quizScores');
-            console.log('Loading scores from localStorage:', storedScores);
+            const storedScores = localStorage.getItem('quizScores');
             if (storedScores) {
                 this.scores = JSON.parse(storedScores);
-                console.log('Loaded scores:', this.scores);
             }
         }
 
-        // Sort teams by score
+        // Sort teams by score (highest first)
         const sortedTeams = [...this.teams].sort((a, b) => {
             const scoreA = this.scores[a.id] || 0;
             const scoreB = this.scores[b.id] || 0;
             return scoreB - scoreA;
         });
 
-        // Display teams
         sortedTeams.forEach((team, index) => {
             const score = this.scores[team.id] || 0;
+            const rankNumber = index + 1;
+            let rankClass = '';
+            let rankText = rankNumber.toString();
+
+            // Add special classes for top 3
+            if (rankNumber === 1) {
+                rankClass = 'gold';
+                rankText = '1';
+            } else if (rankNumber === 2) {
+                rankClass = 'silver';
+                rankText = '2';
+            } else if (rankNumber === 3) {
+                rankClass = 'bronze';
+                rankText = '3';
+            }
+
             const teamItem = document.createElement('div');
             teamItem.className = 'team-item';
             teamItem.setAttribute('data-team-id', team.id);
@@ -1801,7 +1359,3 @@ window.addEventListener('load', () => {
         teamCountInput.dispatchEvent(event);
     }
 });
-
-// Initialize the quiz app globally
-window.quizApp = new QuizApp();
-console.log('Quiz App initialized globally:', window.quizApp);
