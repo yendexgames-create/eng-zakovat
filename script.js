@@ -55,6 +55,12 @@ class QuizApp {
             this.goToNextQuestion();
         });
         
+        // Handle score animation
+        this.socket.on('scoreAnimation', (scores) => {
+            console.log('Score animation received:', scores);
+            this.animateScoreUpdates(scores);
+        });
+        
         // Handle disconnect
         this.socket.on('disconnect', () => {
             console.log('Disconnected from server');
@@ -105,7 +111,7 @@ class QuizApp {
         if (scoringQuestion) {
             scoringQuestion.innerHTML = `
                 <h3>Time's Up!</h3>
-                <p>Please score the teams for this question.</p>
+                <p>Please score the teams for this question (0-5 points).</p>
             `;
         }
         
@@ -119,10 +125,16 @@ class QuizApp {
                     <div class="score-options">
                         <input type="radio" name="score-${team.id}" value="0" id="score-${team.id}-0" checked>
                         <label for="score-${team.id}-0">0</label>
+                        <input type="radio" name="score-${team.id}" value="1" id="score-${team.id}-1">
+                        <label for="score-${team.id}-1">1</label>
+                        <input type="radio" name="score-${team.id}" value="2" id="score-${team.id}-2">
+                        <label for="score-${team.id}-2">2</label>
+                        <input type="radio" name="score-${team.id}" value="3" id="score-${team.id}-3">
+                        <label for="score-${team.id}-3">3</label>
+                        <input type="radio" name="score-${team.id}" value="4" id="score-${team.id}-4">
+                        <label for="score-${team.id}-4">4</label>
                         <input type="radio" name="score-${team.id}" value="5" id="score-${team.id}-5">
                         <label for="score-${team.id}-5">5</label>
-                        <input type="radio" name="score-${team.id}" value="10" id="score-${team.id}-10">
-                        <label for="score-${team.id}-10">10</label>
                     </div>
                 `;
                 teamScores.appendChild(teamScoreDiv);
@@ -493,7 +505,14 @@ class QuizApp {
         
         teamsList.innerHTML = '';
         
-        this.teams.forEach(team => {
+        // Sort teams by score for display
+        const sortedTeams = [...this.teams].sort((a, b) => {
+            const scoreA = this.scores[a.id] || 0;
+            const scoreB = this.scores[b.id] || 0;
+            return scoreB - scoreA;
+        });
+        
+        sortedTeams.forEach(team => {
             const teamItem = document.createElement('div');
             teamItem.className = 'team-item';
             teamItem.dataset.teamId = team.id;
@@ -801,6 +820,39 @@ class QuizApp {
         console.log('=== NEXT QUESTION END ===');
     }
 
+    animateScoreUpdates(scores) {
+        // Simple animation - just update display with effect
+        Object.keys(scores).forEach((teamId, index) => {
+            const scoreValue = scores[teamId];
+            if (scoreValue > 0) {
+                setTimeout(() => {
+                    this.animateSingleTeamScore(teamId, scoreValue);
+                }, index * 200);
+            }
+        });
+        
+        // Refresh display after all animations
+        setTimeout(() => {
+            this.displayTeams();
+        }, 1000);
+    }
+    
+    animateSingleTeamScore(teamId, scoreValue) {
+        const teamCard = document.querySelector(`[data-team-id="${teamId}"]`);
+        if (!teamCard) return;
+        
+        // Add simple highlight effect
+        teamCard.style.background = '#e8f5e8';
+        teamCard.style.transform = 'scale(1.05)';
+        teamCard.style.transition = 'all 0.3s ease';
+        
+        // Remove effect after animation
+        setTimeout(() => {
+            teamCard.style.background = '';
+            teamCard.style.transform = '';
+        }, 800);
+    }
+    
     markCategoryCompleted(category) {
         if (!this.completedCategories.includes(category)) {
             this.completedCategories.push(category);

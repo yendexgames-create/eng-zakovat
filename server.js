@@ -77,6 +77,9 @@ io.on('connection', (socket) => {
         // Mark scoring phase as complete
         quizState.scoringPhase = false;
         
+        // Send score animation signal
+        io.emit('scoreAnimation', scores);
+        
         // Broadcast updated scores
         io.emit('stateUpdate', quizState);
         console.log('Scores updated:', quizState.scores);
@@ -84,7 +87,7 @@ io.on('connection', (socket) => {
         // Auto-advance to next question after delay
         setTimeout(() => {
             io.emit('autoNextQuestion');
-        }, 2000);
+        }, 3000); // Increased delay for animation
     });
     
     // Handle next question
