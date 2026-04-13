@@ -402,7 +402,31 @@ class QuizApp {
 
         if (generateBtn) {
             console.log('Binding generateBtn click event');
-            generateBtn.addEventListener('click', () => this.generateTeamInputs());
+            console.log('generateBtn type:', typeof generateBtn);
+            console.log('generateBtn tagName:', generateBtn.tagName);
+            console.log('generateBtn disabled:', generateBtn.disabled);
+            console.log('generateBtn onclick:', generateBtn.onclick);
+            console.log('generateBtn style:', generateBtn.style.cssText);
+            
+            try {
+                generateBtn.addEventListener('click', function(e) {
+                    console.log('Generate Team Inputs button clicked!');
+                    console.log('Event object:', e);
+                    console.log('this:', this);
+                    console.log('window.quizApp:', window.quizApp);
+                    
+                    if (window.quizApp && typeof window.quizApp.generateTeamInputs === 'function') {
+                        window.quizApp.generateTeamInputs();
+                    } else {
+                        console.error('quizApp or generateTeamInputs method not found');
+                        alert('Application error. Please refresh page.');
+                    }
+                });
+                console.log('Event listener added successfully');
+            } catch (error) {
+                console.error('Error adding event listener:', error);
+                alert('Error setting up button. Please refresh the page.');
+            }
         } else {
             console.warn('generateBtn not found');
         }
