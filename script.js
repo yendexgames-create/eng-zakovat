@@ -675,6 +675,12 @@ class QuizApp {
     startStopwatch(timerTime, timerCircle) {
         let timeLeft = 30;
         
+        // Clear any existing timer
+        if (this.currentTimerInterval) {
+            clearInterval(this.currentTimerInterval);
+            this.currentTimerInterval = null;
+        }
+        
         const stopwatchInterval = setInterval(() => {
             timeLeft--;
             timerTime.textContent = timeLeft;
@@ -690,9 +696,10 @@ class QuizApp {
                 this.playSound('warning');
             }
             
-            // Time's up
-            if (timeLeft <= 0) {
+            // Time's up - only call once
+            if (timeLeft <= 0 && !this.timeUpCalled) {
                 clearInterval(stopwatchInterval);
+                this.currentTimerInterval = null;
                 this.timeUp();
             }
         }, 1000);
@@ -746,8 +753,13 @@ class QuizApp {
     playSound(type) {
         // Prevent multiple sounds from playing at once
         if (this.currentSound) {
-            this.currentSound.stop();
-            this.currentSound = null;
+            try {
+                this.currentSound.stop();
+                this.currentSound = null;
+            } catch (e) {
+                console.log('Error stopping previous sound:', e);
+                this.currentSound = null;
+            }
         }
         
         // Create audio context for sound generation
@@ -776,17 +788,22 @@ class QuizApp {
                 gainNode.gain.value = 0.3;
                 oscillator.start();
                 oscillator.stop(audioContext.currentTime + 0.5);
-                this.currentSound = oscillator;
-                // Clear reference after sound stops
-                setTimeout(() => {
+                
+                // Set up stop handler
+                oscillator.onended = () => {
+                    console.log('Time up sound ended');
                     this.currentSound = null;
-                }, 500);
+                };
+                
+                this.currentSound = oscillator;
                 break;
         }
     }
 
     goToNextQuestion() {
         console.log('goToNextQuestion called - proceeding to next question');
+        // Reset timeUp flag for next question
+        this.timeUpCalled = false;
         this.nextQuestion();
     }
 
