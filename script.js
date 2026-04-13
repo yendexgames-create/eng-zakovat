@@ -323,7 +323,7 @@ class QuizApp {
         const teamCountInput = document.getElementById('teamCount');
         if (teamCountInput) {
             teamCountInput.addEventListener('change', () => {
-                this.resetAllData();
+                // Don't reset all data, just regenerate inputs
                 this.generateTeamInputs();
             });
         }
@@ -550,6 +550,37 @@ class QuizApp {
         // Send activation signal to server
         this.socket.emit('activateQuiz');
         console.log('Quiz activation sent to server');
+        
+        // Open questions page
+        window.open('questions.html', '_blank');
+    }
+
+    skipScoring() {
+        // Send empty scores to server
+        this.socket.emit('submitScores', {});
+        console.log('Scoring skipped - signal sent to server');
+
+        // Hide scoring section temporarily
+        const scoringSection = document.getElementById('scoringSection');
+        const setupSection = document.getElementById('setupSection');
+        
+        if (scoringSection) {
+            scoringSection.classList.add('hidden');
+        }
+        
+        if (setupSection) {
+            setupSection.classList.remove('hidden');
+        }
+
+        // After 3 seconds, show scoring section again
+        setTimeout(() => {
+            if (setupSection) {
+                setupSection.classList.add('hidden');
+            }
+            if (scoringSection) {
+                scoringSection.classList.remove('hidden');
+            }
+        }, 3000);
     }
 
     submitScores() {
@@ -560,32 +591,40 @@ class QuizApp {
         this.teams.forEach(team => {
             const scoreInput = document.querySelector(`input[name="score-${team.id}"]:checked`);
             const score = parseInt(scoreInput.value) || 0;
-            if (score > 0) {
-                scores[team.id] = score;
-                hasScore = true;
-            }
+            scores[team.id] = score;
+            if (score > 0) hasScore = true;
         });
-        
+
         if (!hasScore) {
-            alert('Iltimos, kamida bitta jamoaga ball bering!');
+            alert('Iltimos, kamida bitta jamoa uchun ball belgilang!');
             return;
         }
-        
-        // Send scores to server via Socket.io
-        this.socket.emit('submitScores', scores);
-        console.log('Scores submitted to server:', scores);
-        
-        // Show completion message and restore setup
-        this.restoreSetupSection();
-    }
 
-    skipScoring() {
-        // Send scoring completion signal even when skipping
-        this.socket.emit('submitScores', {});
-        console.log('Scoring skipped - signal sent to server');
+        // Send scores to server
+        this.socket.emit('submitScores', scores);
+        console.log('Scores submitted:', scores);
+
+        // Hide scoring section temporarily
+        const scoringSection = document.getElementById('scoringSection');
+        const setupSection = document.getElementById('setupSection');
         
-        // Restore setup section
-        this.restoreSetupSection();
+        if (scoringSection) {
+            scoringSection.classList.add('hidden');
+        }
+        
+        if (setupSection) {
+            setupSection.classList.remove('hidden');
+        }
+
+        // After 3 seconds, show scoring section again
+        setTimeout(() => {
+            if (setupSection) {
+                setupSection.classList.add('hidden');
+            }
+            if (scoringSection) {
+                scoringSection.classList.remove('hidden');
+            }
+        }, 3000);
     }
 
     restoreSetupSection() {
@@ -611,9 +650,18 @@ class QuizApp {
     }
 
     displayTeams() {
-        const teamsList = document.getElementById('teamsList');
-        if (!teamsList) return;
+        console.log('=== DISPLAY TEAMS DEBUG ===');
+        console.log('Current teams:', this.teams);
+        console.log('Current scores:', this.scores);
+        console.log('Current page:', window.location.pathname);
         
+        const teamsList = document.getElementById('teamsList');
+        if (!teamsList) {
+            console.log('Teams list element not found');
+            return;
+        }
+        
+        console.log('Teams list element found:', teamsList);
         teamsList.innerHTML = '';
         
         // Sort teams by score for display (leaderboard style)
@@ -623,13 +671,18 @@ class QuizApp {
             return scoreB - scoreA; // Highest score first
         });
         
+        console.log('Sorted teams:', sortedTeams);
+        
         sortedTeams.forEach((team, index) => {
+            console.log(`Creating team item for ${team.name} with ID ${team.id}`);
             const teamItem = document.createElement('div');
             teamItem.className = 'team-item';
             teamItem.dataset.teamId = team.id; // Make sure this is set correctly
             
             const score = this.scores[team.id] || 0;
             const rank = index + 1;
+            
+            console.log(`Team ${team.name} - Score: ${score}, Rank: ${rank}`);
             
             // Add rank styling based on position
             let rankClass = '';
@@ -659,8 +712,10 @@ class QuizApp {
             `;
             
             teamsList.appendChild(teamItem);
-            console.log(`Created team item for ${team.name} with ID ${team.id}, score ${score}, rank ${rank}`);
+            console.log(`Team item appended for ${team.name}`);
         });
+        
+        console.log('=== DISPLAY TEAMS END ===');
     }
 
     showCategorySelection() {

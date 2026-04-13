@@ -31,11 +31,14 @@
     --bronze-color: #cd7f32;
     
     /* Beautiful gradients */
-    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    --gradient-primary: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); /* Cool blue - eye friendly */
+    --gradient-secondary: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); /* Fresh green */
     --gradient-success: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
     --gradient-warm: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
     --gradient-cool: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+    --gradient-calm: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); /* Calm purple-blue */
+    --gradient-nature: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%); /* Soft pink-yellow */
+    --gradient-ocean: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%); /* Ocean blue */
 }
 
 * {
@@ -424,6 +427,7 @@ body {
     padding: 30px;
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
 }
 
 .index-page .scoring-section h2 {
@@ -533,6 +537,21 @@ body {
     min-width: 150px;
 }
 
+/* Setup Section */
+.index-page .setup-section {
+    transition: all 0.3s ease;
+}
+
+.index-page .setup-section.hidden {
+    opacity: 0;
+    transform: translateY(-20px);
+}
+
+.index-page .setup-section:not(.hidden) {
+    opacity: 1;
+    transform: translateY(0);
+}
+
 /* Setup Status */
 .index-page .setup-status {
     text-align: center;
@@ -541,6 +560,7 @@ body {
     border-radius: var(--radius-large);
     border: 2px solid #b8daff;
     margin-top: 20px;
+    transition: all 0.3s ease;
 }
 
 .index-page .setup-status h3 {
@@ -586,7 +606,7 @@ body {
 
 /* Questions.html Beautiful Styles */
 .questions-page {
-    background: var(--gradient-primary);
+    background: var(--gradient-primary); /* Cool blue gradient - eye friendly */
     min-height: 100vh;
     padding: 20px;
     display: flex;
@@ -2581,4 +2601,8 @@ body {
 .category-section{
     width: 900px;
     margin-left: -150px;
+}
+.card{
+    width: 800px;
+    margin-right: 200px;
 }
