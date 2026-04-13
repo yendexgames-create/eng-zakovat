@@ -366,17 +366,38 @@ class QuizApp {
     }
 
     generateTeamInputs() {
+        console.log('=== GENERATE TEAM INPUTS DEBUG ===');
+        
         // Reset everything
         this.resetAllData();
         
-        const teamCount = parseInt(document.getElementById('teamCount').value);
+        const teamCountInput = document.getElementById('teamCount');
         const teamInputsContainer = document.getElementById('teamInputsContainer');
+        
+        console.log('Team count input:', teamCountInput);
+        console.log('Team count value:', teamCountInput ? teamCountInput.value : 'not found');
+        console.log('Team inputs container:', teamInputsContainer);
+        
+        const teamCount = parseInt(teamCountInput.value);
+        console.log('Parsed team count:', teamCount);
+        
+        if (!teamInputsContainer) {
+            console.error('Team inputs container not found!');
+            return;
+        }
+        
+        if (isNaN(teamCount) || teamCount < 2 || teamCount > 10) {
+            console.error('Invalid team count:', teamCount);
+            return;
+        }
 
         // Clear previous inputs
         teamInputsContainer.innerHTML = '';
+        console.log('Cleared previous inputs');
 
         // Generate team inputs
         for (let i = 1; i <= teamCount; i++) {
+            console.log(`Creating team input ${i}`);
             const teamInput = document.createElement('div');
             teamInput.className = 'team-input';
             teamInput.innerHTML = `
@@ -384,15 +405,20 @@ class QuizApp {
                 <input type="text" id="team${i}" placeholder="Enter team ${i} name" required>
             `;
             teamInputsContainer.appendChild(teamInput);
+            console.log(`Added team input ${i} to container`);
         }
+        
+        console.log(`Generated ${teamCount} team inputs`);
+        console.log('Container children count:', teamInputsContainer.children.length);
 
         // Enable setup button
         const setupBtn = document.getElementById('startQuiz');
         if (setupBtn) {
             setupBtn.disabled = false;
+            console.log('Setup button enabled');
         }
         
-        console.log('All data reset - ready for new teams');
+        console.log('=== GENERATE TEAM INPUTS END ===');
     }
     
     resetAllData() {
