@@ -90,10 +90,10 @@ io.on('connection', (socket) => {
         io.emit('stateUpdate', quizState);
         console.log('Scores updated:', quizState.scores);
         
-        // Auto-advance to next question after delay
+        // Auto-advance to next question after 3 seconds for animations
         setTimeout(() => {
             io.emit('autoNextQuestion');
-        }, 3000); // Increased delay for animation
+        }, 3000); // 3 seconds for animations
     });
     
     // Handle next question

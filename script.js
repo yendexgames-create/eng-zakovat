@@ -590,21 +590,42 @@ class QuizApp {
         
         teamsList.innerHTML = '';
         
-        // Sort teams by score for display
+        // Sort teams by score for display (leaderboard style)
         const sortedTeams = [...this.teams].sort((a, b) => {
             const scoreA = this.scores[a.id] || 0;
             const scoreB = this.scores[b.id] || 0;
-            return scoreB - scoreA;
+            return scoreB - scoreA; // Highest score first
         });
         
-        sortedTeams.forEach(team => {
+        sortedTeams.forEach((team, index) => {
             const teamItem = document.createElement('div');
             teamItem.className = 'team-item';
             teamItem.dataset.teamId = team.id; // Make sure this is set correctly
             
             const score = this.scores[team.id] || 0;
+            const rank = index + 1;
+            
+            // Add rank styling based on position
+            let rankClass = '';
+            let rankIcon = '';
+            
+            if (rank === 1) {
+                rankClass = 'rank-first';
+                rankIcon = '1st';
+            } else if (rank === 2) {
+                rankClass = 'rank-second';
+                rankIcon = '2nd';
+            } else if (rank === 3) {
+                rankClass = 'rank-third';
+                rankIcon = '3rd';
+            } else {
+                rankIcon = `${rank}th`;
+            }
             
             teamItem.innerHTML = `
+                <div class="team-rank ${rankClass}">
+                    <span class="rank-number">${rankIcon}</span>
+                </div>
                 <div class="team-info">
                     <span class="team-name">${team.name}</span>
                     <span class="team-score">${score}</span>
@@ -612,7 +633,7 @@ class QuizApp {
             `;
             
             teamsList.appendChild(teamItem);
-            console.log(`Created team item for ${team.name} with ID ${team.id} and score ${score}`);
+            console.log(`Created team item for ${team.name} with ID ${team.id}, score ${score}, rank ${rank}`);
         });
     }
 
@@ -646,6 +667,10 @@ class QuizApp {
             return; // Handle category selection
         }
         
+        this.currentCategory = category;
+        this.currentQuestionIndex = 0;
+        this.timeUpCalled = false; // Reset timeUp flag
+        
         // Send category selection to server
         this.socket.emit('selectCategory', category);
         console.log('Category selection sent to server:', category);
@@ -660,12 +685,56 @@ class QuizApp {
         console.log('currentQuestion:', this.currentQuestion);
 
         this.displayTeams();
-        this.showQuestion();
+        
+        // Show 3-second countdown before question
+        this.showCountdown(() => {
+            this.showQuestion();
+        });
         
         // Update category button states
         const completedCategories = this.completedCategories || [];
         this.updateCategoryButtons(completedCategories);
         console.log('=== SELECT CATEGORY END ===');
+    }
+    
+    showCountdown(callback) {
+        const categorySection = document.querySelector('.category-section');
+        const questionSection = document.getElementById('questionSection');
+        const countdownDisplay = document.getElementById('countdownDisplay');
+        const countdownNumber = document.querySelector('.countdown-number');
+        
+        if (!categorySection || !questionSection || !countdownDisplay || !countdownNumber) {
+            console.error('Countdown elements not found');
+            callback();
+            return;
+        }
+        
+        // Hide category section, show question section with countdown
+        categorySection.classList.add('hidden');
+        questionSection.classList.remove('hidden');
+        
+        // Show countdown display
+        countdownDisplay.classList.remove('hidden');
+        
+        let count = 3;
+        countdownNumber.textContent = count;
+        
+        // Play countdown sound
+        this.playSound('countdown');
+        
+        const countdownInterval = setInterval(() => {
+            count--;
+            
+            if (count > 0) {
+                countdownNumber.textContent = count;
+                // Play sound for each number
+                this.playSound('countdown');
+            } else {
+                clearInterval(countdownInterval);
+                countdownDisplay.classList.add('hidden');
+                callback();
+            }
+        }, 1000);
     }
 
     updateCategoryButtons(completedCategories) {
@@ -934,6 +1003,8 @@ class QuizApp {
         // Set animation flag
         this.isAnimating = true;
         
+        console.log('Starting 3-second score animation for scores:', scores);
+        
         // Simple animation - just update display with effect
         Object.keys(scores).forEach((teamId, index) => {
             const scoreValue = scores[teamId];
@@ -944,10 +1015,11 @@ class QuizApp {
             }
         });
         
-        // Clear animation flag after all animations complete
+        // Clear animation flag after 3 seconds
         setTimeout(() => {
             this.isAnimating = false;
-        }, 1500); // Enough time for all animations
+            console.log('3-second score animation completed');
+        }, 3000); // Extended to 3 seconds
     }
     
     animateSingleTeamScore(teamId, scoreValue) {
