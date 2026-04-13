@@ -14,6 +14,7 @@ class QuizApp {
         this.refreshInterval = null;
         this.lastSetupTime = '0';
         this.lastStartedTime = '0';
+        this.currentSound = null;
         
         // Socket.io connection
         this.socket = null;
@@ -70,10 +71,62 @@ class QuizApp {
         // Update UI based on current page
         if (window.location.pathname.includes('questions.html') || window.location.pathname.endsWith('/questions')) {
             this.updateQuestionsPage(state);
+        } else {
+            // Index page - handle scoring phase
+            this.updateIndexPage(state);
         }
         
         // Always update teams display
         this.displayTeams();
+    }
+    
+    updateIndexPage(state) {
+        if (state.scoringPhase) {
+            // Show scoring section
+            this.showScoringSection();
+        }
+    }
+    
+    showScoringSection() {
+        const setupSection = document.getElementById('setupSection');
+        const scoringSection = document.getElementById('scoringSection');
+        const scoringQuestion = document.getElementById('scoringQuestion');
+        const teamScores = document.getElementById('teamScores');
+        
+        if (setupSection) {
+            setupSection.classList.add('hidden');
+        }
+        
+        if (scoringSection) {
+            scoringSection.classList.remove('hidden');
+        }
+        
+        if (scoringQuestion) {
+            scoringQuestion.innerHTML = `
+                <h3>Time's Up!</h3>
+                <p>Please score the teams for this question.</p>
+            `;
+        }
+        
+        if (teamScores) {
+            teamScores.innerHTML = '';
+            this.teams.forEach(team => {
+                const teamScoreDiv = document.createElement('div');
+                teamScoreDiv.className = 'team-score-input';
+                teamScoreDiv.innerHTML = `
+                    <label>${team.name}:</label>
+                    <div class="score-options">
+                        <input type="radio" name="score-${team.id}" value="0" id="score-${team.id}-0" checked>
+                        <label for="score-${team.id}-0">0</label>
+                        <input type="radio" name="score-${team.id}" value="5" id="score-${team.id}-5">
+                        <label for="score-${team.id}-5">5</label>
+                        <input type="radio" name="score-${team.id}" value="10" id="score-${team.id}-10">
+                        <label for="score-${team.id}-10">10</label>
+                    </div>
+                `;
+                teamScores.appendChild(teamScoreDiv);
+            });
+        }
     }
     
     updateQuestionsPage(state) {
@@ -657,6 +710,12 @@ class QuizApp {
     }
 
     playSound(type) {
+        // Prevent multiple sounds from playing at once
+        if (this.currentSound) {
+            this.currentSound.stop();
+            this.currentSound = null;
+        }
+        
         // Create audio context for sound generation
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
         const oscillator = audioContext.createOscillator();
@@ -682,7 +741,12 @@ class QuizApp {
                 oscillator.frequency.value = 400;
                 gainNode.gain.value = 0.3;
                 oscillator.start();
-                oscillator.stop(audioContext.currentTime + 0.3);
+                oscillator.stop(audioContext.currentTime + 0.5);
+                this.currentSound = oscillator;
+                // Clear reference after sound stops
+                setTimeout(() => {
+                    this.currentSound = null;
+                }, 500);
                 break;
         }
     }
