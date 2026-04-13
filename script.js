@@ -302,7 +302,10 @@ class QuizApp {
         // Team setup events
         const teamCountInput = document.getElementById('teamCount');
         if (teamCountInput) {
-            teamCountInput.addEventListener('change', () => this.generateTeamInputs());
+            teamCountInput.addEventListener('change', () => {
+                this.resetAllData();
+                this.generateTeamInputs();
+            });
         }
 
         const generateBtn = document.getElementById('generateInputs');
@@ -343,6 +346,9 @@ class QuizApp {
     }
 
     generateTeamInputs() {
+        // Reset everything
+        this.resetAllData();
+        
         const teamCount = parseInt(document.getElementById('teamCount').value);
         const teamInputsContainer = document.getElementById('teamInputsContainer');
 
@@ -364,6 +370,65 @@ class QuizApp {
         const setupBtn = document.getElementById('startQuiz');
         if (setupBtn) {
             setupBtn.disabled = false;
+        }
+        
+        console.log('All data reset - ready for new teams');
+    }
+    
+    resetAllData() {
+        // Reset local data
+        this.teams = [];
+        this.scores = {};
+        this.currentCategory = null;
+        this.currentQuestionIndex = 0;
+        this.currentQuestions = [];
+        this.currentQuestion = null;
+        this.completedCategories = [];
+        this.timeUpCalled = false;
+        
+        // Clear timers
+        if (this.currentTimerInterval) {
+            clearInterval(this.currentTimerInterval);
+            this.currentTimerInterval = null;
+        }
+        
+        // Hide all sections
+        this.hideAllSections();
+        
+        // Reset UI elements
+        const teamCountInput = document.getElementById('teamCount');
+        if (teamCountInput) {
+            teamCountInput.value = '2';
+        }
+        
+        // Send reset signal to server
+        if (this.socket) {
+            this.socket.emit('resetQuiz');
+            console.log('Reset signal sent to server');
+        }
+    }
+    
+    hideAllSections() {
+        // Hide all sections
+        const sections = [
+            'setupStatus',
+            'scoringSection',
+            'welcomeSection',
+            'categorySection',
+            'questionSection'
+        ];
+        
+        sections.forEach(sectionId => {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.classList.add('hidden');
+            }
+        });
+        
+        // Show setup section
+        const setupSection = document.getElementById('setupSection');
+        if (setupSection) {
+            setupSection.classList.remove('hidden');
         }
     }
 

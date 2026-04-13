@@ -112,6 +112,25 @@ io.on('connection', (socket) => {
         console.log('Time up - scoring phase activated');
     });
     
+    // Handle quiz reset
+    socket.on('resetQuiz', () => {
+        // Reset all quiz state
+        quizState = {
+            teams: [],
+            scores: {},
+            currentCategory: null,
+            currentQuestionIndex: 0,
+            completedCategories: [],
+            quizActivated: false,
+            scoringPhase: false,
+            currentQuestion: null
+        };
+        
+        // Broadcast reset to all clients
+        io.emit('stateUpdate', quizState);
+        console.log('Quiz reset - all data cleared');
+    });
+    
     // Handle disconnect
     socket.on('disconnect', () => {
         console.log('Client disconnected:', socket.id);
