@@ -2603,6 +2603,6 @@ body {
     margin-left: -150px;
 }
 .card{
-    width: 800px;
-    margin-right: 400px;
+    width: 1000px;
+    margin-right: -400px;
 }
