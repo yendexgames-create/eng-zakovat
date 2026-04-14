@@ -199,6 +199,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    min-width: 0; /* Allow flex shrinking */
 }
 
 .questions-page .team-name {
@@ -209,6 +210,8 @@ body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    min-width: 0; /* Allow flex shrinking */
+    margin-right: 8px; /* Add margin before score */
 }
 
 .questions-page .team-score {
@@ -220,7 +223,8 @@ body {
     border-radius: var(--radius-medium);
     min-width: 35px; /* Reduced from 40px */
     text-align: center;
-    flex-shrink: 0;
+    flex-shrink: 0; /* Don't shrink */
+    order: 2; /* Ensure score comes after name */
 }
 
 /* Score Animation */
@@ -734,9 +738,9 @@ body {
     width: 100%;
     margin: 0 auto;
     display: flex;
-    gap: 30px;
+    gap: 20px; /* Reduced from 30px to bring sidebar closer */
     align-items: flex-start;
-    justify-content: flex-start; /* Changed from center to flex-start */
+    justify-content: center; /* Changed from flex-start to center */
     flex-direction: row; /* Explicitly set row direction */
 }
 
@@ -1020,6 +1024,8 @@ body {
     width: 100%;
     box-sizing: border-box;
     min-height: 45px; /* Reduced from 50px */
+    justify-content: space-between; /* Ensure proper spacing */
+    gap: 8px; /* Add gap between elements */
 }
 
 .questions-page .team-item::before {
@@ -1656,40 +1662,7 @@ body {
     gap: 15px;
 }
 
-.team-item {
-    padding: 20px;
-    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-    border-radius: 15px;
-    margin-bottom: 18px;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-    isolation: isolate;
-}
-
-.team-item::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(74, 144, 226, 0.1), transparent);
-    transition: left 0.6s ease;
-}
-
-.team-item:hover::before {
-    left: 100%;
-}
-
-.team-item:hover {
-    transform: translateX(12px) translateY(-4px);
-    box-shadow: 0 12px 32px rgba(74, 144, 226, 0.15);
-    border-color: rgba(74, 144, 226, 0.2);
-    background: linear-gradient(135deg, #ffffff 0%, #e3f2fd 100%);
-}
+/* Remove duplicate team-item styles - use the main one at line 1004 */
 
 .team-rank {
     position: absolute;
