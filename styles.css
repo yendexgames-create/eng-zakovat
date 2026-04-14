@@ -693,7 +693,7 @@ body {
     display: flex;
     gap: 30px;
     align-items: flex-start;
-    justify-content: center;
+    justify-content: flex-start; /* Changed from center to flex-start */
     flex-direction: row; /* Explicitly set row direction */
 }
 
@@ -716,8 +716,10 @@ body {
     position: relative;
     overflow: hidden;
     width: 100%;
+    max-width: 100%; /* Ensure full width */
     box-sizing: border-box;
     min-height: 600px; /* Added min-height for better proportions */
+    flex: 1; /* Add flex to take available space */
 }
 
 .questions-page .card::before {
@@ -785,10 +787,11 @@ body {
 /* Answer Options */
 .questions-page .answer-options {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 15px;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Increased from 250px */
+    gap: 20px; /* Increased from 15px */
     margin-bottom: 30px;
     width: 100%;
+    max-width: 100%; /* Ensure full width */
 }
 
 .questions-page .answer-option {
@@ -1281,7 +1284,11 @@ body {
     }
     
     .questions-page .main-content {
-        max-width: 900px; /* Adjusted from 1000px */
+        max-width: 900px; /* Adjusted from 1200px */
+    }
+    
+    .questions-page .teams-sidebar {
+        width: 320px; /* Adjusted from 350px */
     }
     
     .questions-page .category-section {
@@ -1290,6 +1297,10 @@ body {
     
     .questions-page .category-grid {
         max-width: 900px; /* Adjusted from 1200px */
+    }
+    
+    .questions-page .answer-options {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Adjusted from 300px */
     }
 }
 
@@ -1304,6 +1315,7 @@ body {
         max-width: 700px; /* Increased from 600px */
         position: static;
         margin-top: 30px;
+        order: 2; /* Keep it on bottom in mobile */
     }
     
     .questions-page .category-section {
@@ -1314,6 +1326,10 @@ body {
     .questions-page .category-grid {
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Adjusted for smaller screens */
         max-width: 800px; /* Adjusted for tablet */
+    }
+    
+    .questions-page .answer-options {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Adjusted for tablet */
     }
 }
 
