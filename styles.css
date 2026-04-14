@@ -1022,7 +1022,9 @@ body {
 .questions-page .category-section {
     text-align: center;
     width: 100%;
-    padding: 20px;
+    padding: 30px;
+    max-width: 1200px; /* Added max-width */
+    margin: 0 auto; /* Center the section */
 }
 
 .questions-page .category-title {
@@ -1039,17 +1041,19 @@ body {
 
 .questions-page .category-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* Increased from 200px */
-    gap: 25px; /* Increased from 20px */
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Increased from 220px */
+    gap: 30px; /* Increased from 25px */
     margin-bottom: 30px;
     width: 100%;
+    max-width: 1000px; /* Added max-width */
+    margin: 0 auto 30px auto; /* Center the grid */
 }
 
 .questions-page .category-btn {
     background: linear-gradient(135deg, var(--bg-secondary), #f8f9fa);
     border: 3px solid var(--border-color); /* Increased from 2px */
     border-radius: var(--radius-large);
-    padding: 35px 25px; /* Increased padding */
+    padding: 40px 30px; /* Increased padding */
     text-align: center;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -1057,7 +1061,7 @@ body {
     overflow: hidden;
     width: 100%;
     box-sizing: border-box;
-    min-height: 160px; /* Added min-height */
+    min-height: 180px; /* Increased from 160px */
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -1095,8 +1099,8 @@ body {
 }
 
 .questions-page .category-icon {
-    font-size: 3rem; /* Increased from 2.5rem */
-    margin-bottom: 15px; /* Increased from 10px */
+    font-size: 3.5rem; /* Increased from 3rem */
+    margin-bottom: 20px; /* Increased from 15px */
     color: var(--primary-color);
     transition: all 0.3s ease;
     display: block;
@@ -1104,7 +1108,7 @@ body {
 
 .questions-page .category-btn span {
     font-weight: 700;
-    font-size: 1.3rem; /* Increased from 1.1rem */
+    font-size: 1.4rem; /* Increased from 1.3rem */
     color: var(--text-primary);
     transition: all 0.3s ease;
     text-transform: capitalize;
@@ -1182,8 +1186,14 @@ body {
         margin-top: 30px;
     }
     
+    .questions-page .category-section {
+        max-width: 100%; /* Full width on tablet */
+        padding: 20px;
+    }
+    
     .questions-page .category-grid {
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Adjusted for smaller screens */
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Adjusted for smaller screens */
+        max-width: 800px; /* Adjusted for tablet */
     }
 }
 
@@ -1245,22 +1255,27 @@ body {
         font-size: 1.5rem;
     }
     
+    .questions-page .category-section {
+        padding: 15px;
+    }
+    
     .questions-page .category-grid {
-        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); /* Smaller for mobile */
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Smaller for mobile */
         gap: 20px;
+        max-width: 100%; /* Full width on mobile */
     }
     
     .questions-page .category-btn {
-        padding: 25px 20px; /* Reduced for mobile */
-        min-height: 140px; /* Reduced for mobile */
+        padding: 30px 20px; /* Reduced for mobile */
+        min-height: 150px; /* Reduced for mobile */
     }
     
     .questions-page .category-icon {
-        font-size: 2.5rem; /* Reduced for mobile */
+        font-size: 3rem; /* Reduced for mobile */
     }
     
     .questions-page .category-btn span {
-        font-size: 1.1rem; /* Reduced for mobile */
+        font-size: 1.2rem; /* Reduced for mobile */
     }
 }
 
