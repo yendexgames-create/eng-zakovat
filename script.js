@@ -566,27 +566,27 @@ class QuizApp {
         this.socket.emit('submitScores', {});
         console.log('Scoring skipped - signal sent to server');
 
-        // Hide scoring section temporarily
-        const scoringSection = document.getElementById('scoringSection');
-        const setupSection = document.getElementById('setupSection');
+        // Show loading state in scoring section
+        const scoringQuestion = document.getElementById('scoringQuestion');
+        const teamScores = document.getElementById('teamScores');
+        const scoringActions = document.querySelector('.scoring-actions');
         
-        if (scoringSection) {
-            scoringSection.classList.add('hidden');
+        if (scoringQuestion) {
+            scoringQuestion.innerHTML = `
+                <h3>Scoring Skipped!</h3>
+                <p>Waiting for next question...</p>
+            `;
         }
         
-        if (setupSection) {
-            setupSection.classList.remove('hidden');
+        if (teamScores) {
+            teamScores.innerHTML = '<div style="text-align: center; padding: 20px;">Loading next question...</div>';
+        }
+        
+        if (scoringActions) {
+            scoringActions.innerHTML = '';
         }
 
-        // After 3 seconds, show scoring section again
-        setTimeout(() => {
-            if (setupSection) {
-                setupSection.classList.add('hidden');
-            }
-            if (scoringSection) {
-                scoringSection.classList.remove('hidden');
-            }
-        }, 3000);
+        console.log('Scoring skipped - waiting for next question');
     }
 
     submitScores() {
@@ -610,27 +610,27 @@ class QuizApp {
         this.socket.emit('submitScores', scores);
         console.log('Scores submitted:', scores);
 
-        // Hide scoring section temporarily
-        const scoringSection = document.getElementById('scoringSection');
-        const setupSection = document.getElementById('setupSection');
+        // Show loading state in scoring section
+        const scoringQuestion = document.getElementById('scoringQuestion');
+        const teamScores = document.getElementById('teamScores');
+        const scoringActions = document.querySelector('.scoring-actions');
         
-        if (scoringSection) {
-            scoringSection.classList.add('hidden');
+        if (scoringQuestion) {
+            scoringQuestion.innerHTML = `
+                <h3>Scores Submitted!</h3>
+                <p>Waiting for next question...</p>
+            `;
         }
         
-        if (setupSection) {
-            setupSection.classList.remove('hidden');
+        if (teamScores) {
+            teamScores.innerHTML = '<div style="text-align: center; padding: 20px;">Loading next question...</div>';
         }
-
-        // After 3 seconds, show scoring section again
-        setTimeout(() => {
-            if (setupSection) {
-                setupSection.classList.add('hidden');
-            }
-            if (scoringSection) {
-                scoringSection.classList.remove('hidden');
-            }
-        }, 3000);
+        
+        if (scoringActions) {
+            scoringActions.innerHTML = '';
+        }
+        
+        console.log('Scoring completed - waiting for next question');
     }
 
     restoreSetupSection() {
