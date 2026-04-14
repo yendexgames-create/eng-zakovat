@@ -536,7 +536,7 @@ class QuizApp {
     showActivateButton() {
         const setupStatus = document.getElementById('setupStatus');
         if (setupStatus) {
-            // Show teams list with optional activation button
+            // Show teams list and auto-open questions page
             const teamsList = this.teams.map(team => `
                 <div class="team-display-item">
                     <span class="team-name">${team.name}</span>
@@ -547,7 +547,7 @@ class QuizApp {
             setupStatus.innerHTML = `
                 <div class="status-message">
                     <h3>Quiz Setup Complete!</h3>
-                    <p>Teams are ready for the quiz.</p>
+                    <p>Teams are ready. Opening quiz page...</p>
                     <div class="teams-display">
                         <h4>Registered Teams:</h4>
                         <div class="teams-list">
@@ -555,17 +555,15 @@ class QuizApp {
                         </div>
                     </div>
                     <div class="quiz-status">
-                        <p class="status-text">Quiz is ready to start when you're ready!</p>
-                        <button id="activateQuizBtn" class="btn btn-primary" style="margin-top: 15px;">Start Quiz</button>
+                        <p class="status-text">Quiz is starting automatically!</p>
                     </div>
                 </div>
             `;
             
-            // Bind activate button
-            const activateBtn = document.getElementById('activateQuizBtn');
-            if (activateBtn) {
-                activateBtn.addEventListener('click', () => this.activateQuiz());
-            }
+            // Auto-open questions page after 2 seconds
+            setTimeout(() => {
+                this.activateQuiz();
+            }, 2000);
         }
     }
 

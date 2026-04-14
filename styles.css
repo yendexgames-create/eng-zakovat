@@ -709,13 +709,14 @@ body {
     border-radius: 20px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
-    padding: 40px;
+    padding: 50px; /* Increased from 40px */
     margin-bottom: 30px;
     transition: transform 0.3s ease;
     position: relative;
     overflow: hidden;
-    width: 100%; /* Changed from 600px to 100% */
+    width: 100%;
     box-sizing: border-box;
+    min-height: 600px; /* Added min-height for better proportions */
 }
 
 .questions-page .card::before {
@@ -770,11 +771,11 @@ body {
 }
 
 .questions-page .question-content h3 {
-    font-size: 1.8rem;
+    font-size: 2.2rem; /* Increased from 1.8rem */
     font-weight: 700;
     color: var(--text-primary);
     line-height: 1.4;
-    margin-bottom: 30px;
+    margin-bottom: 40px; /* Increased from 30px */
     text-align: center;
     word-wrap: break-word;
 }
@@ -792,16 +793,16 @@ body {
     background: linear-gradient(135deg, var(--bg-secondary), #f8f9fa);
     border: 2px solid var(--border-color);
     border-radius: var(--radius-large);
-    padding: 20px;
+    padding: 25px; /* Increased from 20px */
     text-align: center;
     font-weight: 600;
-    font-size: 1.1rem;
+    font-size: 1.3rem; /* Increased from 1.1rem */
     color: var(--text-primary);
     cursor: pointer;
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    min-height: 80px;
+    min-height: 100px; /* Increased from 80px */
     display: flex;
     align-items: center;
     justify-content: center;
