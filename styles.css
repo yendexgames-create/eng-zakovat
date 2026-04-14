@@ -687,7 +687,7 @@ body {
 }
 
 .questions-page .container {
-    max-width: 1400px;
+    max-width: 1600px; /* Increased from 1400px */
     width: 100%;
     margin: 0 auto;
     display: flex;
@@ -700,7 +700,7 @@ body {
 .questions-page .main-content {
     flex: 1;
     min-width: 0;
-    max-width: 800px;
+    max-width: 1000px; /* Increased from 800px */
 }
 
 .questions-page .card {
@@ -714,7 +714,7 @@ body {
     transition: transform 0.3s ease;
     position: relative;
     overflow: hidden;
-    width: 100%;
+    width: 100%; /* Changed from 600px to 100% */
     box-sizing: border-box;
 }
 
@@ -1095,7 +1095,7 @@ body {
     text-align: center;
     width: 100%;
     padding: 30px;
-    max-width: 1200px; /* Added max-width */
+    max-width: 1400px; /* Increased from 1200px */
     margin: 0 auto; /* Center the section */
 }
 
@@ -1117,7 +1117,7 @@ body {
     gap: 30px; /* Increased from 25px */
     margin-bottom: 30px;
     width: 100%;
-    max-width: 1000px; /* Added max-width */
+    max-width: 1200px; /* Increased from 1000px */
     margin: 0 auto 30px auto; /* Center the grid */
 }
 
@@ -1245,6 +1245,24 @@ body {
 }
 
 /* Responsive Design for Questions Page */
+@media (max-width: 1400px) {
+    .questions-page .container {
+        max-width: 1200px; /* Adjusted for smaller screens */
+    }
+    
+    .questions-page .main-content {
+        max-width: 900px; /* Adjusted from 1000px */
+    }
+    
+    .questions-page .category-section {
+        max-width: 1000px; /* Adjusted from 1400px */
+    }
+    
+    .questions-page .category-grid {
+        max-width: 900px; /* Adjusted from 1200px */
+    }
+}
+
 @media (max-width: 1200px) {
     .questions-page .container {
         flex-direction: column;
