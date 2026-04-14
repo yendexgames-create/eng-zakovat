@@ -181,8 +181,8 @@ body {
 }
 
 .questions-page .team-rank {
-    width: 35px; /* Reduced from 40px */
-    height: 35px; /* Reduced from 40px */
+    width: 35px; /* Reduced from 45px */
+    height: 35px; /* Reduced from 45px */
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -206,21 +206,17 @@ body {
     font-size: 0.9rem; /* Reduced from 1rem */
     color: var(--text-primary);
     flex: 1;
-    white-space: nowrap; /* Prevent text wrapping */
-    overflow: hidden; /* Hide overflow */
-    text-overflow: ellipsis; /* Show ... for long names */
 }
 
 .questions-page .team-score {
     font-weight: 700;
-    font-size: 1.1rem; /* Reduced from 1.2rem */
+    font-size: 1.1rem; /* Reduced from 1.3rem */
     color: var(--primary-color);
     background: var(--bg-tertiary);
-    padding: 4px 8px; /* Reduced from 5px 10px */
+    padding: 4px 8px; /* Reduced from 6px 12px */
     border-radius: var(--radius-medium);
-    min-width: 40px; /* Reduced from 45px */
+    min-width: 40px; /* Reduced from 50px */
     text-align: center;
-    flex-shrink: 0; /* Prevent shrinking */
 }
 
 /* Score Animation */
@@ -959,30 +955,31 @@ body {
     position: relative;
 }
 
+/* Teams Sidebar - Improved Leaderboard */
 .questions-page .teams-sidebar {
-    width: 280px;
-    background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 50%, #e9ecef 100%);
-    border-radius: 20px;
-    padding: 30px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08), 0 8px 32px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.9);
-    border: 2px solid rgba(74, 144, 226, 0.1);
-    height: fit-content;
-    position: absolute;
-    top: 20px;
-    order: 2;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    width: 100px; /* Reduced from 280px to make it much smaller */
+    padding: 20px; /* Reduced from 25px */
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    position: sticky;
+    top: 20px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    order: 2; /* Move to right side */
     margin: 0; /* Remove any margin */
     flex-shrink: 0; /* Prevent shrinking */
 }
 
 .questions-page .teams-sidebar h3 {
     color: var(--primary-color);
-    font-size: 1.3rem; /* Reduced from 1.4rem for better fit */
+    font-size: 1.6rem; /* Increased from 1.5rem */
     font-weight: 800;
     text-align: center;
-    margin-bottom: 15px; /* Reduced from 20px */
-    padding-bottom: 10px; /* Reduced from 12px */
+    margin-bottom: 25px;
+    padding-bottom: 15px;
     border-bottom: 3px solid var(--primary-color);
     position: relative;
 }
@@ -1007,8 +1004,8 @@ body {
 .questions-page .team-item {
     display: flex;
     align-items: center;
-    padding: 10px 12px; /* Reduced from 12px 16px for better fit */
-    margin-bottom: 8px; /* Reduced from 10px for compact layout */
+    padding: 10px 12px; /* Reduced from 12px 16px */
+    margin-bottom: 8px; /* Reduced from 10px */
     background: linear-gradient(135deg, var(--bg-secondary), #f8f9fa);
     border-radius: var(--radius-medium);
     border: 2px solid var(--border-color);
@@ -1018,7 +1015,7 @@ body {
     border: 2px solid transparent;
     width: 100%;
     box-sizing: border-box;
-    min-height: 50px; /* Reduced from 55px for compact layout */
+    min-height: 50px; /* Reduced from 60px */
 }
 
 .questions-page .team-item::before {
@@ -1332,8 +1329,9 @@ body {
     }
     
     .questions-page .teams-sidebar {
-        width: 240px; /* Adjusted from 220px to 280px */
+        width: 200px; /* Adjusted from 220px */
     }
+}
     
     .questions-page .category-section {
         max-width: 1000px; /* Adjusted from 1400px */
@@ -1592,26 +1590,7 @@ body {
     box-shadow: 0 4px 12px rgba(90, 108, 125, 0.3);
 }
 
-.questions-page .teams-sidebar {
-    width: 280px;
-    background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 50%, #e9ecef 100%);
-    border-radius: 20px;
-    padding: 30px;
-    box-shadow: 
-        0 20px 60px rgba(0, 0, 0, 0.08),
-        0 8px 32px rgba(0, 0, 0, 0.04),
-        inset 0 1px 0 rgba(255, 255, 255, 0.9);
-    border: 2px solid rgba(74, 144, 226, 0.1);
-    height: fit-content;
-    max-height: calc(100vh - 40px); /* Set max height for scroll */
-    position: sticky;
-    top: 20px;
-    order: 2;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    backdrop-filter: blur(10px);
-    overflow-y: auto; /* Enable vertical scroll */
-    overflow-x: hidden; /* Hide horizontal scroll */
-}
+/* Remove duplicate teams-sidebar styles - use the main one at line 959 */
 
 .questions-page .teams-sidebar::before {
     content: '';
@@ -2548,18 +2527,7 @@ body {
     margin-top: 20px;
 }
 
-/* Teams Sidebar Styles */
-.teams-sidebar {
-    width: 300px;
-    background: var(--bg-secondary);
-    border-radius: var(--radius-large);
-    padding: 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--border-color);
-    height: fit-content;
-    top: 20px;
-    position: relative;
-}
+/* Remove duplicate teams-sidebar styles - use the main one at line 959 */
 
 .teams-sidebar h3 {
     color: var(--primary-color);
