@@ -957,7 +957,7 @@ body {
 
 /* Teams Sidebar - Improved Leaderboard */
 .questions-page .teams-sidebar {
-    width: 100px; /* Reduced from 280px to make it much smaller */
+    width: 280px; /* Changed from 100px to 280px as requested */
     padding: 20px; /* Reduced from 25px */
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
@@ -1329,9 +1329,8 @@ body {
     }
     
     .questions-page .teams-sidebar {
-        width: 200px; /* Adjusted from 220px */
+        width: 260px; /* Adjusted from 280px for smaller screens */
     }
-}
     
     .questions-page .category-section {
         max-width: 1000px; /* Adjusted from 1400px */
