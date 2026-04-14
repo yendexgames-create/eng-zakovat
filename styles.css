@@ -963,7 +963,7 @@ body {
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08), 0 8px 32px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.9);
     border: 2px solid rgba(74, 144, 226, 0.1);
     height: fit-content;
-    position: sticky;
+    position: absolute;
     top: 20px;
     order: 2;
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -1589,7 +1589,7 @@ body {
 }
 
 .questions-page .teams-sidebar {
-    width: 420px;
+    width: 280px;
     background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 50%, #e9ecef 100%);
     border-radius: 20px;
     padding: 30px;
