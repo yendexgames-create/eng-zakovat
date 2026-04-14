@@ -536,11 +536,28 @@ class QuizApp {
     showActivateButton() {
         const setupStatus = document.getElementById('setupStatus');
         if (setupStatus) {
+            // Show teams list with optional activation button
+            const teamsList = this.teams.map(team => `
+                <div class="team-display-item">
+                    <span class="team-name">${team.name}</span>
+                    <span class="team-id">Team ${team.id}</span>
+                </div>
+            `).join('');
+            
             setupStatus.innerHTML = `
                 <div class="status-message">
                     <h3>Quiz Setup Complete!</h3>
-                    <p>Teams are ready. Click below to activate the quiz.</p>
-                    <button id="activateQuizBtn" class="btn btn-primary">Start Quiz</button>
+                    <p>Teams are ready for the quiz.</p>
+                    <div class="teams-display">
+                        <h4>Registered Teams:</h4>
+                        <div class="teams-list">
+                            ${teamsList}
+                        </div>
+                    </div>
+                    <div class="quiz-status">
+                        <p class="status-text">Quiz is ready to start when you're ready!</p>
+                        <button id="activateQuizBtn" class="btn btn-primary" style="margin-top: 15px;">Start Quiz</button>
+                    </div>
                 </div>
             `;
             

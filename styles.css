@@ -576,6 +576,78 @@ body {
     margin-bottom: 20px;
 }
 
+/* Teams Display */
+.index-page .teams-display {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: var(--radius-medium);
+    padding: 20px;
+    margin: 20px 0;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.index-page .teams-display h4 {
+    color: var(--text-primary);
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.index-page .teams-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.index-page .team-display-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, var(--bg-secondary), #f8f9fa);
+    border-radius: var(--radius-medium);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.index-page .team-display-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.1);
+    border-color: var(--primary-color);
+}
+
+.index-page .team-display-item .team-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+}
+
+.index-page .team-display-item .team-id {
+    font-weight: 500;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    background: var(--bg-tertiary);
+    padding: 4px 8px;
+    border-radius: var(--radius-small);
+}
+
+.index-page .quiz-status {
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(74, 144, 226, 0.1);
+    border-radius: var(--radius-medium);
+    border: 1px solid rgba(74, 144, 226, 0.2);
+}
+
+.index-page .quiz-status .status-text {
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 1rem;
+    margin: 0;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .index-page .container {
