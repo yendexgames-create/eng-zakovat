@@ -181,14 +181,14 @@ body {
 }
 
 .questions-page .team-rank {
-    width: 40px; /* Increased from 35px */
-    height: 40px; /* Increased from 35px */
+    width: 35px; /* Reduced from 40px */
+    height: 35px; /* Reduced from 40px */
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 800;
-    font-size: 1rem; /* Increased from 0.9rem */
+    font-size: 0.9rem; /* Reduced from 1rem */
     color: white;
     position: relative;
     z-index: 1;
@@ -203,20 +203,24 @@ body {
 
 .questions-page .team-name {
     font-weight: 600;
-    font-size: 1rem; /* Increased from 0.9rem */
+    font-size: 0.9rem; /* Reduced from 1rem */
     color: var(--text-primary);
     flex: 1;
+    white-space: nowrap; /* Prevent text wrapping */
+    overflow: hidden; /* Hide overflow */
+    text-overflow: ellipsis; /* Show ... for long names */
 }
 
 .questions-page .team-score {
     font-weight: 700;
-    font-size: 1.2rem; /* Increased from 1.1rem */
+    font-size: 1.1rem; /* Reduced from 1.2rem */
     color: var(--primary-color);
     background: var(--bg-tertiary);
-    padding: 5px 10px; /* Increased from 4px 8px */
+    padding: 4px 8px; /* Reduced from 5px 10px */
     border-radius: var(--radius-medium);
-    min-width: 45px; /* Increased from 40px */
+    min-width: 40px; /* Reduced from 45px */
     text-align: center;
+    flex-shrink: 0; /* Prevent shrinking */
 }
 
 /* Score Animation */
@@ -974,11 +978,11 @@ body {
 
 .questions-page .teams-sidebar h3 {
     color: var(--primary-color);
-    font-size: 1.4rem; /* Increased from 1.6rem for better fit */
+    font-size: 1.3rem; /* Reduced from 1.4rem for better fit */
     font-weight: 800;
     text-align: center;
-    margin-bottom: 20px; /* Reduced from 25px */
-    padding-bottom: 12px; /* Reduced from 15px */
+    margin-bottom: 15px; /* Reduced from 20px */
+    padding-bottom: 10px; /* Reduced from 12px */
     border-bottom: 3px solid var(--primary-color);
     position: relative;
 }
@@ -1003,8 +1007,8 @@ body {
 .questions-page .team-item {
     display: flex;
     align-items: center;
-    padding: 12px 16px; /* Increased from 10px 12px */
-    margin-bottom: 10px; /* Increased from 8px */
+    padding: 10px 12px; /* Reduced from 12px 16px for better fit */
+    margin-bottom: 8px; /* Reduced from 10px for compact layout */
     background: linear-gradient(135deg, var(--bg-secondary), #f8f9fa);
     border-radius: var(--radius-medium);
     border: 2px solid var(--border-color);
@@ -1014,7 +1018,7 @@ body {
     border: 2px solid transparent;
     width: 100%;
     box-sizing: border-box;
-    min-height: 55px; /* Increased from 50px */
+    min-height: 50px; /* Reduced from 55px for compact layout */
 }
 
 .questions-page .team-item::before {
@@ -1599,11 +1603,14 @@ body {
         inset 0 1px 0 rgba(255, 255, 255, 0.9);
     border: 2px solid rgba(74, 144, 226, 0.1);
     height: fit-content;
+    max-height: calc(100vh - 40px); /* Set max height for scroll */
     position: sticky;
     top: 20px;
     order: 2;
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     backdrop-filter: blur(10px);
+    overflow-y: auto; /* Enable vertical scroll */
+    overflow-x: hidden; /* Hide horizontal scroll */
 }
 
 .questions-page .teams-sidebar::before {
