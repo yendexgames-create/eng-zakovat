@@ -93,10 +93,17 @@ class QuizApp {
         this.currentQuestionIndex = state.currentQuestionIndex || 0;
         this.completedCategories = state.completedCategories || [];
         
+        console.log('updateState called, current page:', window.location.pathname);
+        console.log('State received:', state);
+        
         // Update UI based on current page
-        if (window.location.pathname.includes('questions.html') || window.location.pathname.endsWith('/questions')) {
+        if (window.location.pathname.includes('questions.html') || 
+            window.location.pathname.endsWith('/questions') ||
+            window.location.href.includes('questions.html')) {
+            console.log('Updating questions page');
             this.updateQuestionsPage(state);
         } else {
+            console.log('Updating index page');
             // Index page - handle scoring phase
             this.updateIndexPage(state);
         }
@@ -163,18 +170,30 @@ class QuizApp {
     }
     
     updateQuestionsPage(state) {
+        console.log('=== UPDATE QUESTIONS PAGE START ===');
+        console.log('State received:', state);
+        console.log('quizActivated:', state.quizActivated);
+        console.log('currentCategory:', state.currentCategory);
+        console.log('scoringPhase:', state.scoringPhase);
+        
         if (state.quizActivated && !state.currentCategory) {
             // Show category selection
+            console.log('Condition met: quizActivated=true, currentCategory=false');
+            console.log('Calling showCategorySelection...');
             this.showCategorySelection();
         } else if (state.currentCategory && !state.scoringPhase) {
             // Show question
+            console.log('Showing question for category:', state.currentCategory);
             if (this.currentCategory !== state.currentCategory || this.currentQuestionIndex !== state.currentQuestionIndex) {
                 this.selectCategory(state.currentCategory);
             }
         } else if (state.scoringPhase) {
             // Show time up screen
+            console.log('Showing time up screen');
             this.timeUp();
         }
+        
+        console.log('=== UPDATE QUESTIONS PAGE END ===');
     }
 
     initializeQuestions() {
@@ -750,20 +769,30 @@ class QuizApp {
     }
 
     showCategorySelection() {
+        console.log('=== SHOW CATEGORY SELECTION START ===');
         const welcomeSection = document.getElementById('welcomeSection');
         const categorySection = document.querySelector('.category-section');
         
+        console.log('Welcome section found:', welcomeSection);
+        console.log('Category section found:', categorySection);
+        
         if (welcomeSection) {
             welcomeSection.classList.add('hidden');
+            console.log('Welcome section hidden');
         }
         
         if (categorySection) {
             categorySection.classList.remove('hidden');
+            console.log('Category section shown');
+        } else {
+            console.log('Category section NOT found - this is the problem!');
         }
         
         // Update category buttons to show completed status
         const completedCategories = this.completedCategories || [];
         this.updateCategoryButtons(completedCategories);
+        
+        console.log('=== SHOW CATEGORY SELECTION END ===');
     }
 
     selectCategory(category) {
