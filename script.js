@@ -330,7 +330,12 @@ class QuizApp {
 
         const generateBtn = document.getElementById('generateInputs');
         if (generateBtn) {
-            generateBtn.addEventListener('click', () => this.generateTeamInputs());
+            generateBtn.addEventListener('click', () => {
+                console.log('Generate button clicked');
+                console.log('Team count input value before generate:', document.getElementById('teamCount').value);
+                this.generateTeamInputs();
+                console.log('Team count input value after generate:', document.getElementById('teamCount').value);
+            });
         }
 
         const startBtn = document.getElementById('startQuiz');
@@ -368,8 +373,8 @@ class QuizApp {
     generateTeamInputs() {
         console.log('=== GENERATE TEAM INPUTS DEBUG ===');
         
-        // Reset everything
-        this.resetAllData();
+        // Don't reset everything, just generate inputs
+        // this.resetAllData(); // This was causing the issue
         
         const teamCountInput = document.getElementById('teamCount');
         const teamInputsContainer = document.getElementById('teamInputsContainer');
@@ -441,11 +446,12 @@ class QuizApp {
         // Hide all sections
         this.hideAllSections();
         
-        // Reset UI elements
+        // Reset UI elements (but don't reset teamCount input)
         const teamCountInput = document.getElementById('teamCount');
-        if (teamCountInput) {
-            teamCountInput.value = '2';
-        }
+        // Don't reset teamCount input value - let user keep their selection
+        // if (teamCountInput) {
+        //     teamCountInput.value = '2';
+        // }
         
         // Send reset signal to server
         if (this.socket) {
