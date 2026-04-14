@@ -181,14 +181,14 @@ body {
 }
 
 .questions-page .team-rank {
-    width: 35px; /* Reduced from 45px */
-    height: 35px; /* Reduced from 45px */
+    width: 30px; /* Reduced from 35px */
+    height: 30px; /* Reduced from 35px */
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 800;
-    font-size: 0.9rem; /* Reduced from 1rem */
+    font-size: 0.8rem; /* Reduced from 0.9rem */
     color: white;
     position: relative;
     z-index: 1;
@@ -203,20 +203,24 @@ body {
 
 .questions-page .team-name {
     font-weight: 600;
-    font-size: 0.9rem; /* Reduced from 1rem */
+    font-size: 0.85rem; /* Reduced from 0.9rem */
     color: var(--text-primary);
     flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .questions-page .team-score {
     font-weight: 700;
-    font-size: 1.1rem; /* Reduced from 1.3rem */
+    font-size: 1rem; /* Reduced from 1.1rem */
     color: var(--primary-color);
     background: var(--bg-tertiary);
-    padding: 4px 8px; /* Reduced from 6px 12px */
+    padding: 3px 6px; /* Reduced from 4px 8px */
     border-radius: var(--radius-medium);
-    min-width: 40px; /* Reduced from 50px */
+    min-width: 35px; /* Reduced from 40px */
     text-align: center;
+    flex-shrink: 0;
 }
 
 /* Score Animation */
@@ -726,7 +730,7 @@ body {
 }
 
 .questions-page .container {
-    max-width: 1600px; /* Increased from 1400px */
+    max-width: 1600px; /* Increased from 1600px to prevent scroll */
     width: 100%;
     margin: 0 auto;
     display: flex;
@@ -739,7 +743,7 @@ body {
 .questions-page .main-content {
     flex: 1;
     min-width: 0;
-    max-width: 1200px; /* Increased from 1000px */
+    max-width: 1300px; /* Increased from 1200px to prevent scroll */
     order: 1; /* Move to left side (before sidebar) */
 }
 
@@ -958,7 +962,7 @@ body {
 /* Teams Sidebar - Improved Leaderboard */
 .questions-page .teams-sidebar {
     width: 280px; /* Changed from 100px to 280px as requested */
-    padding: 20px; /* Reduced from 25px */
+    padding: 15px; /* Reduced from 20px to save space */
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
     border-radius: 20px;
@@ -975,11 +979,11 @@ body {
 
 .questions-page .teams-sidebar h3 {
     color: var(--primary-color);
-    font-size: 1.6rem; /* Increased from 1.5rem */
+    font-size: 1.4rem; /* Reduced from 1.6rem */
     font-weight: 800;
     text-align: center;
-    margin-bottom: 25px;
-    padding-bottom: 15px;
+    margin-bottom: 20px; /* Reduced from 25px */
+    padding-bottom: 12px; /* Reduced from 15px */
     border-bottom: 3px solid var(--primary-color);
     position: relative;
 }
@@ -1004,8 +1008,8 @@ body {
 .questions-page .team-item {
     display: flex;
     align-items: center;
-    padding: 10px 12px; /* Reduced from 12px 16px */
-    margin-bottom: 8px; /* Reduced from 10px */
+    padding: 8px 10px; /* Reduced from 10px 12px */
+    margin-bottom: 6px; /* Reduced from 8px */
     background: linear-gradient(135deg, var(--bg-secondary), #f8f9fa);
     border-radius: var(--radius-medium);
     border: 2px solid var(--border-color);
@@ -1015,7 +1019,7 @@ body {
     border: 2px solid transparent;
     width: 100%;
     box-sizing: border-box;
-    min-height: 50px; /* Reduced from 60px */
+    min-height: 45px; /* Reduced from 50px */
 }
 
 .questions-page .team-item::before {
