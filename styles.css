@@ -1698,6 +1698,7 @@ body {
     align-items: center;
     gap: 10px;
     padding-right: 50px;
+    margin-left: -30px;
 }
 
 .team-name::before {
@@ -1718,6 +1719,7 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
+    margin-left: -30px;
 }
 
 .team-score::before {
