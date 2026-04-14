@@ -536,7 +536,7 @@ class QuizApp {
     showActivateButton() {
         const setupStatus = document.getElementById('setupStatus');
         if (setupStatus) {
-            // Show teams list and auto-open questions page
+            // Show teams list and multi-device instructions
             const teamsList = this.teams.map(team => `
                 <div class="team-display-item">
                     <span class="team-name">${team.name}</span>
@@ -547,7 +547,7 @@ class QuizApp {
             setupStatus.innerHTML = `
                 <div class="status-message">
                     <h3>Quiz Setup Complete!</h3>
-                    <p>Teams are ready. Opening quiz page...</p>
+                    <p>Quiz is activated! Open questions.html on another device to start.</p>
                     <div class="teams-display">
                         <h4>Registered Teams:</h4>
                         <div class="teams-list">
@@ -555,15 +555,24 @@ class QuizApp {
                         </div>
                     </div>
                     <div class="quiz-status">
-                        <p class="status-text">Quiz is starting automatically!</p>
+                        <p class="status-text">Quiz is ready on other devices!</p>
+                        <button id="openQuestionsBtn" class="btn btn-secondary" style="margin-top: 15px;">Open Questions Page</button>
                     </div>
                 </div>
             `;
             
-            // Auto-open questions page after 2 seconds
+            // Bind optional open questions button
+            const openQuestionsBtn = document.getElementById('openQuestionsBtn');
+            if (openQuestionsBtn) {
+                openQuestionsBtn.addEventListener('click', () => {
+                    window.open('questions.html', '_blank');
+                });
+            }
+            
+            // Auto-activate the quiz for other devices
             setTimeout(() => {
                 this.activateQuiz();
-            }, 2000);
+            }, 1000);
         }
     }
 
@@ -572,8 +581,9 @@ class QuizApp {
         this.socket.emit('activateQuiz');
         console.log('Quiz activation sent to server');
         
-        // Open questions page
-        window.open('questions.html', '_blank');
+        // Don't open questions page automatically
+        // Let other devices handle the questions page
+        console.log('Quiz activated - waiting for other devices to open questions page');
     }
 
     skipScoring() {
