@@ -192,6 +192,8 @@ body {
     color: white;
     position: relative;
     z-index: 1;
+    flex-shrink: 0; /* Don't shrink */
+    margin-right: 8px; /* Add margin before team info */
 }
 
 .questions-page .team-info {
@@ -224,7 +226,7 @@ body {
     min-width: 35px; /* Reduced from 40px */
     text-align: center;
     flex-shrink: 0; /* Don't shrink */
-    order: 2; /* Ensure score comes after name */
+    order: 1; /* Ensure score is visible */
 }
 
 /* Score Animation */
@@ -1024,8 +1026,8 @@ body {
     width: 100%;
     box-sizing: border-box;
     min-height: 45px; /* Reduced from 50px */
-    justify-content: space-between; /* Ensure proper spacing */
     gap: 8px; /* Add gap between elements */
+    flex-direction: row;
 }
 
 .questions-page .team-item::before {
@@ -1036,8 +1038,8 @@ body {
     right: 0;
     height: 3px;
     background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-    transform: scaleX(0);
-    transition: transform 0.3s ease;
+    background-size: 200% 100%;
+    animation: gradientShift 3s ease infinite;
 }
 
 .questions-page .team-item:hover {
@@ -1664,35 +1666,20 @@ body {
 
 /* Remove duplicate team-item styles - use the main one at line 1004 */
 
-.team-rank {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 800;
-    font-size: 1rem;
-    z-index: 10;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    border: 3px solid white;
-}
+/* Remove duplicate team-rank styles - use the main one at line 183 */
 
-.team-rank.gold {
+.questions-page .team-rank.gold {
     background: linear-gradient(135deg, #FFD700, #FFA500, #FF8C00);
     box-shadow: 0 4px 16px rgba(255, 215, 0, 0.4);
     animation: goldShine 2s ease-in-out infinite;
 }
 
-.team-rank.silver {
+.questions-page .team-rank.silver {
     background: linear-gradient(135deg, #C0C0C0, #E5E5E5, #B8B8B8);
     box-shadow: 0 4px 16px rgba(192, 192, 192, 0.4);
 }
 
-.team-rank.bronze {
+.questions-page .team-rank.bronze {
     background: linear-gradient(135deg, #CD7F32, #E5A857, #B87333);
     box-shadow: 0 4px 16px rgba(205, 127, 50, 0.4);
 }
