@@ -181,52 +181,58 @@ body {
 }
 
 .questions-page .team-rank {
-    width: 24px; /* Reduced from 30px */
-    height: 24px; /* Reduced from 30px */
+    position: absolute; /* Changed from relative to absolute */
+    top: 8px; /* Position at top */
+    left: 8px; /* Position at left */
+    width: 28px; /* Slightly smaller */
+    height: 28px; /* Slightly smaller */
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 800;
-    font-size: 0.7rem; /* Reduced from 0.8rem */
+    font-size: 0.7rem; /* Smaller font */
     color: white;
-    position: relative;
-    z-index: 1;
-    flex-shrink: 0; /* Don't shrink */
-    margin-right: 6px; /* Reduced from 8px */
+    z-index: 2; /* Ensure it's on top */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); /* Added shadow */
 }
 
 .questions-page .team-info {
-    flex: 1;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    min-width: 0; /* Allow flex shrinking */
+    flex-direction: column; /* Changed from row to column */
+    align-items: center; /* Center align items */
+    justify-content: center; /* Center justify */
+    text-align: center; /* Center text */
+    padding: 8px 0; /* Add vertical padding */
+    flex: 1;
+    min-width: 0;
 }
 
 .questions-page .team-name {
     font-weight: 600;
-    font-size: 0.75rem; /* Reduced from 0.85rem */
+    font-size: 0.9rem; /* Increased slightly for readability */
     color: var(--text-primary);
-    flex: 1;
+    margin-bottom: 6px; /* Add margin between name and score */
+    text-align: center;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    min-width: 0; /* Allow flex shrinking */
-    margin-right: 6px; /* Reduced from 8px */
+    width: 100%;
+    order: 1; /* Name comes first */
 }
 
 .questions-page .team-score {
     font-weight: 700;
-    font-size: 0.85rem; /* Reduced from 1rem */
+    font-size: 1.1rem; /* Increased for visibility */
     color: var(--primary-color);
-    background: var(--bg-tertiary);
-    padding: 2px 4px; /* Reduced from 3px 6px */
-    border-radius: 8px; /* Reduced from var(--radius-medium) */
-    min-width: 28px; /* Reduced from 35px */
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    padding: 4px 12px; /* Increased padding */
+    border-radius: 20px; /* More rounded */
+    min-width: 60px; /* Increased width */
     text-align: center;
-    flex-shrink: 0; /* Don't shrink */
-    order: 1; /* Ensure score is visible */
+    color: white; /* Changed text color to white */
+    order: 2; /* Score comes second */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Added shadow */
 }
 
 /* Score Animation */
@@ -766,7 +772,7 @@ body {
     transition: transform 0.3s ease;
     position: relative;
     overflow: hidden;
-    width: 1000px;
+    width: 800px;
     max-width: 100%; /* Ensure full width */
     box-sizing: border-box;
     min-height: 700px; /* Increased from 600px */
@@ -1012,23 +1018,23 @@ body {
     letter-spacing: 1px;
 }
 
-/* Enhanced Team Items for Leaderboard */
+/* Enhanced Team Items for Leaderboard - NEW CARD STYLE */
 .questions-page .team-item {
     display: flex;
-    align-items: center;
-    padding: 6px 8px; /* Reduced from 8px 10px */
-    margin-bottom: 4px; /* Reduced from 6px */
-    background: linear-gradient(135deg, var(--bg-secondary), #f8f9fa);
-    border-radius: 12px; /* Reduced from var(--radius-medium) */
-    border: 1px solid var(--border-color); /* Reduced from 2px */
+    flex-direction: column; /* Changed from row to column */
+    align-items: stretch; /* Changed from center */
+    padding: 12px 15px; /* Increased padding for card style */
+    margin-bottom: 8px; /* Increased margin for card separation */
+    background: linear-gradient(135deg, #ffffff, #f8f9fa);
+    border-radius: 15px; /* Increased radius for card look */
+    border: 2px solid var(--border-color);
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
     width: 100%;
     box-sizing: border-box;
-    min-height: 38px; /* Reduced from 45px */
-    gap: 6px; /* Reduced from 8px */
-    flex-direction: row;
+    min-height: 70px; /* Increased height for vertical layout */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Added shadow for card effect */
 }
 
 .questions-page .team-item::before {
@@ -1044,9 +1050,19 @@ body {
 }
 
 .questions-page .team-item:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    transform: translateY(-4px) scale(1.02); /* Enhanced hover effect */
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); /* Enhanced shadow */
     border-color: var(--primary-color);
+}
+
+.questions-page .team-item:hover .team-rank {
+    transform: scale(1.1); /* Rank badge scales on hover */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* Enhanced shadow */
+}
+
+.questions-page .team-item:hover .team-score {
+    transform: scale(1.05); /* Score scales on hover */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Enhanced shadow */
 }
 
 .questions-page .team-item:hover::before {
@@ -1661,7 +1677,7 @@ body {
 .teams-list {
     display: flex;
     flex-direction: column;
-    gap: 8px; /* Reduced from 15px */
+    gap: 12px; /* Increased from 8px for card separation */
 }
 
 /* Remove duplicate team-item styles - use the main one at line 1004 */
