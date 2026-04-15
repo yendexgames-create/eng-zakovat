@@ -859,6 +859,47 @@ class QuizApp {
         console.log('Current window width:', window.innerWidth);
         console.log('Current window height:', window.innerHeight);
         
+        // IMMEDIATE CSS INJECTION TO FORCE FIX
+        const style = document.createElement('style');
+        style.textContent = `
+            .questions-page .categories-grid {
+                display: grid !important;
+                grid-template-columns: repeat(4, 1fr) !important;
+                gap: 12px !important;
+                width: 100% !important;
+                max-width: 1400px !important;
+                margin: 0 auto 30px auto !important;
+                padding: 25px !important;
+                background: rgba(255, 255, 255, 0.05) !important;
+                border-radius: 15px !important;
+                box-sizing: border-box !important;
+            }
+            
+            .questions-page .category-btn {
+                padding: 15px 10px !important;
+                font-size: 0.85rem !important;
+                min-height: 100px !important;
+                border-radius: 12px !important;
+                gap: 6px !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
+            
+            .questions-page .category-section {
+                max-width: 1500px !important;
+                margin: 0 auto !important;
+            }
+            
+            .questions-page .card {
+                max-width: 1500px !important;
+                margin: 0 auto !important;
+            }
+        `;
+        document.head.appendChild(style);
+        console.log('CSS INJECTED FORCIBLY!');
+        
         // Debug container hierarchy
         const container = document.querySelector('.container');
         const mainContent = document.querySelector('.main-content');
@@ -885,15 +926,20 @@ class QuizApp {
             console.log('Actual grid scrollWidth:', actualGrid.scrollWidth);
             console.log('Actual grid clientWidth:', actualGrid.clientWidth);
             
-            // Force apply styles if needed
-            actualGrid.style.display = 'grid';
-            actualGrid.style.gridTemplateColumns = 'repeat(4, 1fr)';
-            actualGrid.style.gap = '12px';
-            actualGrid.style.maxWidth = '1400px';
-            actualGrid.style.margin = '0 auto 30px auto';
-            actualGrid.style.padding = '25px';
-            actualGrid.style.boxSizing = 'border-box';
-            console.log('Forced grid styles applied!');
+            // Force apply styles with !important
+            actualGrid.style.cssText = `
+                display: grid !important;
+                grid-template-columns: repeat(4, 1fr) !important;
+                gap: 12px !important;
+                width: 100% !important;
+                max-width: 1400px !important;
+                margin: 0 auto 30px auto !important;
+                padding: 25px !important;
+                background: rgba(255, 255, 255, 0.05) !important;
+                border-radius: 15px !important;
+                box-sizing: border-box !important;
+            `;
+            console.log('Forced grid styles applied with !important');
         }
         
         const welcomeSection = document.getElementById('welcomeSection');
@@ -918,12 +964,18 @@ class QuizApp {
                 console.log(`Button ${index} computed style:`, window.getComputedStyle(btn));
                 console.log(`Button ${index} rect:`, btn.getBoundingClientRect());
                 
-                // Force apply button styles if needed
-                btn.style.padding = '15px 10px';
-                btn.style.fontSize = '0.85rem';
-                btn.style.minHeight = '100px';
-                btn.style.borderRadius = '12px';
-                btn.style.gap = '6px';
+                // Force apply button styles with !important
+                btn.style.cssText = `
+                    padding: 15px 10px !important;
+                    font-size: 0.85rem !important;
+                    min-height: 100px !important;
+                    border-radius: 12px !important;
+                    gap: 6px !important;
+                    display: flex !important;
+                    flex-direction: column !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                `;
             });
         } else {
             console.log('Category section NOT found - this is the problem!');
