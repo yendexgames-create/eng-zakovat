@@ -810,8 +810,49 @@ class QuizApp {
 
     showCategorySelection() {
         console.log('=== SHOW CATEGORY SELECTION START ===');
-        const welcomeSection = document.getElementById('welcomeSection');
+        console.log('Current window width:', window.innerWidth);
+        console.log('Current window height:', window.innerHeight);
+        
+        // Debug container hierarchy
+        const container = document.querySelector('.container');
+        const mainContent = document.querySelector('.main-content');
         const categorySection = document.querySelector('.category-section');
+        const categoryGrid = document.querySelector('.category-grid');
+        
+        console.log('=== CONTAINER DEBUG ===');
+        console.log('Container found:', container);
+        console.log('Main content found:', mainContent);
+        console.log('Category section found:', categorySection);
+        console.log('Category grid found:', categoryGrid);
+        
+        if (container) {
+            const containerRect = container.getBoundingClientRect();
+            console.log('Container rect:', containerRect);
+            console.log('Container computed style:', window.getComputedStyle(container));
+        }
+        
+        if (mainContent) {
+            const mainContentRect = mainContent.getBoundingClientRect();
+            console.log('Main content rect:', mainContentRect);
+            console.log('Main content computed style:', window.getComputedStyle(mainContent));
+        }
+        
+        if (categorySection) {
+            const categorySectionRect = categorySection.getBoundingClientRect();
+            console.log('Category section rect:', categorySectionRect);
+            console.log('Category section computed style:', window.getComputedStyle(categorySection));
+        }
+        
+        if (categoryGrid) {
+            const categoryGridRect = categoryGrid.getBoundingClientRect();
+            console.log('Category grid rect:', categoryGridRect);
+            console.log('Category grid computed style:', window.getComputedStyle(categoryGrid));
+            console.log('Category grid offsetWidth:', categoryGrid.offsetWidth);
+            console.log('Category grid scrollWidth:', categoryGrid.scrollWidth);
+            console.log('Category grid clientWidth:', categoryGrid.clientWidth);
+        }
+        
+        const welcomeSection = document.getElementById('welcomeSection');
         
         console.log('Welcome section found:', welcomeSection);
         console.log('Category section found:', categorySection);
@@ -824,6 +865,15 @@ class QuizApp {
         if (categorySection) {
             categorySection.classList.remove('hidden');
             console.log('Category section shown');
+            
+            // Debug category buttons
+            const categoryBtns = document.querySelectorAll('.category-btn');
+            console.log('Category buttons found:', categoryBtns.length);
+            categoryBtns.forEach((btn, index) => {
+                console.log(`Button ${index}:`, btn);
+                console.log(`Button ${index} computed style:`, window.getComputedStyle(btn));
+                console.log(`Button ${index} rect:`, btn.getBoundingClientRect());
+            });
         } else {
             console.log('Category section NOT found - this is the problem!');
         }

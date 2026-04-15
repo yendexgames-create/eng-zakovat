@@ -740,22 +740,24 @@ body {
 }
 
 .questions-page .container {
-    max-width: 1600px; /* Increased from 1600px to prevent scroll */
+    display: flex;
+    flex-direction: column;
+    max-width: 1800px; /* Increased to prevent overflow */
     width: 100%;
     margin: 0 auto;
-    display: flex;
-    gap: 20px; /* Reduced from 30px to bring sidebar closer */
-    align-items: flex-start;
-    justify-content: center; /* Changed from flex-start to center */
-    flex-direction: row; /* Explicitly set row direction */
-    flex-wrap: nowrap; /* Prevent wrapping */
+    padding: 20px;
+    box-sizing: border-box; /* Proper box sizing */
     overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
 .questions-page .main-content {
-    flex: 1;
-    min-width: 0;
-    max-width: 1300px; /* Increased from 1200px to prevent scroll */
+    display: flex;
+    gap: 30px;
+    width: 100%;
+    max-width: 1400px; /* Increased to prevent overflow */
+    margin: 0 auto; /* Center the content */
+    padding: 0 20px; /* Add padding */
+    box-sizing: border-box; /* Proper box sizing */
     order: 1; /* Move to left side (before sidebar) */
 }
 
@@ -1210,17 +1212,13 @@ body {
     display: grid;
     grid-template-columns: repeat(4, 1fr); /* 4 items per row */
     gap: 15px; /* Gap between items */
-    margin: 0 auto; /* Center the grid */
-    max-width: 100%; /* Ensure it fits container */
-    margin-bottom: 30px;
-    width: 100%;
-    max-width: 100%; /* Changed from 1200px to work with container */
-    margin: 0 0 30px 0; /* Changed from auto to work with flex layout */
-    padding: 15px; /* Reduced from 20px */
-    background: rgba(255, 255, 255, 0.1); /* Added background */
-    border-radius: 20px; /* Added border radius */
-    backdrop-filter: blur(5px); /* Added backdrop blur */
-    box-sizing: border-box; /* Ensure proper box sizing */
+    width: 100%; /* Full width */
+    max-width: 1200px; /* Maximum width */
+    margin: 0 auto 30px auto; /* Center with proper margins */
+    padding: 20px; /* Proper padding */
+    background: rgba(255, 255, 255, 0.05); /* Subtle background */
+    border-radius: 15px; /* Rounded corners */
+    box-sizing: border-box; /* Proper box sizing */
 }
 
 .questions-page .category-btn {
