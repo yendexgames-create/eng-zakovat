@@ -1330,31 +1330,46 @@ class QuizApp {
     }
     
     startQuestionTimer() {
+        console.log('=== START QUESTION TIMER DEBUG ===');
+        
         this.stopQuestionTimer();
         
         let timeLeft = this.questionTimer;
         const timerElement = document.querySelector('.question-timer');
         
-        console.log('=== START QUESTION TIMER ===');
         console.log('Timer element found:', timerElement);
-        console.log('Time left:', timeLeft);
-        console.log('Question timer value:', this.questionTimer);
+        console.log('Time left initial:', timeLeft);
+        console.log('this.questionTimer:', this.questionTimer);
+        console.log('Current timer interval:', this.currentTimerInterval);
         
         if (timerElement) {
             timerElement.textContent = timeLeft;
             timerElement.style.display = 'block';
             timerElement.classList.remove('warning', 'danger');
-            console.log('Timer initialized with:', timeLeft);
+            console.log('Timer element initialized with:', timeLeft);
         } else {
-            console.error('Timer element not found!');
+            console.error('Timer element NOT found!');
+            return;
         }
+        
+        // Clear any existing interval
+        if (this.currentTimerInterval) {
+            clearInterval(this.currentTimerInterval);
+            this.currentTimerInterval = null;
+            console.log('Existing timer interval cleared');
+        }
+        
+        console.log('Starting new interval...');
         
         this.currentTimerInterval = setInterval(() => {
             timeLeft--;
-            console.log('Timer countdown:', timeLeft);
+            console.log('=== TIMER COUNTDOWN ===');
+            console.log('Time left after decrement:', timeLeft);
+            console.log('Current timer interval ID:', this.currentTimerInterval);
             
             if (timerElement) {
                 timerElement.textContent = timeLeft;
+                console.log('Timer element updated to:', timeLeft);
                 
                 // Add warning/danger classes based on time left
                 if (timeLeft <= 5) {
@@ -1368,24 +1383,36 @@ class QuizApp {
                 } else {
                     timerElement.classList.remove('warning', 'danger');
                 }
+            } else {
+                console.error('Timer element lost during countdown!');
             }
             
             if (timeLeft <= 0) {
-                console.log('Time up!');
+                console.log('=== TIME UP ===');
+                console.log('Stopping timer...');
                 this.stopQuestionTimer();
                 this.timeUp();
             }
         }, 1000);
         
-        console.log('Timer interval started');
-        console.log('=== START QUESTION TIMER END ===');
+        console.log('Timer interval started with ID:', this.currentTimerInterval);
+        console.log('=== START QUESTION TIMER DEBUG END ===');
     }
     
     stopQuestionTimer() {
+        console.log('=== STOP QUESTION TIMER ===');
+        console.log('Current timer interval before stop:', this.currentTimerInterval);
+        
         if (this.currentTimerInterval) {
             clearInterval(this.currentTimerInterval);
             this.currentTimerInterval = null;
+            console.log('Timer interval stopped and cleared');
+        } else {
+            console.log('No active timer interval to stop');
         }
+        
+        console.log('Timer interval after stop:', this.currentTimerInterval);
+        console.log('=== STOP QUESTION TIMER END ===');
     }
     
     displayQuestion(question) {
