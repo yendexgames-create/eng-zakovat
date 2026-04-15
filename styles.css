@@ -2231,6 +2231,53 @@ body {
     transform: none;
 }
 
+/* Start Quiz Button Specific Design */
+.start-quiz-btn {
+    background: linear-gradient(135deg, #28a745, #20c997) !important;
+    color: white !important;
+    padding: 18px 40px !important;
+    border: none !important;
+    border-radius: 15px !important;
+    font-size: 1.2rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3) !important;
+    position: relative !important;
+    overflow: hidden !important;
+    margin: 20px auto 0 !important;
+    display: block !important;
+    min-width: 250px !important;
+}
+
+.start-quiz-btn::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: -100% !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent) !important;
+    transition: left 0.5s ease !important;
+}
+
+.start-quiz-btn:hover::before {
+    left: 100% !important;
+}
+
+.start-quiz-btn:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 10px 30px rgba(40, 167, 69, 0.4) !important;
+    background: linear-gradient(135deg, #218838, #1ea085) !important;
+}
+
+.start-quiz-btn:active {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4) !important;
+}
+
 .team-inputs {
     margin: 20px 0;
     max-height: 500px;

@@ -1155,34 +1155,73 @@ class QuizApp {
     }
     
     showStartCountdown() {
+        console.log('=== SHOW START COUNTDOWN ===');
+        
+        // Hide category section first
+        const categorySection = document.querySelector('.category-section');
+        if (categorySection) {
+            categorySection.classList.add('hidden');
+            console.log('Category section hidden');
+        }
+        
+        // Show countdown section
         const countdownElement = document.querySelector('.start-countdown');
-        if (!countdownElement) return;
+        if (!countdownElement) {
+            console.error('Countdown element not found!');
+            return;
+        }
+        
+        // Make countdown section visible
+        countdownElement.classList.remove('hidden');
+        countdownElement.style.display = 'block';
         
         let countdown = this.startTimer;
-        countdownElement.textContent = countdown;
-        countdownElement.style.display = 'block';
+        const countdownNumber = countdownElement.querySelector('.countdown-number');
+        if (countdownNumber) {
+            countdownNumber.textContent = countdown;
+        }
+        
+        console.log('Countdown started from:', countdown);
         
         const countdownInterval = setInterval(() => {
             countdown--;
             if (countdown > 0) {
-                countdownElement.textContent = countdown;
+                if (countdownNumber) {
+                    countdownNumber.textContent = countdown;
+                }
+                console.log('Countdown:', countdown);
             } else {
                 clearInterval(countdownInterval);
+                countdownElement.classList.add('hidden');
                 countdownElement.style.display = 'none';
+                console.log('Countdown finished, starting questions');
                 this.startQuestions();
             }
         }, 1000);
     }
     
     startQuestions() {
+        console.log('=== START QUESTIONS ===');
         console.log('Starting questions phase');
         
         // Mix all questions from selected categories
         this.mixedQuestions = this.mixQuestionsFromCategories();
         this.currentQuestionIndex = 0;
         
+        console.log('Mixed questions prepared:', this.mixedQuestions.length);
+        console.log('Current question index:', this.currentQuestionIndex);
+        
+        // Show question section
+        const questionSection = document.querySelector('.question-section');
+        if (questionSection) {
+            questionSection.classList.remove('hidden');
+            console.log('Question section shown');
+        }
+        
         // Show first question
         this.showNextQuestion();
+        
+        console.log('=== START QUESTIONS END ===');
     }
     
     mixQuestionsFromCategories() {
