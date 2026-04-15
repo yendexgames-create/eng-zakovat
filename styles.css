@@ -181,20 +181,24 @@ body {
 }
 
 .questions-page .team-rank {
-    width: 18px; /* Reduced from 24px */
-    height: 18px; /* Reduced from 24px */
+    position: absolute; /* Position absolutely */
+    top: 4px; /* Position at top */
+    right: 4px; /* Position at right corner */
+    width: 14px; /* Much smaller */
+    height: 14px; /* Much smaller */
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 800;
-    font-size: 0.6rem; /* Reduced from 0.7rem */
+    font-size: 0.5rem; /* Much smaller font */
     color: white;
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); /* Smaller shadow */
     border: 1px solid white; /* Thinner border */
     flex-shrink: 0; /* Don't shrink */
-    order: 1; /* First element */
+    order: 4; /* Last element - on top */
+    z-index: 10; /* Ensure it's on top */
 }
 
 /* Team info will be redesigned from scratch */
@@ -210,7 +214,8 @@ body {
     flex: 1; /* Take available space */
     min-width: 0; /* Allow shrinking */
     margin-left: 2px; /* Add small margin to prevent cutoff */
-    order: 2; /* Second element */
+    margin-right: 20px; /* Add right margin for rank badge */
+    order: 1; /* First element */
 }
 
 .questions-page .team-score {
@@ -223,7 +228,7 @@ body {
     min-width: 32px; /* Reduced from 40px */
     text-align: center;
     flex-shrink: 0; /* Don't shrink */
-    order: 3; /* Third element */
+    order: 2; /* Second element */
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Smaller shadow */
     margin-left: 2px; /* Add small margin to prevent cutoff */
 }
