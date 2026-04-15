@@ -1086,7 +1086,7 @@ class QuizApp {
         }
     }
     
-    startQuiz() {
+    startQuestionsQuiz() {
         console.log('Starting quiz with selected categories:', this.selectedCategories);
         
         // Show 3-second countdown
