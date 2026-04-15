@@ -2687,18 +2687,35 @@ body {
 }
 
 #welcomeTeamsList {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 10px;
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 12px !important;
+    width: 100% !important;
+    max-width: 800px !important;
+    margin: 0 auto !important;
+    padding: 20px !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-radius: 15px !important;
+    box-sizing: border-box !important;
 }
 
 .welcome-team-item {
-    background: var(--bg-secondary);
-    padding: 10px;
-    border-radius: var(--radius-small);
-    border: 1px solid var(--border-color);
-    text-align: center;
-    font-weight: 500;
+    background: linear-gradient(135deg, #667eea, #764ba2) !important;
+    color: white !important;
+    padding: 15px 10px !important;
+    border-radius: 12px !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    text-align: center !important;
+    font-weight: 600 !important;
+    font-size: 0.9rem !important;
+    min-height: 80px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3) !important;
+    transition: all 0.3s ease !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
 }
 
 /* Setup Status Styles */

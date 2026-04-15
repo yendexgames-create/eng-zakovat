@@ -791,7 +791,29 @@ class QuizApp {
         console.log('Current scores:', this.scores);
         console.log('Current page:', window.location.pathname);
         
+        // Check if we're on welcome page and need to display welcomeTeamsList
+        const welcomeTeamsList = document.getElementById('welcomeTeamsList');
         const teamsList = document.getElementById('teamsList');
+        
+        console.log('Welcome teams list found:', welcomeTeamsList);
+        console.log('Teams list found:', teamsList);
+        
+        // Handle welcome teams list (4-column grid)
+        if (welcomeTeamsList) {
+            console.log('Updating welcome teams list');
+            welcomeTeamsList.innerHTML = '';
+            
+            this.teams.forEach((team, index) => {
+                console.log(`Creating welcome team item for ${team.name} with ID ${team.id}`);
+                const teamItem = document.createElement('div');
+                teamItem.className = 'welcome-team-item';
+                teamItem.textContent = team.name;
+                welcomeTeamsList.appendChild(teamItem);
+                console.log(`Welcome team item appended for ${team.name}`);
+            });
+        }
+        
+        // Handle regular teams list (leaderboard)
         if (!teamsList) {
             console.log('Teams list element not found');
             return;
