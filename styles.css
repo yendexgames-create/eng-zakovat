@@ -1088,6 +1088,7 @@ body {
     color: #8b6914;
     box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
     border: 3px solid rgba(255, 215, 0, 0.3);
+    margin-left: 170px;
 }
 
 .questions-page .rank-second {
@@ -1103,12 +1104,14 @@ body {
     color: #6b4423;
     box-shadow: 0 4px 15px rgba(205, 127, 50, 0.4);
     border: 3px solid rgba(205, 127, 50, 0.3);
+    margin-left: 170px;
 }
 
 .questions-page .team-rank:not(.rank-first):not(.rank-second):not(.rank-third) {
     background: linear-gradient(135deg, var(--bg-tertiary), #dce1e3);
     color: var(--text-secondary);
     border: 3px solid var(--border-color);
+    margin-left: 170px;
 }
 
 .questions-page .rank-number {
