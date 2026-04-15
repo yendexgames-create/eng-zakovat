@@ -1022,7 +1022,7 @@ body {
 .questions-page .team-item {
     display: flex;
     flex-direction: row; /* Horizontal layout */
-    align-items: center; /* Center vertically */
+    align-items: flex-start; /* Align to top for multi-line */
     justify-content: space-between; /* Space between elements */
     padding: 12px 15px; /* Increased padding for vertical layout */
     margin-bottom: 6px;
@@ -1031,10 +1031,10 @@ body {
     border: 1px solid rgba(0, 0, 0, 0.05);
     transition: all 0.3s ease;
     position: relative;
-    overflow: hidden;
+    overflow: visible; /* Allow text to be visible */
     width: 100%;
     box-sizing: border-box;
-    min-height: 60px; /* Increased height for vertical layout */
+    min-height: 80px; /* Further increased for multi-line text */
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
     gap: 6px; /* Reduced from 8px for better fit */
 }
@@ -1136,12 +1136,15 @@ body {
     color: var(--text-primary);
     font-size: 1.2rem; /* Increased from 1.1rem */
     margin-right: 0; /* Remove margin for vertical layout */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: normal; /* Allow text to wrap */
+    overflow: visible; /* Show all text */
+    text-overflow: clip; /* Don't add ellipsis */
     flex: 1; /* Take full width */
     min-width: 0; /* Important for flexbox overflow */
     max-width: 100%; /* Full width available */
+    word-wrap: break-word; /* Break long words */
+    overflow-wrap: break-word; /* Modern property */
+    line-height: 1.2; /* Proper line height for multi-line */
 }
 
 .questions-page .team-score {
