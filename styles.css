@@ -214,16 +214,16 @@ body {
 
 .questions-page .team-score {
     font-weight: 700;
-    font-size: 0.85rem; /* Readable font size */
+    font-size: 0.75rem; /* Reduced from 0.85rem */
     color: white; /* White text */
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    padding: 4px 8px; /* Proper padding */
-    border-radius: 12px; /* Rounded corners */
-    min-width: 40px; /* Proper width */
+    padding: 2px 6px; /* Reduced padding */
+    border-radius: 10px; /* Smaller radius */
+    min-width: 32px; /* Reduced from 40px */
     text-align: center;
     flex-shrink: 0; /* Don't shrink */
     order: 3; /* Third element */
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Smaller shadow */
 }
 
 /* Score Animation */
@@ -1710,16 +1710,7 @@ body {
     margin-left: -30px;
 }
 
-.team-name::before {
-    content: 'Team';
-    background: linear-gradient(135deg, #4a90e2, #357abd);
-    color: white;
-    padding: 4px 10px;
-    border-radius: 8px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    box-shadow: 0 2px 8px rgba(74, 144, 226, 0.2);
-}
+/* Team-name::before pseudo element removed */
 
 .team-score {
     color: #7f8c8d;
