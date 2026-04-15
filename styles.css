@@ -1013,22 +1013,47 @@ body {
     padding: 4px 12px;
     border-radius: 10px;
     font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
+/* Enhanced Team Items for Leaderboard - CLEAN HORIZONTAL STYLE */
 .questions-page .team-item {
-    display: block; /* Changed from flex */
-    padding: 12px 16px;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-medium);
+    display: flex;
+    flex-direction: column; /* Vertical layout */
+    align-items: stretch; /* Stretch to full width */
+    justify-content: space-between; /* Space between elements */
+    padding: 12px 15px; /* Increased padding for vertical layout */
+    margin-bottom: 6px;
+    background: linear-gradient(135deg, #ffffff, #f8f9fa);
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
     width: 100%;
     box-sizing: border-box;
-    min-height: 40px; /* Proper height for horizontal layout */
+    min-height: 60px; /* Increased height for vertical layout */
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    gap: 6px; /* Reduced from 8px for better fit */
+    gap: 4px; /* Small gap between rows */
+}
+
+/* New container for team name and rank */
+.questions-page .team-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+/* Container for team score */
+.questions-page .team-score-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
 }
 
 .questions-page .team-item::before {
@@ -1064,19 +1089,17 @@ body {
 }
 
 .questions-page .team-rank {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 55px;
-    height: 55px;
+    width: 55px; /* Increased from 50px */
+    height: 55px; /* Increased from 50px */
     display: flex;
     align-items: center;
     justify-content: center;
+    margin-right: 18px; /* Increased from 16px */
     border-radius: 50%;
     font-weight: 900;
-    font-size: 1.2rem;
+    font-size: 1.2rem; /* Increased from 1.1rem */
+    position: relative;
     flex-shrink: 0;
-    z-index: 5;
 }
 
 .questions-page .rank-first {
@@ -1084,6 +1107,7 @@ body {
     color: #8b6914;
     box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
     border: 3px solid rgba(255, 215, 0, 0.3);
+    margin-left: 170px;
 }
 
 .questions-page .rank-second {
@@ -1091,6 +1115,7 @@ body {
     color: #5a5a5a;
     box-shadow: 0 4px 15px rgba(192, 192, 192, 0.4);
     border: 3px solid rgba(192, 192, 192, 0.3);
+    margin-left: 170px;
 }
 
 .questions-page .rank-third {
@@ -1098,12 +1123,14 @@ body {
     color: #6b4423;
     box-shadow: 0 4px 15px rgba(205, 127, 50, 0.4);
     border: 3px solid rgba(205, 127, 50, 0.3);
+    margin-left: 170px;
 }
 
 .questions-page .team-rank:not(.rank-first):not(.rank-second):not(.rank-third) {
     background: linear-gradient(135deg, var(--bg-tertiary), #dce1e3);
     color: var(--text-secondary);
     border: 3px solid var(--border-color);
+    margin-left: 170px;
 }
 
 .questions-page .rank-number {
@@ -1122,22 +1149,36 @@ body {
 .questions-page .team-name {
     font-weight: 700;
     color: var(--text-primary);
-    font-size: 1.2rem;
-    display: inline; /* Allow text to flow naturally */
-    white-space: normal; /* Allow wrapping */
-    overflow: visible; /* Show all text */
-    text-overflow: clip; /* No ellipsis needed */
-    margin-right: 8px; /* Space before score */
+    font-size: 1.2rem; /* Increased from 1.1rem */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1; /* Take available space */
+    min-width: 0; /* Important for flexbox overflow */
+    margin-right: 8px; /* Space between name and rank */
+}
+
+.questions-page .team-rank {
+    font-weight: 800;
+    font-size: 0.9rem; /* Smaller for vertical layout */
+    color: var(--primary-color);
+    background: linear-gradient(135deg, rgba(74, 144, 226, 0.1), rgba(74, 144, 226, 0.2));
+    padding: 4px 8px; /* Smaller padding */
+    border-radius: 6px; /* Smaller border */
+    border: 1px solid var(--primary-color);
+    min-width: 30px; /* Smaller width */
+    text-align: center;
+    flex-shrink: 0; /* Don't shrink */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .questions-page .team-score {
     font-weight: 900;
-    font-size: 1.5rem;
+    font-size: 1.2rem; /* Reduced for vertical layout */
     color: var(--primary-color);
-    background: linear-gradient(135deg, rgba(74, 144, 226, 0.1), rgba(74, 144, 226, 0.2));
-    display: inline; /* Inline with name */
-    vertical-align: baseline; /* Align with text */
-    flex-shrink: 0;
+    margin-left: auto; /* Push to right */
+    flex-shrink: 0; /* Don't shrink */
 }
 
 /* Score Animation for Questions Page */
