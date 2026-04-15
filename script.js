@@ -1003,6 +1003,15 @@ class QuizApp {
             categorySection.classList.remove('hidden');
             console.log('Category section shown');
             
+            // Initially hide start button until 8 categories are selected
+            const startBtn = document.querySelector('.start-quiz-btn');
+            if (startBtn) {
+                startBtn.style.display = 'none';
+                startBtn.classList.add('hidden');
+                startBtn.disabled = true;
+                console.log('Start button initially hidden');
+            }
+            
             // Debug category buttons
             const categoryBtns = document.querySelectorAll('.category-btn');
             console.log('Category buttons found:', categoryBtns.length);
@@ -1065,8 +1074,7 @@ class QuizApp {
         
         // Check if all categories are selected
         if (this.selectedCategories.length === this.categoriesToSelect) {
-            console.log('All categories selected, showing start button');
-            this.showStartButton();
+            console.log('All categories selected - start button will be shown by updateCategorySelectionUI');
         }
         
         // Send category selection to server
@@ -1084,9 +1092,9 @@ class QuizApp {
         // Update UI
         this.updateCategorySelectionUI();
         
-        // Hide start button if not all categories selected
+        // Start button will be hidden by updateCategorySelectionUI if not all categories selected
         if (this.selectedCategories.length < this.categoriesToSelect) {
-            this.hideStartButton();
+            console.log('Not all categories selected - start button will be hidden by updateCategorySelectionUI');
         }
         
         // Send removal to server
@@ -1137,6 +1145,28 @@ class QuizApp {
             const counterText = `${this.selectedCategories.length}/${this.categoriesToSelect} selected`;
             console.log('Setting selection counter text:', counterText);
             selectionCounter.textContent = counterText;
+        }
+        
+        // Show or hide start button based on selection count
+        const startBtn = document.querySelector('.start-quiz-btn');
+        console.log('Start button element:', startBtn);
+        console.log('Selected categories count:', this.selectedCategories.length);
+        console.log('Categories to select:', this.categoriesToSelect);
+        
+        if (startBtn) {
+            if (this.selectedCategories.length === this.categoriesToSelect) {
+                // Show start button when exactly 8 categories are selected
+                startBtn.style.display = 'block';
+                startBtn.classList.remove('hidden');
+                startBtn.disabled = false;
+                console.log('Start button shown - 8 categories selected');
+            } else {
+                // Hide start button when not exactly 8 categories are selected
+                startBtn.style.display = 'none';
+                startBtn.classList.add('hidden');
+                startBtn.disabled = true;
+                console.log('Start button hidden - not 8 categories selected');
+            }
         }
         
         console.log('=== UPDATE CATEGORY SELECTION UI END ===');
