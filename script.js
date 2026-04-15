@@ -359,7 +359,9 @@ class QuizApp {
     }
 
     bindEvents() {
-        // Team setup events
+        console.log('=== BIND EVENTS START ===');
+        
+        // Team count input
         const teamCountInput = document.getElementById('teamCount');
         if (teamCountInput) {
             teamCountInput.addEventListener('change', () => {
@@ -397,6 +399,29 @@ class QuizApp {
             });
         } else {
             console.error('Start button not found!');
+        }
+
+        // Add event listener for start-quiz-btn
+        const startQuizBtn = document.querySelector('.start-quiz-btn');
+        if (startQuizBtn) {
+            console.log('Start quiz button found, adding event listener');
+            startQuizBtn.addEventListener('click', (e) => {
+                console.log('=== START QUIZ BUTTON CLICKED ===');
+                console.log('Event:', e);
+                console.log('Button element:', startQuizBtn);
+                console.log('Button classes:', startQuizBtn.classList);
+                console.log('Button disabled:', startQuizBtn.disabled);
+                
+                if (startQuizBtn.disabled) {
+                    console.log('Button is disabled - click ignored');
+                    return;
+                }
+                
+                console.log('Button is enabled - calling startQuestionsQuiz()');
+                this.startQuestionsQuiz();
+            });
+        } else {
+            console.error('Start quiz button not found!');
         }
 
         // Scoring events
@@ -1822,3 +1847,6 @@ window.addEventListener('load', () => {
         teamCountInput.dispatchEvent(event);
     }
 });
+
+// Create global app instance for HTML onclick handlers
+const app = new QuizApp();
