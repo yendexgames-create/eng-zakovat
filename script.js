@@ -1015,6 +1015,7 @@ class QuizApp {
         console.log('Selected category:', category);
         console.log('Currently selected categories:', this.selectedCategories);
         console.log('Categories to select:', this.categoriesToSelect);
+        console.log('Selected categories length:', this.selectedCategories.length);
         
         // Check if category is already selected
         if (this.selectedCategories.includes(category)) {
@@ -1032,6 +1033,7 @@ class QuizApp {
         // Add category to selected list
         this.selectedCategories.push(category);
         console.log('Category added to selection:', category);
+        console.log('Updated selected categories:', this.selectedCategories);
         
         // Update UI to show selection
         this.updateCategorySelectionUI();
@@ -1070,26 +1072,49 @@ class QuizApp {
     }
     
     updateCategorySelectionUI() {
+        console.log('=== UPDATE CATEGORY SELECTION UI DEBUG ===');
+        console.log('Selected categories:', this.selectedCategories);
+        console.log('Selected categories length:', this.selectedCategories.length);
+        
         // Update category buttons to show selection status
         const categoryBtns = document.querySelectorAll('.category-btn');
-        categoryBtns.forEach(btn => {
+        console.log('Category buttons found:', categoryBtns.length);
+        
+        categoryBtns.forEach((btn, index) => {
             const category = btn.dataset.category;
+            console.log(`Button ${index} (${category}):`, btn);
+            
+            const selectionCount = btn.querySelector('.selection-count');
+            console.log(`Selection count element for ${category}:`, selectionCount);
+            
             if (this.selectedCategories.includes(category)) {
                 btn.classList.add('selected');
-                btn.querySelector('.selection-count').textContent = 
-                    this.selectedCategories.indexOf(category) + 1;
+                const categoryIndex = this.selectedCategories.indexOf(category) + 1;
+                console.log(`Setting selection count for ${category}:`, categoryIndex);
+                if (selectionCount) {
+                    selectionCount.textContent = categoryIndex;
+                    selectionCount.style.display = 'flex';
+                }
             } else {
                 btn.classList.remove('selected');
-                btn.querySelector('.selection-count').textContent = '';
+                console.log(`Clearing selection count for ${category}`);
+                if (selectionCount) {
+                    selectionCount.textContent = '';
+                    selectionCount.style.display = 'none';
+                }
             }
         });
         
         // Update selection counter
         const selectionCounter = document.querySelector('.selection-counter');
+        console.log('Selection counter element:', selectionCounter);
         if (selectionCounter) {
-            selectionCounter.textContent = 
-                `${this.selectedCategories.length}/${this.categoriesToSelect} tanlandi`;
+            const counterText = `${this.selectedCategories.length}/${this.categoriesToSelect} selected`;
+            console.log('Setting selection counter text:', counterText);
+            selectionCounter.textContent = counterText;
         }
+        
+        console.log('=== UPDATE CATEGORY SELECTION UI END ===');
     }
     
     showStartButton() {
