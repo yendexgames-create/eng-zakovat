@@ -181,59 +181,49 @@ body {
 }
 
 .questions-page .team-rank {
-    position: absolute;
-    top: 50%; /* Center vertically */
-    left: 8px; /* Position at left */
-    transform: translateY(-50%); /* Center vertically */
-    width: 20px; /* Smaller for horizontal layout */
-    height: 20px; /* Smaller for horizontal layout */
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 800;
-    font-size: 0.6rem; /* Smaller font */
+    font-size: 0.7rem;
     color: white;
-    z-index: 2;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
     border: 2px solid white;
+    flex-shrink: 0;
+    order: 1;
 }
 
-.questions-page .team-info {
-    display: flex;
-    flex-direction: row; /* Changed from column to row */
-    align-items: center; /* Center align items */
-    justify-content: space-between; /* Space between elements */
-    text-align: left; /* Left align text */
-    padding: 0 8px 0 30px; /* Left padding for rank, right for score */
-    flex: 1;
-    min-width: 0;
-}
+/* Team info will be redesigned from scratch */
 
 .questions-page .team-name {
     font-weight: 600;
-    font-size: 0.75rem; /* Smaller for horizontal layout */
+    font-size: 0.8rem; /* Readable font size */
     color: var(--text-primary);
-    margin: 0; /* Remove margin for horizontal layout */
     text-align: left; /* Left align */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     flex: 1; /* Take available space */
-    order: 2; /* Name comes after rank */
+    min-width: 0; /* Allow shrinking */
+    order: 2; /* Second element */
 }
 
 .questions-page .team-score {
     font-weight: 700;
-    font-size: 0.85rem; /* Smaller for horizontal layout */
+    font-size: 0.85rem; /* Readable font size */
     color: white; /* White text */
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    padding: 2px 6px; /* Compact padding */
-    border-radius: 10px; /* Smaller radius */
-    min-width: 35px; /* Smaller width */
+    padding: 4px 8px; /* Proper padding */
+    border-radius: 12px; /* Rounded corners */
+    min-width: 40px; /* Proper width */
     text-align: center;
-    order: 3; /* Score comes last */
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    flex-shrink: 0; /* Don't shrink */
+    order: 3; /* Third element */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 /* Score Animation */
@@ -1019,12 +1009,13 @@ body {
     letter-spacing: 1px;
 }
 
-/* Enhanced Team Items for Leaderboard - COMPACT HORIZONTAL STYLE */
+/* Enhanced Team Items for Leaderboard - CLEAN HORIZONTAL STYLE */
 .questions-page .team-item {
     display: flex;
-    flex-direction: column; /* Keep column for card structure */
-    align-items: stretch;
-    padding: 6px 12px; /* Reduced padding for horizontal layout */
+    flex-direction: row; /* Horizontal layout */
+    align-items: center; /* Center vertically */
+    justify-content: space-between; /* Space between elements */
+    padding: 8px 12px; /* Proper padding */
     margin-bottom: 6px;
     background: linear-gradient(135deg, #ffffff, #f8f9fa);
     border-radius: 12px;
@@ -1034,8 +1025,9 @@ body {
     overflow: hidden;
     width: 100%;
     box-sizing: border-box;
-    min-height: 36px; /* Reduced from 50px for horizontal layout */
+    min-height: 40px; /* Proper height for horizontal layout */
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    gap: 8px; /* Gap between elements */
 }
 
 .questions-page .team-item::before {
@@ -1051,19 +1043,19 @@ body {
 }
 
 .questions-page .team-item:hover {
-    transform: translateY(-2px); /* Reduced from -4px */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Reduced shadow */
+    transform: translateY(-2px); /* Subtle hover */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Enhanced shadow */
     border-color: var(--primary-color);
 }
 
 .questions-page .team-item:hover .team-rank {
-    transform: scale(1.05); /* Reduced from 1.1 */
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); /* Reduced shadow */
+    transform: scale(1.05); /* Subtle scale */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); /* Enhanced shadow */
 }
 
 .questions-page .team-item:hover .team-score {
-    transform: scale(1.02); /* Reduced from 1.05 */
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15); /* Reduced shadow */
+    transform: scale(1.02); /* Subtle scale */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15); /* Enhanced shadow */
 }
 
 .questions-page .team-item:hover::before {
