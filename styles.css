@@ -181,19 +181,19 @@ body {
 }
 
 .questions-page .team-rank {
-    width: 30px; /* Reduced from 35px */
-    height: 30px; /* Reduced from 35px */
+    width: 24px; /* Reduced from 30px */
+    height: 24px; /* Reduced from 30px */
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 800;
-    font-size: 0.8rem; /* Reduced from 0.9rem */
+    font-size: 0.7rem; /* Reduced from 0.8rem */
     color: white;
     position: relative;
     z-index: 1;
     flex-shrink: 0; /* Don't shrink */
-    margin-right: 8px; /* Add margin before team info */
+    margin-right: 6px; /* Reduced from 8px */
 }
 
 .questions-page .team-info {
@@ -206,24 +206,24 @@ body {
 
 .questions-page .team-name {
     font-weight: 600;
-    font-size: 0.85rem; /* Reduced from 0.9rem */
+    font-size: 0.75rem; /* Reduced from 0.85rem */
     color: var(--text-primary);
     flex: 1;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     min-width: 0; /* Allow flex shrinking */
-    margin-right: 8px; /* Add margin before score */
+    margin-right: 6px; /* Reduced from 8px */
 }
 
 .questions-page .team-score {
     font-weight: 700;
-    font-size: 1rem; /* Reduced from 1.1rem */
+    font-size: 0.85rem; /* Reduced from 1rem */
     color: var(--primary-color);
     background: var(--bg-tertiary);
-    padding: 3px 6px; /* Reduced from 4px 8px */
-    border-radius: var(--radius-medium);
-    min-width: 35px; /* Reduced from 40px */
+    padding: 2px 4px; /* Reduced from 3px 6px */
+    border-radius: 8px; /* Reduced from var(--radius-medium) */
+    min-width: 28px; /* Reduced from 35px */
     text-align: center;
     flex-shrink: 0; /* Don't shrink */
     order: 1; /* Ensure score is visible */
@@ -744,6 +744,8 @@ body {
     align-items: flex-start;
     justify-content: center; /* Changed from flex-start to center */
     flex-direction: row; /* Explicitly set row direction */
+    flex-wrap: nowrap; /* Prevent wrapping */
+    overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
 .questions-page .main-content {
@@ -968,7 +970,7 @@ body {
 /* Teams Sidebar - Improved Leaderboard */
 .questions-page .teams-sidebar {
     width: 280px; /* Changed from 100px to 280px as requested */
-    padding: 15px; /* Reduced from 20px to save space */
+    padding: 12px; /* Reduced from 15px to save more space */
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
     border-radius: 20px;
@@ -985,12 +987,12 @@ body {
 
 .questions-page .teams-sidebar h3 {
     color: var(--primary-color);
-    font-size: 1.4rem; /* Reduced from 1.6rem */
+    font-size: 1.2rem; /* Reduced from 1.4rem */
     font-weight: 800;
     text-align: center;
-    margin-bottom: 20px; /* Reduced from 25px */
-    padding-bottom: 12px; /* Reduced from 15px */
-    border-bottom: 3px solid var(--primary-color);
+    margin-bottom: 15px; /* Reduced from 20px */
+    padding-bottom: 10px; /* Reduced from 12px */
+    border-bottom: 2px solid var(--primary-color); /* Reduced from 3px */
     position: relative;
 }
 
@@ -1014,19 +1016,18 @@ body {
 .questions-page .team-item {
     display: flex;
     align-items: center;
-    padding: 8px 10px; /* Reduced from 10px 12px */
-    margin-bottom: 6px; /* Reduced from 8px */
+    padding: 6px 8px; /* Reduced from 8px 10px */
+    margin-bottom: 4px; /* Reduced from 6px */
     background: linear-gradient(135deg, var(--bg-secondary), #f8f9fa);
-    border-radius: var(--radius-medium);
-    border: 2px solid var(--border-color);
+    border-radius: 12px; /* Reduced from var(--radius-medium) */
+    border: 1px solid var(--border-color); /* Reduced from 2px */
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    border: 2px solid transparent;
     width: 100%;
     box-sizing: border-box;
-    min-height: 45px; /* Reduced from 50px */
-    gap: 8px; /* Add gap between elements */
+    min-height: 38px; /* Reduced from 45px */
+    gap: 6px; /* Reduced from 8px */
     flex-direction: row;
 }
 
@@ -1163,13 +1164,14 @@ body {
     text-align: center;
     width: 100%;
     padding: 40px; /* Increased from 30px */
-    max-width: 1400px; /* Increased from 1200px */
-    margin: 0 auto; /* Center the section */
+    max-width: 100%; /* Changed from 1400px to work with container */
+    margin: 0; /* Changed from auto to work with flex layout */
     background: rgba(255, 255, 255, 0.08); /* Enhanced background */
     border-radius: 25px; /* Increased border radius */
     backdrop-filter: blur(10px); /* Enhanced backdrop blur */
     border: 1px solid rgba(255, 255, 255, 0.2); /* Added border */
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05); /* Added shadow */
+    box-sizing: border-box; /* Ensure proper box sizing */
 }
 
 .questions-page .category-title {
@@ -1186,16 +1188,17 @@ body {
 
 .questions-page .category-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Increased from 250px */
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Responsive grid */
     gap: 35px; /* Increased from 30px */
     margin-bottom: 30px;
     width: 100%;
-    max-width: 1200px; /* Increased from 1000px */
-    margin: 0 auto 30px auto; /* Center grid */
+    max-width: 100%; /* Changed from 1200px to work with container */
+    margin: 0 0 30px 0; /* Changed from auto to work with flex layout */
     padding: 20px; /* Added padding */
     background: rgba(255, 255, 255, 0.1); /* Added background */
     border-radius: 20px; /* Added border radius */
     backdrop-filter: blur(5px); /* Added backdrop blur */
+    box-sizing: border-box; /* Ensure proper box sizing */
 }
 
 .questions-page .category-btn {
@@ -1345,11 +1348,11 @@ body {
     }
     
     .questions-page .category-section {
-        max-width: 1000px; /* Adjusted from 1400px */
+        max-width: 100%; /* Changed from 1000px to work with container */
     }
     
     .questions-page .category-grid {
-        max-width: 900px; /* Adjusted from 1200px */
+        max-width: 100%; /* Changed from 900px to work with container */
     }
     
     .questions-page .answer-options {
@@ -1661,7 +1664,7 @@ body {
 .teams-list {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 8px; /* Reduced from 15px */
 }
 
 /* Remove duplicate team-item styles - use the main one at line 1004 */
