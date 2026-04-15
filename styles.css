@@ -1208,8 +1208,10 @@ body {
 
 .questions-page .category-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Reduced from 200px */
-    gap: 20px; /* Reduced from 35px */
+    grid-template-columns: repeat(4, 1fr); /* 4 items per row */
+    gap: 15px; /* Gap between items */
+    margin: 0 auto; /* Center the grid */
+    max-width: 100%; /* Ensure it fits container */
     margin-bottom: 30px;
     width: 100%;
     max-width: 100%; /* Changed from 1200px to work with container */
@@ -1222,22 +1224,87 @@ body {
 }
 
 .questions-page .category-btn {
-    background: linear-gradient(145deg, #ffffff, #f8f9fa); /* Changed gradient angle */
-    border: 2px solid transparent; /* Transparent border */
-    border-radius: 16px; /* Reduced from 20px */
-    padding: 25px 20px; /* Reduced from 45px 35px */
-    text-align: center;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 20px 15px; /* Slightly smaller padding for 4-column layout */
+    border-radius: 15px;
     cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); /* Smoother transition */
+    transition: all 0.3s ease;
+    font-size: 0.9rem; /* Slightly smaller font */
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
     position: relative;
     overflow: hidden;
-    min-height: 120px; /* Reduced from default */
     display: flex;
     flex-direction: column;
     align-items: center;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08); /* Softer shadow */
-    backdrop-filter: blur(10px); /* Added backdrop blur */
-    transform: translateZ(0); /* Hardware acceleration */
+    gap: 8px;
+    min-height: 120px; /* Reduced height for 4-column layout */
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.questions-page .category-btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    background: linear-gradient(135deg, #5a67d8, #6b46c1);
+}
+
+.questions-page .category-btn.selected {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+    border: 3px solid rgba(40, 167, 69, 0.3);
+}
+
+.questions-page .category-btn.selected::after {
+    content: '✓';
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: white;
+    color: #28a745;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.questions-page .selection-counter {
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border-radius: 10px;
+    border: 2px solid var(--primary-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.questions-page .selection-count {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: var(--primary-color);
+    color: white;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 .questions-page .category-btn::before {
