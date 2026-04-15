@@ -808,6 +808,12 @@ body {
     border-bottom: 2px solid var(--border-color);
     flex-wrap: wrap;
     gap: 10px;
+    position: relative;
+}
+
+.questions-page .question-header .question-timer {
+    order: 2; /* Ensure timer is on the right */
+    flex-shrink: 0;
 }
 
 .questions-page .category-badge {
@@ -2229,6 +2235,67 @@ body {
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
+}
+
+/* Question Timer Styles */
+.question-timer {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a24) !important;
+    color: white !important;
+    padding: 8px 16px !important;
+    border-radius: 20px !important;
+    font-size: 1.1rem !important;
+    font-weight: 700 !important;
+    min-width: 50px !important;
+    text-align: center !important;
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3) !important;
+    border: 2px solid rgba(255, 255, 255, 0.2) !important;
+    position: relative !important;
+    overflow: hidden !important;
+    animation: pulse 1s infinite !important;
+}
+
+.question-timer::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: -100% !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent) !important;
+    animation: shimmer 2s infinite !important;
+}
+
+.question-timer.warning {
+    background: linear-gradient(135deg, #ff4757, #c44569) !important;
+    animation: pulse-warning 0.5s infinite !important;
+}
+
+.question-timer.danger {
+    background: linear-gradient(135deg, #ff3838, #ff0000) !important;
+    animation: pulse-danger 0.3s infinite !important;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+@keyframes shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+@keyframes pulse-warning {
+    0% { transform: scale(1); box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3); }
+    50% { transform: scale(1.1); box-shadow: 0 6px 20px rgba(255, 71, 87, 0.5); }
+    100% { transform: scale(1); box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3); }
+}
+
+@keyframes pulse-danger {
+    0% { transform: scale(1); box-shadow: 0 4px 15px rgba(255, 0, 0, 0.5); }
+    50% { transform: scale(1.15); box-shadow: 0 8px 25px rgba(255, 0, 0, 0.7); }
+    100% { transform: scale(1); box-shadow: 0 4px 15px rgba(255, 0, 0, 0.5); }
 }
 
 /* Start Quiz Button Specific Design */

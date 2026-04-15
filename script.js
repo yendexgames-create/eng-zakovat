@@ -1335,22 +1335,47 @@ class QuizApp {
         let timeLeft = this.questionTimer;
         const timerElement = document.querySelector('.question-timer');
         
+        console.log('=== START QUESTION TIMER ===');
+        console.log('Timer element found:', timerElement);
+        console.log('Time left:', timeLeft);
+        
         if (timerElement) {
             timerElement.textContent = timeLeft;
             timerElement.style.display = 'block';
+            timerElement.classList.remove('warning', 'danger');
+            console.log('Timer initialized with:', timeLeft);
         }
         
         this.currentTimerInterval = setInterval(() => {
             timeLeft--;
+            
             if (timerElement) {
                 timerElement.textContent = timeLeft;
+                
+                // Add warning/danger classes based on time left
+                if (timeLeft <= 5) {
+                    timerElement.classList.add('danger');
+                    timerElement.classList.remove('warning');
+                    console.log('Timer danger state - 5 seconds left');
+                } else if (timeLeft <= 10) {
+                    timerElement.classList.add('warning');
+                    timerElement.classList.remove('danger');
+                    console.log('Timer warning state - 10 seconds left');
+                } else {
+                    timerElement.classList.remove('warning', 'danger');
+                }
+                
+                console.log('Timer updated:', timeLeft);
             }
             
             if (timeLeft <= 0) {
+                console.log('Time up!');
                 this.stopQuestionTimer();
                 this.timeUp();
             }
         }, 1000);
+        
+        console.log('=== START QUESTION TIMER END ===');
     }
     
     stopQuestionTimer() {
