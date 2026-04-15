@@ -1338,15 +1338,21 @@ class QuizApp {
         
         // Store timeLeft in instance variable to avoid scope issues
         this.currentTimeLeft = this.questionTimer;
-        const timerElement = document.querySelector('.question-timer');
+        const timerElement = document.getElementById('questionTimer'); // Use ID instead of class
         
-        console.log('Timer element:', timerElement);
+        console.log('Timer element (by ID):', timerElement);
         console.log('Initial timeLeft:', this.currentTimeLeft);
         console.log('this.questionTimer:', this.questionTimer);
         
         if (!timerElement) {
-            console.error('Timer element not found!');
-            return;
+            console.error('Timer element NOT found by ID!');
+            // Try class as backup
+            const backupElement = document.querySelector('.question-timer');
+            console.log('Backup timer element (by class):', backupElement);
+            if (!backupElement) {
+                console.error('Timer element not found at all!');
+                return;
+            }
         }
         
         // Set initial value
@@ -1354,20 +1360,6 @@ class QuizApp {
         timerElement.classList.remove('warning', 'danger');
         
         console.log('Timer display set to:', this.currentTimeLeft);
-        
-        // TEST: Simple counter to verify setInterval works
-        let testCounter = 0;
-        console.log('Starting test counter...');
-        
-        const testInterval = setInterval(() => {
-            testCounter++;
-            console.log('TEST COUNTER:', testCounter);
-            
-            if (testCounter >= 5) {
-                clearInterval(testInterval);
-                console.log('Test counter finished');
-            }
-        }, 1000);
         
         // Simple countdown with proper scope
         this.currentTimerInterval = setInterval(() => {
