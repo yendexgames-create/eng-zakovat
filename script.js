@@ -50,6 +50,19 @@ class QuizApp {
         // Handle connection
         this.socket.on('connect', () => {
             console.log('Connected to server');
+            console.log('Socket ID:', this.socket.id);
+        });
+        
+        // Handle connection error
+        this.socket.on('connect_error', (error) => {
+            console.error('Socket connection error:', error);
+            alert('Serverga ulanishda xatolik: ' + error.message);
+        });
+        
+        // Handle disconnection
+        this.socket.on('disconnect', (reason) => {
+            console.log('Disconnected from server:', reason);
+            alert('Server bilan aloq uzildi: ' + reason);
         });
         
         // Handle state updates
@@ -512,12 +525,19 @@ class QuizApp {
     }
 
     startQuiz() {
+        console.log('=== START QUIZ DEBUG ===');
+        console.log('startQuiz method called');
+        
         const teamCount = parseInt(document.getElementById('teamCount').value);
+        console.log('Team count:', teamCount);
+        
         const teams = [];
 
         // Collect team names
         for (let i = 1; i <= teamCount; i++) {
             const teamName = document.getElementById(`team${i}`).value.trim();
+            console.log(`Team ${i} name:`, teamName);
+            
             if (teamName) {
                 teams.push({
                     id: i,
@@ -526,11 +546,22 @@ class QuizApp {
             }
         }
 
+        console.log('Teams collected:', teams);
+
         if (teams.length === 0) {
             alert('Iltimos, kamida bitta jamoa nomini kiriting!');
             return;
         }
 
+        // Check socket connection
+        if (!this.socket) {
+            console.error('Socket is not connected!');
+            alert('Serverga ulanishda xatolik! Iltimos, sahifani qayta yuklang.');
+            return;
+        }
+
+        console.log('Socket connected, emitting setupTeams...');
+        
         // Send teams to server
         this.socket.emit('setupTeams', teams);
         console.log('Teams setup sent to server:', teams);
@@ -540,6 +571,7 @@ class QuizApp {
 
         // Show setup status
         this.showSetupStatus();
+        console.log('=== START QUIZ DEBUG END ===');
     }
 
     showSetupStatus() {
