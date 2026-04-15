@@ -1221,6 +1221,19 @@ body {
     box-sizing: border-box; /* Proper box sizing */
 }
 
+.questions-page .categories-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4 items per row */
+    gap: 12px; /* Reduced gap to fit better */
+    width: 100%; /* Full width */
+    max-width: 1400px; /* Increased from 1200px to fit 4 columns */
+    margin: 0 auto 30px auto; /* Center with proper margins */
+    padding: 25px; /* Increased padding */
+    background: rgba(255, 255, 255, 0.05); /* Subtle background */
+    border-radius: 15px; /* Rounded corners */
+    box-sizing: border-box; /* Proper box sizing */
+}
+
 .questions-page .category-btn {
     background: linear-gradient(135deg, #667eea, #764ba2);
     color: white;

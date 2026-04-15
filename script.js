@@ -817,39 +817,37 @@ class QuizApp {
         const container = document.querySelector('.container');
         const mainContent = document.querySelector('.main-content');
         const categorySection = document.querySelector('.category-section');
-        const categoryGrid = document.querySelector('.category-grid');
+        const categoriesGrid = document.querySelector('.categories-grid'); // PLURAL!
+        const categoryGrid = document.querySelector('.category-grid'); // SINGULAR!
         
         console.log('=== CONTAINER DEBUG ===');
         console.log('Container found:', container);
         console.log('Main content found:', mainContent);
         console.log('Category section found:', categorySection);
-        console.log('Category grid found:', categoryGrid);
+        console.log('Categories-grid found:', categoriesGrid); // PLURAL!
+        console.log('Category-grid found:', categoryGrid); // SINGULAR!
         
-        if (container) {
-            const containerRect = container.getBoundingClientRect();
-            console.log('Container rect:', containerRect);
-            console.log('Container computed style:', window.getComputedStyle(container));
-        }
+        // Check which grid is actually being used
+        const actualGrid = categoriesGrid || categoryGrid;
+        console.log('Actual grid being used:', actualGrid);
         
-        if (mainContent) {
-            const mainContentRect = mainContent.getBoundingClientRect();
-            console.log('Main content rect:', mainContentRect);
-            console.log('Main content computed style:', window.getComputedStyle(mainContent));
-        }
-        
-        if (categorySection) {
-            const categorySectionRect = categorySection.getBoundingClientRect();
-            console.log('Category section rect:', categorySectionRect);
-            console.log('Category section computed style:', window.getComputedStyle(categorySection));
-        }
-        
-        if (categoryGrid) {
-            const categoryGridRect = categoryGrid.getBoundingClientRect();
-            console.log('Category grid rect:', categoryGridRect);
-            console.log('Category grid computed style:', window.getComputedStyle(categoryGrid));
-            console.log('Category grid offsetWidth:', categoryGrid.offsetWidth);
-            console.log('Category grid scrollWidth:', categoryGrid.scrollWidth);
-            console.log('Category grid clientWidth:', categoryGrid.clientWidth);
+        if (actualGrid) {
+            const actualGridRect = actualGrid.getBoundingClientRect();
+            console.log('Actual grid rect:', actualGridRect);
+            console.log('Actual grid computed style:', window.getComputedStyle(actualGrid));
+            console.log('Actual grid offsetWidth:', actualGrid.offsetWidth);
+            console.log('Actual grid scrollWidth:', actualGrid.scrollWidth);
+            console.log('Actual grid clientWidth:', actualGrid.clientWidth);
+            
+            // Force apply styles if needed
+            actualGrid.style.display = 'grid';
+            actualGrid.style.gridTemplateColumns = 'repeat(4, 1fr)';
+            actualGrid.style.gap = '12px';
+            actualGrid.style.maxWidth = '1400px';
+            actualGrid.style.margin = '0 auto 30px auto';
+            actualGrid.style.padding = '25px';
+            actualGrid.style.boxSizing = 'border-box';
+            console.log('Forced grid styles applied!');
         }
         
         const welcomeSection = document.getElementById('welcomeSection');
@@ -873,6 +871,13 @@ class QuizApp {
                 console.log(`Button ${index}:`, btn);
                 console.log(`Button ${index} computed style:`, window.getComputedStyle(btn));
                 console.log(`Button ${index} rect:`, btn.getBoundingClientRect());
+                
+                // Force apply button styles if needed
+                btn.style.padding = '15px 10px';
+                btn.style.fontSize = '0.85rem';
+                btn.style.minHeight = '100px';
+                btn.style.borderRadius = '12px';
+                btn.style.gap = '6px';
             });
         } else {
             console.log('Category section NOT found - this is the problem!');
