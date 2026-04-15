@@ -742,7 +742,7 @@ body {
 .questions-page .container {
     display: flex;
     flex-direction: column;
-    max-width: 1800px; /* Increased to prevent overflow */
+    max-width: 1900px; /* Increased from 1800px to accommodate larger layout */
     width: 100%;
     margin: 0 auto;
     padding: 20px;
@@ -754,7 +754,7 @@ body {
     display: flex;
     gap: 30px;
     width: 100%;
-    max-width: 1400px; /* Increased to prevent overflow */
+    max-width: 1500px; /* Increased from 1400px to accommodate category grid */
     margin: 0 auto; /* Center the content */
     padding: 0 20px; /* Add padding */
     box-sizing: border-box; /* Proper box sizing */
@@ -1211,11 +1211,11 @@ body {
 .questions-page .category-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr); /* 4 items per row */
-    gap: 15px; /* Gap between items */
+    gap: 12px; /* Reduced gap to fit better */
     width: 100%; /* Full width */
-    max-width: 1200px; /* Maximum width */
+    max-width: 1400px; /* Increased from 1200px to fit 4 columns */
     margin: 0 auto 30px auto; /* Center with proper margins */
-    padding: 20px; /* Proper padding */
+    padding: 25px; /* Increased padding */
     background: rgba(255, 255, 255, 0.05); /* Subtle background */
     border-radius: 15px; /* Rounded corners */
     box-sizing: border-box; /* Proper box sizing */
@@ -1225,21 +1225,21 @@ body {
     background: linear-gradient(135deg, #667eea, #764ba2);
     color: white;
     border: none;
-    padding: 20px 15px; /* Slightly smaller padding for 4-column layout */
-    border-radius: 15px;
+    padding: 15px 10px; /* Reduced padding to fit better */
+    border-radius: 12px; /* Slightly smaller border radius */
     cursor: pointer;
     transition: all 0.3s ease;
-    font-size: 0.9rem; /* Slightly smaller font */
+    font-size: 0.85rem; /* Reduced font size */
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.4px; /* Reduced letter spacing */
     position: relative;
     overflow: hidden;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
-    min-height: 120px; /* Reduced height for 4-column layout */
+    gap: 6px; /* Reduced gap */
+    min-height: 100px; /* Reduced height */
     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 
