@@ -1330,73 +1330,54 @@ class QuizApp {
     }
     
     startQuestionTimer() {
-        console.log('=== START QUESTION TIMER DEBUG ===');
+        console.log('=== SIMPLE TIMER START ===');
         
         this.stopQuestionTimer();
         
         let timeLeft = this.questionTimer;
         const timerElement = document.querySelector('.question-timer');
         
-        console.log('Timer element found:', timerElement);
-        console.log('Time left initial:', timeLeft);
-        console.log('this.questionTimer:', this.questionTimer);
-        console.log('Current timer interval:', this.currentTimerInterval);
+        console.log('Timer element:', timerElement);
+        console.log('Initial time:', timeLeft);
         
-        if (timerElement) {
-            timerElement.textContent = timeLeft;
-            timerElement.style.display = 'block';
-            timerElement.classList.remove('warning', 'danger');
-            console.log('Timer element initialized with:', timeLeft);
-        } else {
-            console.error('Timer element NOT found!');
+        if (!timerElement) {
+            console.error('Timer element not found!');
             return;
         }
         
-        // Clear any existing interval
-        if (this.currentTimerInterval) {
-            clearInterval(this.currentTimerInterval);
-            this.currentTimerInterval = null;
-            console.log('Existing timer interval cleared');
-        }
+        // Set initial value
+        timerElement.textContent = timeLeft;
+        timerElement.classList.remove('warning', 'danger');
         
-        console.log('Starting new interval...');
+        console.log('Timer set to:', timeLeft);
         
+        // Simple countdown
         this.currentTimerInterval = setInterval(() => {
             timeLeft--;
-            console.log('=== TIMER COUNTDOWN ===');
-            console.log('Time left after decrement:', timeLeft);
-            console.log('Current timer interval ID:', this.currentTimerInterval);
+            console.log('Countdown:', timeLeft);
             
-            if (timerElement) {
-                timerElement.textContent = timeLeft;
-                console.log('Timer element updated to:', timeLeft);
-                
-                // Add warning/danger classes based on time left
-                if (timeLeft <= 5) {
-                    timerElement.classList.add('danger');
-                    timerElement.classList.remove('warning');
-                    console.log('Timer danger state - 5 seconds left');
-                } else if (timeLeft <= 10) {
-                    timerElement.classList.add('warning');
-                    timerElement.classList.remove('danger');
-                    console.log('Timer warning state - 10 seconds left');
-                } else {
-                    timerElement.classList.remove('warning', 'danger');
-                }
-            } else {
-                console.error('Timer element lost during countdown!');
+            // Update timer display
+            timerElement.textContent = timeLeft;
+            
+            // Add visual warnings
+            if (timeLeft <= 5) {
+                timerElement.classList.add('danger');
+                timerElement.classList.remove('warning');
+            } else if (timeLeft <= 10) {
+                timerElement.classList.add('warning');
+                timerElement.classList.remove('danger');
             }
             
+            // Time up
             if (timeLeft <= 0) {
-                console.log('=== TIME UP ===');
-                console.log('Stopping timer...');
+                console.log('TIME UP!');
                 this.stopQuestionTimer();
                 this.timeUp();
             }
         }, 1000);
         
-        console.log('Timer interval started with ID:', this.currentTimerInterval);
-        console.log('=== START QUESTION TIMER DEBUG END ===');
+        console.log('Timer started with interval:', this.currentTimerInterval);
+        console.log('=== SIMPLE TIMER END ===');
     }
     
     stopQuestionTimer() {

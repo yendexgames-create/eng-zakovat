@@ -2258,8 +2258,8 @@ body {
     border: 3px solid rgba(255, 255, 255, 0.3) !important;
     position: relative !important;
     overflow: hidden !important;
-    animation: pulse 1s infinite !important;
     letter-spacing: 2px !important;
+    transition: all 0.3s ease !important;
 }
 
 .question-timer::before {
@@ -2270,17 +2270,17 @@ body {
     width: 100% !important;
     height: 100% !important;
     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent) !important;
-    animation: shimmer 2s infinite !important;
+    display: none !important; /* Hide shimmer effect */
 }
 
 .question-timer.warning {
     background: linear-gradient(135deg, #ff4757, #c44569) !important;
-    animation: pulse-warning 0.5s infinite !important;
+    transform: scale(1.1) !important;
 }
 
 .question-timer.danger {
     background: linear-gradient(135deg, #ff3838, #ff0000) !important;
-    animation: pulse-danger 0.3s infinite !important;
+    transform: scale(1.2) !important;
 }
 
 @keyframes pulse {
