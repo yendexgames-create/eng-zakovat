@@ -555,24 +555,25 @@ class QuizApp {
             return;
         }
 
-        // Check socket connection
-        if (!this.socket) {
-            console.error('Socket is not connected!');
-            alert('Serverga ulanishda xatolik! Iltimos, sahifani qayta yuklang.');
-            return;
-        }
-
-        console.log('Socket connected, emitting setupTeams...');
-        
-        // Send teams to server
-        this.socket.emit('setupTeams', teams);
-        console.log('Teams setup sent to server:', teams);
+        // Store teams in localStorage for questions page
+        localStorage.setItem('quizTeams', JSON.stringify(teams));
+        console.log('Teams stored in localStorage:', teams);
 
         // Store teams locally
         this.teams = teams;
 
-        // Show setup status
-        this.showSetupStatus();
+        // Initialize scores
+        this.scores = {};
+        teams.forEach(team => {
+            this.scores[team.id] = 0;
+        });
+        localStorage.setItem('quizScores', JSON.stringify(this.scores));
+        console.log('Scores initialized:', this.scores);
+
+        // Redirect to questions page
+        console.log('Redirecting to questions page...');
+        window.location.href = 'questions.html';
+        
         console.log('=== START QUIZ DEBUG END ===');
     }
 
@@ -767,8 +768,46 @@ class QuizApp {
     }
 
     initializeQuestionsPage() {
+        console.log('=== INITIALIZE QUESTIONS PAGE ===');
         console.log('Questions page initialized');
+        
+        // Load teams from localStorage
+        const storedTeams = localStorage.getItem('quizTeams');
+        const storedScores = localStorage.getItem('quizScores');
+        
+        console.log('Stored teams found:', storedTeams);
+        console.log('Stored scores found:', storedScores);
+        
+        if (storedTeams) {
+            try {
+                this.teams = JSON.parse(storedTeams);
+                console.log('Teams loaded from localStorage:', this.teams);
+            } catch (error) {
+                console.error('Error parsing teams from localStorage:', error);
+                this.teams = [];
+            }
+        } else {
+            console.log('No teams found in localStorage');
+            this.teams = [];
+        }
+        
+        if (storedScores) {
+            try {
+                this.scores = JSON.parse(storedScores);
+                console.log('Scores loaded from localStorage:', this.scores);
+            } catch (error) {
+                console.error('Error parsing scores from localStorage:', error);
+                this.scores = {};
+            }
+        } else {
+            console.log('No scores found in localStorage');
+            this.scores = {};
+        }
+        
+        // Display teams
         this.displayTeams();
+        
+        console.log('=== INITIALIZE QUESTIONS PAGE END ===');
     }
 
     displayTeams() {
