@@ -2257,20 +2257,15 @@ body {
     box-shadow: 0 8px 30px rgba(255, 107, 107, 0.4) !important;
     border: 3px solid rgba(255, 255, 255, 0.3) !important;
     position: relative !important;
-    overflow: hidden !important;
+    overflow: visible !important;
     letter-spacing: 2px !important;
     transition: all 0.3s ease !important;
+    /* Remove all animations that might interfere */
+    animation: none !important;
 }
 
 .question-timer::before {
-    content: '' !important;
-    position: absolute !important;
-    top: 0 !important;
-    left: -100% !important;
-    width: 100% !important;
-    height: 100% !important;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent) !important;
-    display: none !important; /* Hide shimmer effect */
+    display: none !important;
 }
 
 .question-timer.warning {

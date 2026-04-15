@@ -1355,6 +1355,21 @@ class QuizApp {
             }
         }
         
+        // MANUAL TEST: Try to update timer manually first
+        console.log('=== MANUAL TIMER TEST ===');
+        timerElement.textContent = 'TEST';
+        console.log('Timer set to TEST:', timerElement.textContent);
+        
+        setTimeout(() => {
+            timerElement.textContent = '25';
+            console.log('Timer set to 25:', timerElement.textContent);
+        }, 2000);
+        
+        setTimeout(() => {
+            timerElement.textContent = '20';
+            console.log('Timer set to 20:', timerElement.textContent);
+        }, 4000);
+        
         // Set initial value
         timerElement.textContent = this.currentTimeLeft;
         timerElement.classList.remove('warning', 'danger');
