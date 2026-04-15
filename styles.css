@@ -209,6 +209,7 @@ body {
     text-overflow: ellipsis;
     flex: 1; /* Take available space */
     min-width: 0; /* Allow shrinking */
+    margin-left: 2px; /* Add small margin to prevent cutoff */
     order: 2; /* Second element */
 }
 
@@ -224,6 +225,7 @@ body {
     flex-shrink: 0; /* Don't shrink */
     order: 3; /* Third element */
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Smaller shadow */
+    margin-left: 2px; /* Add small margin to prevent cutoff */
 }
 
 /* Score Animation */
@@ -1015,7 +1017,7 @@ body {
     flex-direction: row; /* Horizontal layout */
     align-items: center; /* Center vertically */
     justify-content: space-between; /* Space between elements */
-    padding: 8px 12px; /* Proper padding */
+    padding: 8px 15px; /* Increased right padding from 12px to 15px */
     margin-bottom: 6px;
     background: linear-gradient(135deg, #ffffff, #f8f9fa);
     border-radius: 12px;
