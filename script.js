@@ -860,14 +860,11 @@ class QuizApp {
             }
             
             teamItem.innerHTML = `
-                <div class="team-header">
-                    <span class="team-name">${team.name}</span>
-                    <div class="team-rank ${rankClass}">
-                        <span class="rank-number">${rankIcon}</span>
-                    </div>
+                <div class="team-rank ${rankClass}">
+                    <span class="rank-number">${rankIcon}</span>
                 </div>
-                <div class="team-score-container">
-                    <span>Score: </span>
+                <div class="team-info">
+                    <span class="team-name">${team.name}</span>
                     <span class="team-score">${score}</span>
                 </div>
             `;
