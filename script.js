@@ -1338,16 +1338,20 @@ class QuizApp {
         console.log('=== START QUESTION TIMER ===');
         console.log('Timer element found:', timerElement);
         console.log('Time left:', timeLeft);
+        console.log('Question timer value:', this.questionTimer);
         
         if (timerElement) {
             timerElement.textContent = timeLeft;
             timerElement.style.display = 'block';
             timerElement.classList.remove('warning', 'danger');
             console.log('Timer initialized with:', timeLeft);
+        } else {
+            console.error('Timer element not found!');
         }
         
         this.currentTimerInterval = setInterval(() => {
             timeLeft--;
+            console.log('Timer countdown:', timeLeft);
             
             if (timerElement) {
                 timerElement.textContent = timeLeft;
@@ -1364,8 +1368,6 @@ class QuizApp {
                 } else {
                     timerElement.classList.remove('warning', 'danger');
                 }
-                
-                console.log('Timer updated:', timeLeft);
             }
             
             if (timeLeft <= 0) {
@@ -1375,6 +1377,7 @@ class QuizApp {
             }
         }, 1000);
         
+        console.log('Timer interval started');
         console.log('=== START QUESTION TIMER END ===');
     }
     

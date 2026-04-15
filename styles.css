@@ -811,11 +811,6 @@ body {
     position: relative;
 }
 
-.questions-page .question-header .question-timer {
-    order: 2; /* Ensure timer is on the right */
-    flex-shrink: 0;
-}
-
 .questions-page .category-badge {
     background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
     color: white;
@@ -2237,21 +2232,34 @@ body {
     transform: none;
 }
 
-/* Question Timer Styles */
+/* Question Timer Container */
+.question-timer-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 30px;
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(238, 90, 36, 0.1));
+    border-radius: 15px;
+    border: 2px solid rgba(255, 107, 107, 0.2);
+}
+
+/* Question Timer Styles - Large Display */
 .question-timer {
     background: linear-gradient(135deg, #ff6b6b, #ee5a24) !important;
     color: white !important;
-    padding: 8px 16px !important;
-    border-radius: 20px !important;
-    font-size: 1.1rem !important;
-    font-weight: 700 !important;
-    min-width: 50px !important;
+    padding: 20px 40px !important;
+    border-radius: 25px !important;
+    font-size: 3rem !important;
+    font-weight: 900 !important;
+    min-width: 120px !important;
     text-align: center !important;
-    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3) !important;
-    border: 2px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 8px 30px rgba(255, 107, 107, 0.4) !important;
+    border: 3px solid rgba(255, 255, 255, 0.3) !important;
     position: relative !important;
     overflow: hidden !important;
     animation: pulse 1s infinite !important;
+    letter-spacing: 2px !important;
 }
 
 .question-timer::before {
