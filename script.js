@@ -380,7 +380,23 @@ class QuizApp {
 
         const startBtn = document.getElementById('startQuiz');
         if (startBtn) {
-            startBtn.addEventListener('click', () => this.startQuiz());
+            startBtn.addEventListener('click', (e) => {
+                console.log('=== START QUIZ BUTTON CLICKED ===');
+                console.log('Event:', e);
+                console.log('Button element:', startBtn);
+                console.log('Button disabled:', startBtn.disabled);
+                console.log('Button classList:', startBtn.classList);
+                
+                if (startBtn.disabled) {
+                    console.log('Button is disabled - click ignored');
+                    return;
+                }
+                
+                console.log('Button is enabled - calling startQuiz()');
+                this.startQuiz();
+            });
+        } else {
+            console.error('Start button not found!');
         }
 
         // Scoring events
@@ -731,7 +747,37 @@ class QuizApp {
     }
 
     initializeIndexPage() {
-        console.log('Index page initialized');
+        console.log('=== INITIALIZE INDEX PAGE START ===');
+        
+        // Generate initial team inputs
+        this.generateTeamInputs();
+        
+        // Check if setup button should be enabled
+        const teamCountInput = document.getElementById('teamCount');
+        const startBtn = document.getElementById('startQuiz');
+        
+        console.log('Team count input found:', teamCountInput);
+        console.log('Start button found:', startBtn);
+        console.log('Team count value:', teamCountInput ? teamCountInput.value : 'not found');
+        
+        if (startBtn && teamCountInput) {
+            const teamCount = parseInt(teamCountInput.value);
+            const hasTeamInputs = document.querySelectorAll('.team-input input').length > 0;
+            
+            console.log('Team count:', teamCount);
+            console.log('Has team inputs:', hasTeamInputs);
+            
+            // Enable button if we have valid team count and inputs
+            if (!isNaN(teamCount) && teamCount >= 2 && teamCount <= 10 && hasTeamInputs) {
+                startBtn.disabled = false;
+                console.log('Setup button enabled on init');
+            } else {
+                startBtn.disabled = true;
+                console.log('Setup button disabled on init - missing inputs');
+            }
+        }
+        
+        console.log('=== INITIALIZE INDEX PAGE END ===');
     }
 
     initializeQuestionsPage() {
