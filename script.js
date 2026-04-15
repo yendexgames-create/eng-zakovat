@@ -18,6 +18,14 @@ class QuizApp {
         this.timeUpCalled = false;
         this.isAnimating = false;
         
+        // NEW CONFIGURATION
+        this.totalCategories = 12; // 12 ta tur
+        this.categoriesToSelect = 8; // 8 tasini tanlash
+        this.questionsPerCategory = 10; // har bir turdan 10 ta savol
+        this.selectedCategories = []; // tanlangan turlar
+        this.questionTimer = 30; // 30 soniyalik timer
+        this.startTimer = 3; // 3 sekundlik start timer
+        
         // Socket.io connection
         this.socket = null;
         
@@ -798,44 +806,325 @@ class QuizApp {
     selectCategory(category) {
         console.log('=== SELECT CATEGORY DEBUG ===');
         console.log('Selected category:', category);
-        console.log('Full questions object:', this.questions);
-        console.log('Questions for this category:', this.questions[category]);
-        console.log('Questions array length:', this.questions[category] ? this.questions[category].length : 'undefined');
+        console.log('Currently selected categories:', this.selectedCategories);
+        console.log('Categories to select:', this.categoriesToSelect);
         
-        // Check if category is already completed
-        if (this.completedCategories.includes(category)) {
-            console.log('Category already completed, cannot select:', category);
-            return; // Handle category selection
+        // Check if category is already selected
+        if (this.selectedCategories.includes(category)) {
+            console.log('Category already selected, removing:', category);
+            this.removeSelectedCategory(category);
+            return;
         }
         
-        this.currentCategory = category;
-        this.currentQuestionIndex = 0;
-        this.timeUpCalled = false; // Reset timeUp flag
+        // Check if we can select more categories
+        if (this.selectedCategories.length >= this.categoriesToSelect) {
+            console.log('Maximum categories selected, cannot select more');
+            return;
+        }
+        
+        // Add category to selected list
+        this.selectedCategories.push(category);
+        console.log('Category added to selection:', category);
+        
+        // Update UI to show selection
+        this.updateCategorySelectionUI();
+        
+        // Check if all categories are selected
+        if (this.selectedCategories.length === this.categoriesToSelect) {
+            console.log('All categories selected, showing start button');
+            this.showStartButton();
+        }
         
         // Send category selection to server
-        this.socket.emit('selectCategory', category);
-        console.log('Category selection sent to server:', category);
+        this.socket.emit('selectCategory', {
+            category: category,
+            selectedCategories: this.selectedCategories
+        });
+    }
+    
+    removeSelectedCategory(category) {
+        // Remove category from selected list
+        this.selectedCategories = this.selectedCategories.filter(cat => cat !== category);
+        console.log('Category removed from selection:', category);
         
-        // Set current questions
-        this.currentQuestions = this.questions[category];
-        this.currentQuestion = this.currentQuestions[this.currentQuestionIndex];
+        // Update UI
+        this.updateCategorySelectionUI();
         
-        console.log('After setting:');
-        console.log('currentQuestions:', this.currentQuestions);
-        console.log('currentQuestionIndex:', this.currentQuestionIndex);
-        console.log('currentQuestion:', this.currentQuestion);
-
-        this.displayTeams();
+        // Hide start button if not all categories selected
+        if (this.selectedCategories.length < this.categoriesToSelect) {
+            this.hideStartButton();
+        }
         
-        // Show 3-second countdown before question
-        this.showCountdown(() => {
-            this.showQuestion();
+        // Send removal to server
+        this.socket.emit('removeCategory', {
+            category: category,
+            selectedCategories: this.selectedCategories
+        });
+    }
+    
+    updateCategorySelectionUI() {
+        // Update category buttons to show selection status
+        const categoryBtns = document.querySelectorAll('.category-btn');
+        categoryBtns.forEach(btn => {
+            const category = btn.dataset.category;
+            if (this.selectedCategories.includes(category)) {
+                btn.classList.add('selected');
+                btn.querySelector('.selection-count').textContent = 
+                    this.selectedCategories.indexOf(category) + 1;
+            } else {
+                btn.classList.remove('selected');
+                btn.querySelector('.selection-count').textContent = '';
+            }
         });
         
-        // Update category button states
-        const completedCategories = this.completedCategories || [];
-        this.updateCategoryButtons(completedCategories);
-        console.log('=== SELECT CATEGORY END ===');
+        // Update selection counter
+        const selectionCounter = document.querySelector('.selection-counter');
+        if (selectionCounter) {
+            selectionCounter.textContent = 
+                `${this.selectedCategories.length}/${this.categoriesToSelect} tanlandi`;
+        }
+    }
+    
+    showStartButton() {
+        const startBtn = document.querySelector('.start-quiz-btn');
+        if (startBtn) {
+            startBtn.style.display = 'block';
+            startBtn.classList.remove('hidden');
+        }
+    }
+    
+    hideStartButton() {
+        const startBtn = document.querySelector('.start-quiz-btn');
+        if (startBtn) {
+            startBtn.style.display = 'none';
+            startBtn.classList.add('hidden');
+        }
+    }
+    
+    startQuiz() {
+        console.log('Starting quiz with selected categories:', this.selectedCategories);
+        
+        // Show 3-second countdown
+        this.showStartCountdown();
+        
+        // Send start signal to server
+        this.socket.emit('startQuiz', {
+            selectedCategories: this.selectedCategories,
+            questionsPerCategory: this.questionsPerCategory
+        });
+    }
+    
+    showStartCountdown() {
+        const countdownElement = document.querySelector('.start-countdown');
+        if (!countdownElement) return;
+        
+        let countdown = this.startTimer;
+        countdownElement.textContent = countdown;
+        countdownElement.style.display = 'block';
+        
+        const countdownInterval = setInterval(() => {
+            countdown--;
+            if (countdown > 0) {
+                countdownElement.textContent = countdown;
+            } else {
+                clearInterval(countdownInterval);
+                countdownElement.style.display = 'none';
+                this.startQuestions();
+            }
+        }, 1000);
+    }
+    
+    startQuestions() {
+        console.log('Starting questions phase');
+        
+        // Mix all questions from selected categories
+        this.mixedQuestions = this.mixQuestionsFromCategories();
+        this.currentQuestionIndex = 0;
+        
+        // Show first question
+        this.showNextQuestion();
+    }
+    
+    mixQuestionsFromCategories() {
+        const allQuestions = [];
+        
+        // Collect questions from all selected categories
+        this.selectedCategories.forEach(category => {
+            const categoryQuestions = this.questions[category] || [];
+            // Take first 10 questions from each category
+            const limitedQuestions = categoryQuestions.slice(0, this.questionsPerCategory);
+            
+            // Add category info to each question
+            limitedQuestions.forEach(question => {
+                allQuestions.push({
+                    ...question,
+                    category: category
+                });
+            });
+        });
+        
+        // Shuffle all questions
+        return this.shuffleArray(allQuestions);
+    }
+    
+    shuffleArray(array) {
+        const shuffled = [...array];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+    }
+    
+    showNextQuestion() {
+        if (this.currentQuestionIndex >= this.mixedQuestions.length) {
+            this.endQuiz();
+            return;
+        }
+        
+        const question = this.mixedQuestions[this.currentQuestionIndex];
+        this.currentQuestion = question;
+        this.currentCategory = question.category;
+        
+        // Show question UI
+        this.displayQuestion(question);
+        
+        // Start 30-second timer
+        this.startQuestionTimer();
+        
+        this.currentQuestionIndex++;
+    }
+    
+    startQuestionTimer() {
+        this.stopQuestionTimer();
+        
+        let timeLeft = this.questionTimer;
+        const timerElement = document.querySelector('.question-timer');
+        
+        if (timerElement) {
+            timerElement.textContent = timeLeft;
+            timerElement.style.display = 'block';
+        }
+        
+        this.currentTimerInterval = setInterval(() => {
+            timeLeft--;
+            if (timerElement) {
+                timerElement.textContent = timeLeft;
+            }
+            
+            if (timeLeft <= 0) {
+                this.stopQuestionTimer();
+                this.timeUp();
+            }
+        }, 1000);
+    }
+    
+    stopQuestionTimer() {
+        if (this.currentTimerInterval) {
+            clearInterval(this.currentTimerInterval);
+            this.currentTimerInterval = null;
+        }
+    }
+    
+    displayQuestion(question) {
+        // Hide category selection
+        const categorySection = document.querySelector('.category-section');
+        if (categorySection) {
+            categorySection.classList.add('hidden');
+        }
+        
+        // Show question section
+        const questionSection = document.querySelector('.question-section');
+        if (questionSection) {
+            questionSection.classList.remove('hidden');
+        }
+        
+        // Update question content
+        const questionText = document.querySelector('.question-text');
+        if (questionText) {
+            questionText.textContent = question.question;
+        }
+        
+        // Update category indicator
+        const categoryIndicator = document.querySelector('.category-indicator');
+        if (categoryIndicator) {
+            categoryIndicator.textContent = question.category;
+        }
+        
+        // Update answer options
+        const answerOptions = document.querySelector('.answer-options');
+        if (answerOptions) {
+            answerOptions.innerHTML = '';
+            question.answers.forEach((answer, index) => {
+                const button = document.createElement('button');
+                button.className = 'answer-btn';
+                button.textContent = answer;
+                button.dataset.answer = index;
+                button.addEventListener('click', () => this.selectAnswer(index));
+                answerOptions.appendChild(button);
+            });
+        }
+    }
+    
+    selectAnswer(answerIndex) {
+        this.stopQuestionTimer();
+        
+        // Check if answer is correct
+        const correct = this.currentQuestion.correctAnswer === answerIndex;
+        
+        // Send answer to server
+        this.socket.emit('answerQuestion', {
+            question: this.currentQuestion,
+            answer: answerIndex,
+            correct: correct,
+            category: this.currentCategory
+        });
+        
+        // Show next question after delay
+        setTimeout(() => {
+            this.showNextQuestion();
+        }, 2000);
+    }
+    
+    timeUp() {
+        console.log('Time up for question');
+        
+        // Send time up to server
+        this.socket.emit('timeUp', {
+            question: this.currentQuestion,
+            category: this.currentCategory
+        });
+        
+        // Show next question
+        setTimeout(() => {
+            this.showNextQuestion();
+        }, 2000);
+    }
+    
+    endQuiz() {
+        console.log('Quiz ended');
+        
+        // Send quiz end to server
+        this.socket.emit('endQuiz', {
+            selectedCategories: this.selectedCategories
+        });
+        
+        // Show scoring phase
+        this.showScoringPhase();
+    }
+    
+    showScoringPhase() {
+        // Hide question section
+        const questionSection = document.querySelector('.question-section');
+        if (questionSection) {
+            questionSection.classList.add('hidden');
+        }
+        
+        // Show scoring section
+        const scoringSection = document.querySelector('.scoring-section');
+        if (scoringSection) {
+            scoringSection.classList.remove('hidden');
+        }
     }
     
     showCountdown(callback) {

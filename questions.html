@@ -38,16 +38,107 @@
 
                 <section class="category-section hidden">
                     <div class="card">
-                        <h2>Select Category</h2>
+                        <h2>Select Categories</h2>
+                        <div class="selection-counter">0/8 tanlandi</div>
                         <div class="categories-grid">
                             <button class="category-btn" data-category="music">
                                 <div class="category-icon">Music</div>
                                 <span>Music</span>
+                                <div class="selection-count"></div>
                             </button>
                             <button class="category-btn" data-category="sports">
                                 <div class="category-icon">Sports</div>
                                 <span>Sports</span>
+                                <div class="selection-count"></div>
                             </button>
+                            <button class="category-btn" data-category="science">
+                                <div class="category-icon">Science</div>
+                                <span>Science</span>
+                                <div class="selection-count"></div>
+                            </button>
+                            <button class="category-btn" data-category="history">
+                                <div class="category-icon">History</div>
+                                <span>History</span>
+                                <div class="selection-count"></div>
+                            </button>
+                            <button class="category-btn" data-category="geography">
+                                <div class="category-icon">Geography</div>
+                                <span>Geography</span>
+                                <div class="selection-count"></div>
+                            </button>
+                            <button class="category-btn" data-category="literature">
+                                <div class="category-icon">Literature</div>
+                                <span>Literature</span>
+                                <div class="selection-count"></div>
+                            </button>
+                            <button class="category-btn" data-category="movies">
+                                <div class="category-icon">Movies</div>
+                                <span>Movies</span>
+                                <div class="selection-count"></div>
+                            </button>
+                            <button class="category-btn" data-category="technology">
+                                <div class="category-icon">Technology</div>
+                                <span>Technology</span>
+                                <div class="selection-count"></div>
+                            </button>
+                            <button class="category-btn" data-category="art">
+                                <div class="category-icon">Art</div>
+                                <span>Art</span>
+                                <div class="selection-count"></div>
+                            </button>
+                            <button class="category-btn" data-category="food">
+                                <div class="category-icon">Food</div>
+                                <span>Food</span>
+                                <div class="selection-count"></div>
+                            </button>
+                            <button class="category-btn" data-category="nature">
+                                <div class="category-icon">Nature</div>
+                                <span>Nature</span>
+                                <div class="selection-count"></div>
+                            </button>
+                            <button class="category-btn" data-category="games">
+                                <div class="category-icon">Games</div>
+                                <span>Games</span>
+                                <div class="selection-count"></div>
+                            </button>
+                        </div>
+                        <button class="start-quiz-btn hidden" onclick="app.startQuiz()">Start Quiz</button>
+                    </div>
+                </section>
+
+                <section class="start-countdown hidden">
+                    <div class="card">
+                        <div class="countdown-display">
+                            <div class="countdown-number">3</div>
+                            <div class="countdown-text">Get Ready!</div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="question-section hidden">
+                    <div class="card">
+                        <div class="question-header">
+                            <div class="category-indicator">Music</div>
+                            <div class="question-timer">30</div>
+                        </div>
+                        <div class="question-content">
+                            <h3 class="question-text">Question text will appear here</h3>
+                            <div class="answer-options">
+                                <!-- Answer options will be generated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="scoring-section hidden">
+                    <div class="card">
+                        <h2>Quiz Complete!</h2>
+                        <div class="final-scores">
+                            <!-- Final scores will be displayed here -->
+                        </div>
+                        <button class="btn btn-primary" onclick="location.reload()">Play Again</button>
+                    </div>
+                </section>
                             <button class="category-btn" data-category="art">
                                 <div class="category-icon">Art</div>
                                 <span>Art</span>
