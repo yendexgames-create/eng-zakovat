@@ -25,6 +25,8 @@ class QuizApp {
         this.selectedCategories = []; // tanlangan turlar
         this.questionTimer = 30; // 30 soniyalik timer
         this.startTimer = 3; // 3 sekundlik start timer
+        this.currentTimeLeft = 0; // joriy timer qiymati
+        this.currentTimerInterval = null; // timer interval ID
         
         // Socket.io connection
         this.socket = null;
@@ -1330,15 +1332,17 @@ class QuizApp {
     }
     
     startQuestionTimer() {
-        console.log('=== SIMPLE TIMER START ===');
+        console.log('=== TIMER DEBUG START ===');
         
         this.stopQuestionTimer();
         
-        let timeLeft = this.questionTimer;
+        // Store timeLeft in instance variable to avoid scope issues
+        this.currentTimeLeft = this.questionTimer;
         const timerElement = document.querySelector('.question-timer');
         
         console.log('Timer element:', timerElement);
-        console.log('Initial time:', timeLeft);
+        console.log('Initial timeLeft:', this.currentTimeLeft);
+        console.log('this.questionTimer:', this.questionTimer);
         
         if (!timerElement) {
             console.error('Timer element not found!');
@@ -1346,38 +1350,60 @@ class QuizApp {
         }
         
         // Set initial value
-        timerElement.textContent = timeLeft;
+        timerElement.textContent = this.currentTimeLeft;
         timerElement.classList.remove('warning', 'danger');
         
-        console.log('Timer set to:', timeLeft);
+        console.log('Timer display set to:', this.currentTimeLeft);
         
-        // Simple countdown
+        // TEST: Simple counter to verify setInterval works
+        let testCounter = 0;
+        console.log('Starting test counter...');
+        
+        const testInterval = setInterval(() => {
+            testCounter++;
+            console.log('TEST COUNTER:', testCounter);
+            
+            if (testCounter >= 5) {
+                clearInterval(testInterval);
+                console.log('Test counter finished');
+            }
+        }, 1000);
+        
+        // Simple countdown with proper scope
         this.currentTimerInterval = setInterval(() => {
-            timeLeft--;
-            console.log('Countdown:', timeLeft);
+            console.log('=== COUNTDOWN TICK ===');
+            console.log('Before decrement - currentTimeLeft:', this.currentTimeLeft);
+            
+            // Decrement the instance variable
+            this.currentTimeLeft--;
+            
+            console.log('After decrement - currentTimeLeft:', this.currentTimeLeft);
             
             // Update timer display
-            timerElement.textContent = timeLeft;
+            timerElement.textContent = this.currentTimeLeft;
+            console.log('Timer display updated to:', this.currentTimeLeft);
             
             // Add visual warnings
-            if (timeLeft <= 5) {
+            if (this.currentTimeLeft <= 5) {
                 timerElement.classList.add('danger');
                 timerElement.classList.remove('warning');
-            } else if (timeLeft <= 10) {
+                console.log('Timer danger state');
+            } else if (this.currentTimeLeft <= 10) {
                 timerElement.classList.add('warning');
                 timerElement.classList.remove('danger');
+                console.log('Timer warning state');
             }
             
             // Time up
-            if (timeLeft <= 0) {
-                console.log('TIME UP!');
+            if (this.currentTimeLeft <= 0) {
+                console.log('=== TIME UP! ===');
                 this.stopQuestionTimer();
                 this.timeUp();
             }
         }, 1000);
         
-        console.log('Timer started with interval:', this.currentTimerInterval);
-        console.log('=== SIMPLE TIMER END ===');
+        console.log('Timer interval started:', this.currentTimerInterval);
+        console.log('=== TIMER DEBUG END ===');
     }
     
     stopQuestionTimer() {
