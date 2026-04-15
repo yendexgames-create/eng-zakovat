@@ -1163,7 +1163,7 @@ body {
 .questions-page .category-section {
     text-align: center;
     width: 100%;
-    padding: 40px; /* Increased from 30px */
+    padding: 30px; /* Reduced from 40px */
     max-width: 100%; /* Changed from 1400px to work with container */
     margin: 0; /* Changed from auto to work with flex layout */
     background: rgba(255, 255, 255, 0.08); /* Enhanced background */
@@ -1188,13 +1188,13 @@ body {
 
 .questions-page .category-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Responsive grid */
-    gap: 35px; /* Increased from 30px */
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Reduced from 200px */
+    gap: 20px; /* Reduced from 35px */
     margin-bottom: 30px;
     width: 100%;
     max-width: 100%; /* Changed from 1200px to work with container */
     margin: 0 0 30px 0; /* Changed from auto to work with flex layout */
-    padding: 20px; /* Added padding */
+    padding: 15px; /* Reduced from 20px */
     background: rgba(255, 255, 255, 0.1); /* Added background */
     border-radius: 20px; /* Added border radius */
     backdrop-filter: blur(5px); /* Added backdrop blur */
@@ -1204,19 +1204,16 @@ body {
 .questions-page .category-btn {
     background: linear-gradient(145deg, #ffffff, #f8f9fa); /* Changed gradient angle */
     border: 2px solid transparent; /* Transparent border */
-    border-radius: 20px; /* Increased border radius */
-    padding: 45px 35px; /* Increased padding */
+    border-radius: 16px; /* Reduced from 20px */
+    padding: 25px 20px; /* Reduced from 45px 35px */
     text-align: center;
     cursor: pointer;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); /* Smoother transition */
     position: relative;
     overflow: hidden;
-    width: 100%;
-    box-sizing: border-box;
-    min-height: 200px; /* Increased from 180px */
+    min-height: 120px; /* Reduced from default */
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08); /* Softer shadow */
     backdrop-filter: blur(10px); /* Added backdrop blur */
@@ -1257,23 +1254,23 @@ body {
 }
 
 .questions-page .category-icon {
-    font-size: 4rem; /* Increased from 3.5rem */
-    margin-bottom: 25px; /* Increased from 20px */
+    font-size: 2.5rem; /* Reduced from 4rem */
+    margin-bottom: 12px; /* Reduced from 25px */
     color: var(--primary-color);
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); /* Smoother transition */
     display: block;
-    text-shadow: 0 4px 8px rgba(74, 144, 226, 0.2); /* Added shadow */
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1)); /* Added drop shadow */
+    text-shadow: 0 2px 4px rgba(74, 144, 226, 0.1); /* Reduced shadow */
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1)); /* Reduced drop shadow */
 }
 
 .questions-page .category-btn span {
     font-weight: 700;
-    font-size: 1.5rem; /* Increased from 1.4rem */
+    font-size: 1.2rem; /* Reduced from 1.5rem */
     color: var(--text-primary);
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); /* Smoother transition */
     text-transform: capitalize;
-    letter-spacing: 0.8px; /* Increased from 0.5px */
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Added text shadow */
+    letter-spacing: 0.6px; /* Reduced from 0.8px */
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); /* Reduced text shadow */
 }
 
 .questions-page .category-btn.completed {
