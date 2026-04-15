@@ -181,26 +181,23 @@ body {
 }
 
 .questions-page .team-rank {
-    position: absolute; /* Position absolutely */
-    top: 4px; /* Position at top */
-    right: 4px; /* Position at right corner */
-    width: 14px; /* Much smaller */
-    height: 14px; /* Much smaller */
-    border-radius: 50%;
+    position: relative; /* Remove absolute positioning */
+    top: auto; /* Reset top */
+    right: auto; /* Reset right */
+    width: 55px;
+    height: 55px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 800;
-    font-size: 0.5rem; /* Much smaller font */
+    font-weight: 900;
+    font-size: 1.3rem;
     color: white;
+    border-radius: 50%;
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); /* Smaller shadow */
-    border: 1px solid white; /* Thinner border */
-    flex-shrink: 0; /* Don't shrink */
-    order: 4; /* Last element - on top */
-    z-index: 10; /* Ensure it's on top */
+    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+    flex-shrink: 0;
+    margin-bottom: 4px; /* Add margin for spacing */
 }
-
 /* Team info will be redesigned from scratch */
 
 .questions-page .team-name {
@@ -1021,11 +1018,11 @@ body {
 /* Enhanced Team Items for Leaderboard - CLEAN HORIZONTAL STYLE */
 .questions-page .team-item {
     display: flex;
-    flex-direction: row; /* Horizontal layout */
-    align-items: center; /* Center vertically */
-    justify-content: space-between; /* Space between elements */
-    padding: 8px 15px; /* Increased right padding from 12px to 15px */
-    margin-bottom: 6px;
+    flex-direction: column; /* Vertical layout for multi-row */
+    align-items: flex-start; /* Left align */
+    justify-content: flex-start; /* Top align */
+    padding: 12px 15px;
+    margin-bottom: 8px;
     background: linear-gradient(135deg, #ffffff, #f8f9fa);
     border-radius: 12px;
     border: 1px solid rgba(0, 0, 0, 0.05);
@@ -1034,9 +1031,9 @@ body {
     overflow: hidden;
     width: 100%;
     box-sizing: border-box;
-    min-height: 40px; /* Proper height for horizontal layout */
+    min-height: auto; /* Auto height for vertical layout */
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    gap: 6px; /* Reduced from 8px for better fit */
+    gap: 4px; /* Small gap between rows */
 }
 
 .questions-page .team-item::before {
@@ -1132,19 +1129,31 @@ body {
 .questions-page .team-name {
     font-weight: 700;
     color: var(--text-primary);
-    font-size: 1.2rem; /* Increased from 1.1rem */
-    margin-right: 12px; /* Increased from 10px */
+    font-size: 1.2rem;
+    margin-right: 0; /* Remove margin for vertical layout */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    flex: 1; /* Added flex: 1 */
-    min-width: 0; /* Important for flexbox overflow */
-    max-width: calc(100% - 80px); /* Ensure space for score */
+    flex: none; /* Remove flex for vertical layout */
+    min-width: auto; /* Remove min-width */
+    max-width: 100%; /* Full width */
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.questions-page .team-name::before {
+    content: 'name :';
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 1rem;
+    flex-shrink: 0;
 }
 
 .questions-page .team-score {
     font-weight: 900;
-    font-size: 1.5rem; /* Increased from 1.4rem */
+    font-size: 1.5rem;
     color: var(--primary-color);
     background: linear-gradient(135deg, rgba(74, 144, 226, 0.1), rgba(74, 144, 226, 0.2));
     /* padding: 8px 16px; */ /* Commented out */
@@ -1152,6 +1161,18 @@ body {
     /* border: 2px solid var(--primary-color); */ /* Commented out */
     /* min-width: 60px; */ /* Commented out */
     /* text-align: center; */ /* Commented out */
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
+
+.questions-page .team-score::before {
+    content: attr(data-short-name) ' Score :';
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 1rem;
     flex-shrink: 0;
 }
 

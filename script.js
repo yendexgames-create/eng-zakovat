@@ -859,14 +859,15 @@ class QuizApp {
                 rankIcon = `${rank}th`;
             }
             
+            // Create short name for score display
+            const shortName = team.name.length > 8 ? team.name.substring(0, 8) : team.name;
+            
             teamItem.innerHTML = `
                 <div class="team-rank ${rankClass}">
                     <span class="rank-number">${rankIcon}</span>
                 </div>
-                <div class="team-info">
-                    <span class="team-name">${team.name}</span>
-                    <span class="team-score">${score}</span>
-                </div>
+                <div class="team-name">${team.name}</div>
+                <div class="team-score" data-short-name="${shortName}">${score} ${rankIcon}</div>
             `;
             
             teamsList.appendChild(teamItem);
