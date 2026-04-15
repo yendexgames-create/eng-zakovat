@@ -21,7 +21,7 @@ class QuizApp {
         // NEW CONFIGURATION
         this.totalCategories = 12; // 12 ta tur
         this.categoriesToSelect = 8; // 8 tasini tanlash
-        this.questionsPerCategory = 10; // har bir turdan 10 ta savol
+        this.questionsPerCategory = 1; // har bir turdan 1 ta savol (8 ta jami)
         this.selectedCategories = []; // tanlangan turlar
         this.questionTimer = 30; // 30 soniyalik timer
         this.startTimer = 3; // 3 sekundlik start timer
@@ -1134,16 +1134,24 @@ class QuizApp {
     }
     
     startQuestionsQuiz() {
-        console.log('Starting quiz with selected categories:', this.selectedCategories);
+        console.log('=== START QUESTIONS QUIZ DEBUG ===');
+        console.log('Selected categories:', this.selectedCategories);
+        console.log('Number of categories selected:', this.selectedCategories.length);
+        console.log('Questions per category: 1');
+        console.log('Total questions expected:', this.selectedCategories.length * 1);
+        console.log('Questions should be mixed from all selected categories');
         
         // Show 3-second countdown
         this.showStartCountdown();
         
-        // Send start signal to server
+        // Send start signal to server with 1 question per category
         this.socket.emit('startQuiz', {
             selectedCategories: this.selectedCategories,
-            questionsPerCategory: this.questionsPerCategory
+            questionsPerCategory: 1 // 1 question from each category
         });
+        
+        console.log('Quiz start signal sent to server');
+        console.log('=== START QUESTIONS QUIZ END ===');
     }
     
     showStartCountdown() {
