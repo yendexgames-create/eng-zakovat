@@ -46,66 +46,25 @@ class QuizApp {
     }
     
     initializeSocket() {
-        // Connect to Socket.io server
-        this.socket = io();
+        console.log('=== SOCKET INITIALIZATION ===');
+        console.log('Socket.io connection DISABLED for local testing');
         
-        // Handle connection
-        this.socket.on('connect', () => {
-            console.log('Connected to server');
-            console.log('Socket ID:', this.socket.id);
-        });
+        // DISABLED: No server connection needed for local testing
+        // this.socket = io();
         
-        // Handle connection error
-        this.socket.on('connect_error', (error) => {
-            console.error('Socket connection error:', error);
-            alert('Serverga ulanishda xatolik: ' + error.message);
-        });
+        // Create mock socket for local testing
+        this.socket = {
+            emit: (event, data) => {
+                console.log('MOCK SOCKET EMIT:', event, data);
+            },
+            on: (event, callback) => {
+                console.log('MOCK SOCKET LISTENER:', event);
+            },
+            id: 'mock-socket-id'
+        };
         
-        // Handle disconnection
-        this.socket.on('disconnect', (reason) => {
-            console.log('Disconnected from server:', reason);
-            alert('Server bilan aloq uzildi: ' + reason);
-        });
-        
-        // Handle state updates
-        this.socket.on('stateUpdate', (state) => {
-            console.log('State update received:', state);
-            this.updateState(state);
-        });
-        
-        // Handle auto next question
-        this.socket.on('autoNextQuestion', () => {
-            console.log('Auto next question received');
-            this.goToNextQuestion();
-        });
-        
-        // Handle score animation
-        this.socket.on('scoreAnimation', (scores) => {
-            console.log('Score animation received:', scores);
-            this.animateScoreUpdates(scores);
-        });
-        
-        // Handle category completion
-        this.socket.on('categoryCompleted', (category) => {
-            if (!this.completedCategories.includes(category)) {
-                this.completedCategories.push(category);
-                console.log('Category completed on server:', category);
-                console.log('All completed categories:', this.completedCategories);
-                
-                // Broadcast updated state
-                this.socket.emit('stateUpdate', this);
-            }
-        });
-        
-        // Handle quiz reset
-        this.socket.on('resetQuiz', () => {
-            console.log('Quiz reset received');
-        });
-        
-        // Handle disconnect
-        this.socket.on('disconnect', () => {
-            console.log('Disconnected from server');
-        });
+        console.log('Mock socket created for local testing');
+        console.log('=== SOCKET INITIALIZATION END ===');
     }
     
     updateState(state) {
@@ -1332,85 +1291,76 @@ class QuizApp {
     }
     
     startQuestionTimer() {
-        console.log('=== TIMER DEBUG START ===');
+        console.log('=== SIMPLE TIMER START ===');
         
-        this.stopQuestionTimer();
-        
-        // Store timeLeft in instance variable to avoid scope issues
-        this.currentTimeLeft = this.questionTimer;
-        const timerElement = document.getElementById('questionTimer'); // Use ID instead of class
-        
-        console.log('Timer element (by ID):', timerElement);
-        console.log('Initial timeLeft:', this.currentTimeLeft);
-        console.log('this.questionTimer:', this.questionTimer);
-        
-        if (!timerElement) {
-            console.error('Timer element NOT found by ID!');
-            // Try class as backup
-            const backupElement = document.querySelector('.question-timer');
-            console.log('Backup timer element (by class):', backupElement);
-            if (!backupElement) {
-                console.error('Timer element not found at all!');
-                return;
-            }
+        // Clear any existing timer
+        if (this.currentTimerInterval) {
+            clearInterval(this.currentTimerInterval);
+            this.currentTimerInterval = null;
         }
         
-        // MANUAL TEST: Try to update timer manually first
-        console.log('=== MANUAL TIMER TEST ===');
-        timerElement.textContent = 'TEST';
-        console.log('Timer set to TEST:', timerElement.textContent);
+        // Initialize timer
+        this.currentTimeLeft = 30;
+        const timerElement = document.getElementById('questionTimer');
         
-        setTimeout(() => {
-            timerElement.textContent = '25';
-            console.log('Timer set to 25:', timerElement.textContent);
-        }, 2000);
+        console.log('Timer element:', timerElement);
+        console.log('Initial time:', this.currentTimeLeft);
         
-        setTimeout(() => {
-            timerElement.textContent = '20';
-            console.log('Timer set to 20:', timerElement.textContent);
-        }, 4000);
+        if (!timerElement) {
+            console.error('Timer element not found!');
+            return;
+        }
         
         // Set initial value
         timerElement.textContent = this.currentTimeLeft;
         timerElement.classList.remove('warning', 'danger');
         
-        console.log('Timer display set to:', this.currentTimeLeft);
+        console.log('Timer set to:', this.currentTimeLeft);
         
-        // Simple countdown with proper scope
-        this.currentTimerInterval = setInterval(() => {
-            console.log('=== COUNTDOWN TICK ===');
-            console.log('Before decrement - currentTimeLeft:', this.currentTimeLeft);
+        // TEST: Simple counter to verify setInterval works
+        let testCounter = 0;
+        const testInterval = setInterval(() => {
+            testCounter++;
+            console.log('TEST COUNTER:', testCounter);
+            timerElement.textContent = 'TEST-' + testCounter;
             
-            // Decrement the instance variable
-            this.currentTimeLeft--;
-            
-            console.log('After decrement - currentTimeLeft:', this.currentTimeLeft);
-            
-            // Update timer display
-            timerElement.textContent = this.currentTimeLeft;
-            console.log('Timer display updated to:', this.currentTimeLeft);
-            
-            // Add visual warnings
-            if (this.currentTimeLeft <= 5) {
-                timerElement.classList.add('danger');
-                timerElement.classList.remove('warning');
-                console.log('Timer danger state');
-            } else if (this.currentTimeLeft <= 10) {
-                timerElement.classList.add('warning');
-                timerElement.classList.remove('danger');
-                console.log('Timer warning state');
-            }
-            
-            // Time up
-            if (this.currentTimeLeft <= 0) {
-                console.log('=== TIME UP! ===');
-                this.stopQuestionTimer();
-                this.timeUp();
+            if (testCounter >= 3) {
+                clearInterval(testInterval);
+                console.log('Test finished, starting real timer');
+                
+                // Start real countdown
+                this.currentTimerInterval = setInterval(() => {
+                    this.currentTimeLeft--;
+                    
+                    console.log('REAL COUNTDOWN:', this.currentTimeLeft);
+                    
+                    // Update display
+                    timerElement.textContent = this.currentTimeLeft;
+                    
+                    // Add warnings
+                    if (this.currentTimeLeft <= 5) {
+                        timerElement.classList.add('danger');
+                        timerElement.classList.remove('warning');
+                    } else if (this.currentTimeLeft <= 10) {
+                        timerElement.classList.add('warning');
+                        timerElement.classList.remove('danger');
+                    }
+                    
+                    // Check if time is up
+                    if (this.currentTimeLeft <= 0) {
+                        console.log('TIME UP!');
+                        clearInterval(this.currentTimerInterval);
+                        this.currentTimerInterval = null;
+                        this.timeUp();
+                    }
+                }, 1000);
+                
+                console.log('Real timer started:', this.currentTimerInterval);
             }
         }, 1000);
         
-        console.log('Timer interval started:', this.currentTimerInterval);
-        console.log('=== TIMER DEBUG END ===');
+        console.log('Test timer started');
+        console.log('=== SIMPLE TIMER END ===');
     }
     
     stopQuestionTimer() {
