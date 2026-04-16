@@ -993,60 +993,74 @@ class QuizApp {
                 const state = JSON.parse(savedState);
                 console.log('Restoring state from localStorage:', state);
                 
-                // Restore all state
-                this.teams = state.teams || [];
-                this.scores = state.scores || {};
-                this.currentCategory = state.currentCategory;
-                this.currentQuestion = state.currentQuestion;
-                this.selectedCategories = state.selectedCategories || [];
-                this.mixedQuestions = state.mixedQuestions || [];
-                this.currentQuestionIndex = state.currentQuestionIndex || 0;
-                
-                console.log('State restored successfully');
-                
-                // Show appropriate section based on phase
-                if (state.currentPhase === 'scoring') {
-                    console.log('Restoring scoring phase');
-                    this.showScoringInterface();
-                } else if (state.currentPhase === 'question') {
-                    console.log('Restoring question phase');
-                    this.displayQuestion(state.currentQuestion);
+                // Check if this is a valid state (has currentQuestion and currentCategory)
+                if (state.currentQuestion && state.currentCategory && state.currentPhase) {
+                    console.log('Valid state found, restoring...');
                     
-                    // Restore timer state if available
-                    const timerState = localStorage.getItem('timerState');
-                    if (timerState) {
-                        const timerData = JSON.parse(timerState);
-                        console.log('Restoring timer state:', timerData);
+                    // Restore all state
+                    this.teams = state.teams || [];
+                    this.scores = state.scores || {};
+                    this.currentCategory = state.currentCategory;
+                    this.currentQuestion = state.currentQuestion;
+                    this.selectedCategories = state.selectedCategories || [];
+                    this.mixedQuestions = state.mixedQuestions || [];
+                    this.currentQuestionIndex = state.currentQuestionIndex || 0;
+                    
+                    console.log('State restored successfully');
+                    
+                    // Show appropriate section based on phase
+                    if (state.currentPhase === 'scoring') {
+                        console.log('Restoring scoring phase');
+                        this.showScoringInterface();
+                    } else if (state.currentPhase === 'question') {
+                        console.log('Restoring question phase');
+                        this.displayQuestion(state.currentQuestion);
                         
-                        // Calculate remaining time
-                        const elapsed = Date.now() - timerData.startTime;
-                        const remaining = Math.max(0, timerData.countdown - Math.floor(elapsed / 1000));
-                        
-                        if (remaining > 0) {
-                            console.log('Timer has', remaining, 'seconds remaining');
-                            // Start timer with remaining time
-                            this.startTimerWithRemaining(remaining);
+                        // Restore timer state if available
+                        const timerState = localStorage.getItem('timerState');
+                        if (timerState) {
+                            const timerData = JSON.parse(timerState);
+                            console.log('Restoring timer state:', timerData);
+                            
+                            // Calculate remaining time
+                            const elapsed = Date.now() - timerData.startTime;
+                            const remaining = Math.max(0, timerData.countdown - Math.floor(elapsed / 1000));
+                            
+                            if (remaining > 0) {
+                                console.log('Timer has', remaining, 'seconds remaining');
+                                // Start timer with remaining time
+                                this.startTimerWithRemaining(remaining);
+                            } else {
+                                console.log('Timer expired, showing scoring interface');
+                                this.timeUp();
+                            }
                         } else {
-                            console.log('Timer expired, showing scoring interface');
-                            this.timeUp();
+                            // Start fresh timer
+                            this.startQuestionTimer();
                         }
                     } else {
-                        // Start fresh timer
-                        this.startQuestionTimer();
+                        console.log('Showing category selection');
+                        this.showCategorySelection();
                     }
+                    
+                    return; // Don't continue to default logic
                 } else {
-                    console.log('Showing category selection');
-                    this.showCategorySelection();
+                    console.log('Invalid or incomplete state, clearing localStorage');
+                    localStorage.removeItem('quizState');
+                    localStorage.removeItem('timerState');
+                    localStorage.removeItem('currentPhase');
                 }
-                
-                return; // Don't continue to default logic
             }
         } catch (error) {
             console.error('Error restoring state:', error);
+            // Clear corrupted state
+            localStorage.removeItem('quizState');
+            localStorage.removeItem('timerState');
+            localStorage.removeItem('currentPhase');
         }
         
-        // Fallback to original logic if no saved state
-        console.log('No saved state, using default logic');
+        // Fallback to default logic if no valid saved state
+        console.log('No valid saved state, using default logic');
         
         // Check if quiz was started (prevent refresh from going to welcome)
         const quizStarted = localStorage.getItem('quizStarted');
@@ -1457,6 +1471,12 @@ class QuizApp {
         console.log('Questions per category: 1');
         console.log('Total questions expected:', this.selectedCategories.length * 1);
         console.log('Questions should be mixed from all selected categories');
+        
+        // Clear old localStorage state to prevent interference
+        localStorage.removeItem('quizState');
+        localStorage.removeItem('timerState');
+        localStorage.removeItem('currentPhase');
+        console.log('Cleared old localStorage state');
         
         // Mark quiz as started in localStorage (prevent refresh from going to welcome)
         localStorage.setItem('quizStarted', 'true');
