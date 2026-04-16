@@ -38,12 +38,48 @@ class QuizApp {
         // Initialize socket connection
         this.initializeSocket();
         
+        // Add beforeunload event listener
+        this.initializeRefreshWarning();
+        
         // Check which page we're on
         if (window.location.pathname.includes('questions.html') || window.location.pathname.endsWith('/questions')) {
             this.initializeQuestionsPage();
         } else {
             this.initializeIndexPage();
         }
+    }
+    
+    initializeRefreshWarning() {
+        console.log('=== INITIALIZING REFRESH WARNING ===');
+        
+        // Add beforeunload event listener
+        window.addEventListener('beforeunload', (event) => {
+            // Check if we're in question or scoring phase
+            const currentPhase = localStorage.getItem('currentPhase');
+            const quizStarted = localStorage.getItem('quizStarted');
+            
+            console.log('Beforeunload check - currentPhase:', currentPhase);
+            console.log('Beforeunload check - quizStarted:', quizStarted);
+            
+            // Show warning if quiz is started and we're in question or scoring phase
+            if (quizStarted === 'true' && (currentPhase === 'question' || currentPhase === 'scoring')) {
+                console.log('Showing refresh warning - user will lose progress');
+                
+                // Set the warning message
+                const message = 'Savol davom etmoqda! Sahifani tark etingiz barcha progress yo\'qolishiga olib kelishi mumkin. Davom etishni istaysizmi?';
+                
+                // Standard way for most browsers
+                event.preventDefault();
+                
+                // For older browsers
+                event.returnValue = message;
+                
+                // Return message for some browsers
+                return message;
+            }
+        });
+        
+        console.log('Refresh warning initialized');
     }
     
     initializeSocket() {
@@ -219,18 +255,21 @@ class QuizApp {
         const scoringQuestion = document.getElementById('scoringQuestion');
         const teamScores = document.getElementById('teamScores');
         
-        // Hide entire setup section including card
+        // Hide entire setup section including card with more aggressive hiding
         if (setupSection) {
+            setupSection.style.display = 'none';
             setupSection.classList.add('hidden');
         }
         
         // Hide setup status as well
         if (setupStatus) {
+            setupStatus.style.display = 'none';
             setupStatus.classList.add('hidden');
         }
         
         // Show scoring section
         if (scoringSection) {
+            scoringSection.style.display = 'block';
             scoringSection.classList.remove('hidden');
         }
         
@@ -249,15 +288,27 @@ class QuizApp {
                 teamScoreDiv.innerHTML = `
                     <h4>${team.name}</h4>
                     <div class="team-scoring-buttons">
-                        <button class="btn btn-success" onclick="app.scoreTeam(${team.id}, true)">
+                        <button class="btn btn-success correct-btn" data-team-id="${team.id}">
                             Correct (1 point)
                         </button>
-                        <button class="btn btn-danger" onclick="app.scoreTeam(${team.id}, false)">
+                        <button class="btn btn-danger incorrect-btn" data-team-id="${team.id}">
                             Incorrect (0 points)
                         </button>
                     </div>
                 `;
                 teamScores.appendChild(teamScoreDiv);
+                
+                // Add event listeners
+                const correctBtn = teamScoreDiv.querySelector('.correct-btn');
+                const incorrectBtn = teamScoreDiv.querySelector('.incorrect-btn');
+                
+                if (correctBtn) {
+                    correctBtn.addEventListener('click', () => this.scoreTeam(team.id, true));
+                }
+                
+                if (incorrectBtn) {
+                    incorrectBtn.addEventListener('click', () => this.scoreTeam(team.id, false));
+                }
             });
         }
     }
@@ -301,9 +352,9 @@ class QuizApp {
                 this.selectCategory(state.currentCategory);
             }
         } else if (state.scoringPhase) {
-            // Show time up screen
-            console.log('Showing time up screen');
-            this.timeUp();
+            // Show scoring interface
+            console.log('Showing scoring interface');
+            this.showScoringInterface();
         }
         
         console.log('=== UPDATE QUESTIONS PAGE END ===');
@@ -1761,6 +1812,9 @@ class QuizApp {
     showScoringInterface() {
         console.log('=== SHOW SCORING INTERFACE ===');
         
+        // Reset timeUpCalled flag to allow future timeUp calls
+        this.timeUpCalled = false;
+        
         // Hide question section
         const questionSection = document.querySelector('.question-section');
         if (questionSection) {
@@ -2357,3 +2411,4 @@ window.addEventListener('load', () => {
 
 // Create global app instance for HTML onclick handlers
 const app = new QuizApp();
+window.app = app; // Make it globally available
