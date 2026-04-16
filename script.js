@@ -1640,47 +1640,90 @@ class QuizApp {
     startQuestions() {
         console.log('=== START QUESTIONS ===');
         console.log('Starting questions phase');
+        console.log('Selected categories:', this.selectedCategories);
+        console.log('Questions available:', this.questions);
         
         // Mix all questions from selected categories
         this.mixedQuestions = this.mixQuestionsFromCategories();
         this.currentQuestionIndex = 0;
         
         console.log('Mixed questions prepared:', this.mixedQuestions.length);
+        console.log('Mixed questions:', this.mixedQuestions);
         console.log('Current question index:', this.currentQuestionIndex);
+        
+        if (this.mixedQuestions.length === 0) {
+            console.error('No questions found! Check selected categories and questions data.');
+            alert('No questions found! Please check your categories selection.');
+            return;
+        }
+        
+        // Hide category section
+        const categorySection = document.querySelector('.category-section');
+        if (categorySection) {
+            categorySection.classList.add('hidden');
+            categorySection.style.display = 'none';
+            console.log('Category section hidden');
+        }
         
         // Show question section
         const questionSection = document.querySelector('.question-section');
         if (questionSection) {
             questionSection.classList.remove('hidden');
-            console.log('Question section shown');
+            questionSection.style.display = 'block';
+            questionSection.style.visibility = 'visible';
+            questionSection.style.opacity = '1';
+            questionSection.style.position = 'relative';
+            questionSection.style.zIndex = '10';
+            console.log('Question section shown with force styles');
+        } else {
+            console.error('Question section not found!');
         }
         
         // Show first question
+        console.log('Calling showNextQuestion...');
         this.showNextQuestion();
         
         console.log('=== START QUESTIONS END ===');
     }
     
     mixQuestionsFromCategories() {
+        console.log('=== MIX QUESTIONS FROM CATEGORIES ===');
+        console.log('Selected categories:', this.selectedCategories);
+        console.log('Available questions:', this.questions);
+        console.log('Questions per category:', this.questionsPerCategory);
+        
         const allQuestions = [];
         
         // Collect questions from all selected categories
         this.selectedCategories.forEach(category => {
+            console.log(`Processing category: ${category}`);
             const categoryQuestions = this.questions[category] || [];
-            // Take first 10 questions from each category
+            console.log(`Questions found in ${category}:`, categoryQuestions.length);
+            
+            // Take first X questions from each category
             const limitedQuestions = categoryQuestions.slice(0, this.questionsPerCategory);
+            console.log(`Taking ${limitedQuestions.length} questions from ${category}`);
             
             // Add category info to each question
-            limitedQuestions.forEach(question => {
-                allQuestions.push({
+            limitedQuestions.forEach((question, index) => {
+                const questionWithCategory = {
                     ...question,
                     category: category
-                });
+                };
+                allQuestions.push(questionWithCategory);
+                console.log(`Added question ${index + 1} from ${category}:`, question.question);
             });
         });
         
+        console.log('Total questions collected:', allQuestions.length);
+        console.log('All questions:', allQuestions);
+        
         // Shuffle all questions
-        return this.shuffleArray(allQuestions);
+        const shuffledQuestions = this.shuffleArray(allQuestions);
+        console.log('Shuffled questions:', shuffledQuestions);
+        
+        console.log('=== MIX QUESTIONS FROM CATEGORIES END ===');
+        return shuffledQuestions;
     }
     
     shuffleArray(array) {
@@ -1915,7 +1958,11 @@ class QuizApp {
         if (questionSection) {
             questionSection.classList.remove('hidden');
             questionSection.style.display = 'block';
-            console.log('Question section shown');
+            questionSection.style.visibility = 'visible';
+            questionSection.style.opacity = '1';
+            questionSection.style.position = 'relative';
+            questionSection.style.zIndex = '10';
+            console.log('Question section shown with force styles');
         } else {
             console.log('Question section not found');
         }
