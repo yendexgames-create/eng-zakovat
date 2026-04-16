@@ -2232,7 +2232,93 @@ body {
     transform: none;
 }
 
-/* Question Timer Container */
+/* Hide answer options - not needed */
+.answer-options {
+    display: none !important;
+}
+
+/* Scoring Interface Styles */
+.question-info {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 12px;
+    margin: 20px 0;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.question-info p {
+    margin: 10px 0;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.scoring-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin: 25px 0;
+    flex-wrap: wrap;
+}
+
+.scoring-buttons .btn {
+    padding: 15px 30px !important;
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+    border-radius: 12px !important;
+    min-width: 200px !important;
+    transition: all 0.3s ease !important;
+}
+
+.scoring-buttons .btn.selected {
+    transform: scale(1.05) !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3) !important;
+}
+
+.teams-scoring {
+    margin-top: 30px;
+    padding: 25px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.teams-scoring h3 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: var(--text-primary);
+    font-size: 1.3rem;
+}
+
+.team-scoring-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.team-score-btn {
+    padding: 15px 20px !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    border-radius: 10px !important;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)) !important;
+    border: 2px solid transparent !important;
+    transition: all 0.3s ease !important;
+    cursor: pointer !important;
+}
+
+.team-score-btn:hover:not(:disabled) {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(74, 144, 226, 0.4) !important;
+    border-color: var(--primary-color) !important;
+}
+
+.team-score-btn:disabled {
+    background: linear-gradient(135deg, #6c757d, #495057) !important;
+    cursor: not-allowed !important;
+    opacity: 0.7 !important;
+    transform: none !important;
+}
 .question-timer-container {
     display: flex;
     justify-content: center;

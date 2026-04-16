@@ -27,6 +27,7 @@ class QuizApp {
         this.startTimer = 3; // 3 sekundlik start timer
         this.currentTimeLeft = 0; // joriy timer qiymati
         this.currentTimerInterval = null; // timer interval ID
+        this.lastAnswerCorrect = false; // oxirgi javob to'g'ri yoki noto'g'ri
         
         // Socket.io connection
         this.socket = null;
@@ -1407,34 +1408,11 @@ class QuizApp {
             categoryIndicator.textContent = question.category;
         }
         
-        // Update answer options
+        // Update answer options - REMOVED (no variants needed)
         const answerOptions = document.querySelector('.answer-options');
         if (answerOptions) {
-            answerOptions.innerHTML = '';
-            
-            // Check if question.options exists
-            if (question.options && Array.isArray(question.options)) {
-                question.options.forEach((answer, index) => {
-                    const button = document.createElement('button');
-                    button.className = 'answer-btn';
-                    button.textContent = answer;
-                    button.dataset.answer = index;
-                    button.addEventListener('click', () => this.selectAnswer(index));
-                    answerOptions.appendChild(button);
-                });
-            } else {
-                console.error('Question options not found:', question);
-                // Create default options if missing
-                const defaultOptions = ['Option A', 'Option B', 'Option C', 'Option D'];
-                defaultOptions.forEach((answer, index) => {
-                    const button = document.createElement('button');
-                    button.className = 'answer-btn';
-                    button.textContent = answer;
-                    button.dataset.answer = index;
-                    button.addEventListener('click', () => this.selectAnswer(index));
-                    answerOptions.appendChild(button);
-                });
-            }
+            answerOptions.innerHTML = ''; // Empty - no variants needed
+            console.log('Answer options cleared - no variants needed');
         }
     }
     
@@ -1459,7 +1437,7 @@ class QuizApp {
     }
     
     timeUp() {
-        console.log('Time up for question');
+        console.log('Time up for question - showing scoring interface');
         
         // Send time up to server
         this.socket.emit('timeUp', {
@@ -1467,10 +1445,141 @@ class QuizApp {
             category: this.currentCategory
         });
         
-        // Show next question
+        // Show scoring interface instead of next question
+        this.showScoringInterface();
+    }
+    
+    showScoringInterface() {
+        console.log('=== SHOW SCORING INTERFACE ===');
+        
+        // Hide question section
+        const questionSection = document.querySelector('.question-section');
+        if (questionSection) {
+            questionSection.classList.add('hidden');
+        }
+        
+        // Show scoring section
+        const scoringSection = document.querySelector('.scoring-section');
+        if (scoringSection) {
+            scoringSection.classList.remove('hidden');
+            
+            // Update scoring content
+            const scoringContent = scoringSection.querySelector('.card');
+            if (scoringContent) {
+                scoringContent.innerHTML = `
+                    <h2>Scoring</h2>
+                    <div class="question-info">
+                        <p><strong>Question:</strong> ${this.currentQuestion.question}</p>
+                        <p><strong>Category:</strong> ${this.currentCategory}</p>
+                        <p><strong>Correct Answer:</strong> ${this.currentQuestion.options[this.currentQuestion.correct]}</p>
+                    </div>
+                    <div class="scoring-buttons">
+                        <button class="btn btn-success" onclick="app.markAnswer(true)">
+                            Correct (1 point)
+                        </button>
+                        <button class="btn btn-danger" onclick="app.markAnswer(false)">
+                            Incorrect (0 points)
+                        </button>
+                    </div>
+                    <div class="teams-scoring">
+                        <h3>Select Team to Award Points:</h3>
+                        <div class="team-scoring-list" id="teamScoringList">
+                            <!-- Team buttons will be generated here -->
+                        </div>
+                    </div>
+                `;
+                
+                // Generate team scoring buttons
+                this.generateTeamScoringButtons();
+            }
+        }
+        
+        console.log('=== SHOW SCORING INTERFACE END ===');
+    }
+    
+    generateTeamScoringButtons() {
+        const teamScoringList = document.getElementById('teamScoringList');
+        if (!teamScoringList) return;
+        
+        teamScoringList.innerHTML = '';
+        
+        // Get teams from registered teams
+        const teams = this.registeredTeams || [];
+        
+        teams.forEach((team, index) => {
+            const teamButton = document.createElement('button');
+            teamButton.className = 'btn btn-primary team-score-btn';
+            teamButton.textContent = team.name;
+            teamButton.dataset.teamIndex = index;
+            teamButton.onclick = () => this.awardPointsToTeam(index);
+            teamScoringList.appendChild(teamButton);
+        });
+    }
+    
+    markAnswer(isCorrect) {
+        console.log('Answer marked as:', isCorrect ? 'Correct' : 'Incorrect');
+        
+        // Store answer correctness
+        this.lastAnswerCorrect = isCorrect;
+        
+        // Enable/disable team buttons based on correctness
+        const teamButtons = document.querySelectorAll('.team-score-btn');
+        teamButtons.forEach(button => {
+            button.disabled = !isCorrect; // Only allow scoring if correct
+            if (!isCorrect) {
+                button.textContent += ' (0 points)';
+            }
+        });
+        
+        // Update scoring buttons visual state
+        const correctBtn = document.querySelector('.btn-success');
+        const incorrectBtn = document.querySelector('.btn-danger');
+        
+        if (isCorrect) {
+            correctBtn.classList.add('selected');
+            incorrectBtn.classList.remove('selected');
+        } else {
+            incorrectBtn.classList.add('selected');
+            correctBtn.classList.remove('selected');
+        }
+    }
+    
+    awardPointsToTeam(teamIndex) {
+        if (!this.lastAnswerCorrect) {
+            console.log('No points awarded - answer was incorrect');
+            return;
+        }
+        
+        console.log('Awarding 1 point to team:', teamIndex);
+        
+        // Award 1 point to the team
+        this.socket.emit('awardPoint', {
+            teamIndex: teamIndex,
+            points: 1,
+            question: this.currentQuestion,
+            category: this.currentCategory
+        });
+        
+        // Show next question after awarding points
         setTimeout(() => {
-            this.showNextQuestion();
-        }, 2000);
+            this.goToNextQuestion();
+        }, 1500);
+    }
+    
+    goToNextQuestion() {
+        console.log('Proceeding to next question');
+        
+        // Hide scoring section
+        const scoringSection = document.querySelector('.scoring-section');
+        if (scoringSection) {
+            scoringSection.classList.add('hidden');
+        }
+        
+        // Reset flags
+        this.lastAnswerCorrect = false;
+        
+        // Show next question
+        this.showNextQuestion();
     }
     
     endQuiz() {
