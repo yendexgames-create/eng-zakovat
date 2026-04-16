@@ -880,12 +880,20 @@ class QuizApp {
         const quizStarted = localStorage.getItem('quizStarted');
         console.log('Quiz started from localStorage:', quizStarted);
         
+        // Check current phase from localStorage
+        const currentPhase = localStorage.getItem('currentPhase');
+        console.log('Current phase from localStorage:', currentPhase);
+        
         if (quizStarted === 'true') {
-            console.log('Quiz was started, showing category selection directly');
-            // Don't show welcome section, go directly to category selection
-            setTimeout(() => {
-                this.showCategorySelection();
-            }, 100);
+            if (currentPhase === 'question' || currentPhase === 'scoring') {
+                console.log('Already in question or scoring phase, maintaining current state');
+                // Don't go to category selection, let updateQuestionsPage handle it
+            } else {
+                console.log('Quiz was started but not in question phase, showing category selection');
+                setTimeout(() => {
+                    this.showCategorySelection();
+                }, 100);
+            }
         } else {
             console.log('Quiz not started, showing welcome section');
             this.displayTeams();
