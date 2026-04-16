@@ -1862,6 +1862,11 @@ class QuizApp {
     }
     
     displayQuestion(question) {
+        console.log('=== DISPLAY QUESTION START ===');
+        console.log('Question object:', question);
+        console.log('Question text:', question.question);
+        console.log('Question category:', question.category);
+        
         // Save state to prevent refresh changes
         localStorage.setItem('quizState', JSON.stringify({
             quizStarted: true,
@@ -1880,6 +1885,9 @@ class QuizApp {
         if (categorySection) {
             categorySection.classList.add('hidden');
             categorySection.style.display = 'none';
+            console.log('Category section hidden');
+        } else {
+            console.log('Category section not found');
         }
         
         // Hide scoring section
@@ -1887,6 +1895,19 @@ class QuizApp {
         if (scoringSection) {
             scoringSection.classList.add('hidden');
             scoringSection.style.display = 'none';
+            console.log('Scoring section hidden');
+        } else {
+            console.log('Scoring section not found');
+        }
+        
+        // Hide countdown section
+        const countdownSection = document.querySelector('.start-countdown');
+        if (countdownSection) {
+            countdownSection.classList.add('hidden');
+            countdownSection.style.display = 'none';
+            console.log('Countdown section hidden');
+        } else {
+            console.log('Countdown section not found');
         }
         
         // Show question section
@@ -1894,18 +1915,29 @@ class QuizApp {
         if (questionSection) {
             questionSection.classList.remove('hidden');
             questionSection.style.display = 'block';
+            console.log('Question section shown');
+        } else {
+            console.log('Question section not found');
         }
         
         // Update question content
         const questionText = document.querySelector('.question-text');
+        console.log('Question text element:', questionText);
         if (questionText) {
             questionText.textContent = question.question;
+            console.log('Question text updated:', question.question);
+        } else {
+            console.log('Question text element not found');
         }
         
         // Update category indicator
         const categoryIndicator = document.querySelector('.category-indicator');
+        console.log('Category indicator element:', categoryIndicator);
         if (categoryIndicator) {
             categoryIndicator.textContent = question.category;
+            console.log('Category indicator updated:', question.category);
+        } else {
+            console.log('Category indicator element not found');
         }
         
         // Update answer options - REMOVED (no variants needed)
@@ -1914,6 +1946,8 @@ class QuizApp {
             answerOptions.innerHTML = ''; // Empty - no variants needed
             console.log('Answer options cleared - no variants needed');
         }
+        
+        console.log('=== DISPLAY QUESTION END ===');
     }
     
     selectAnswer(answerIndex) {
