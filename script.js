@@ -1544,6 +1544,13 @@ class QuizApp {
             category: this.currentCategory
         });
         
+        // Send scoring phase signal to server
+        this.socket.emit('scoringPhase', {
+            question: this.currentQuestion,
+            category: this.currentCategory,
+            scoringPhase: true
+        });
+        
         // Show scoring interface instead of next question
         this.showScoringInterface();
     }
