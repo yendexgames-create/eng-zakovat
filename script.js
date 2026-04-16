@@ -206,8 +206,10 @@ class QuizApp {
     }
     
     updateIndexPage(state) {
-        // No scoring section on index.html anymore
-        // Only questions.html has scoring interface
+        if (state.scoringPhase) {
+            // Show scoring section on index.html
+            this.showScoringSection();
+        }
     }
     
     showScoringSection() {
@@ -237,25 +239,39 @@ class QuizApp {
                 const teamScoreDiv = document.createElement('div');
                 teamScoreDiv.className = 'team-score-input';
                 teamScoreDiv.innerHTML = `
-                    <label>${team.name}:</label>
-                    <div class="score-options">
-                        <input type="radio" name="score-${team.id}" value="0" id="score-${team.id}-0" checked>
-                        <label for="score-${team.id}-0">0</label>
-                        <input type="radio" name="score-${team.id}" value="1" id="score-${team.id}-1">
-                        <label for="score-${team.id}-1">1</label>
-                        <input type="radio" name="score-${team.id}" value="2" id="score-${team.id}-2">
-                        <label for="score-${team.id}-2">2</label>
-                        <input type="radio" name="score-${team.id}" value="3" id="score-${team.id}-3">
-                        <label for="score-${team.id}-3">3</label>
-                        <input type="radio" name="score-${team.id}" value="4" id="score-${team.id}-4">
-                        <label for="score-${team.id}-4">4</label>
-                        <input type="radio" name="score-${team.id}" value="5" id="score-${team.id}-5">
-                        <label for="score-${team.id}-5">5</label>
+                    <h4>${team.name}</h4>
+                    <div class="team-scoring-buttons">
+                        <button class="btn btn-success" onclick="app.scoreTeam(${team.id}, true)">
+                            Correct (1 point)
+                        </button>
+                        <button class="btn btn-danger" onclick="app.scoreTeam(${team.id}, false)">
+                            Incorrect (0 points)
+                        </button>
                     </div>
                 `;
                 teamScores.appendChild(teamScoreDiv);
             });
         }
+    }
+    
+    scoreTeam(teamId, isCorrect) {
+        console.log(`Team ${teamId} scored as ${isCorrect ? 'Correct' : 'Incorrect'}`);
+        
+        // Update score if correct
+        if (isCorrect) {
+            this.scores[teamId] = (this.scores[teamId] || 0) + 1;
+            console.log(`Updated score for team ${teamId}: ${this.scores[teamId]}`);
+        }
+        
+        // Send score to server
+        this.socket.emit('teamScore', {
+            teamId: teamId,
+            isCorrect: isCorrect,
+            newScore: this.scores[teamId]
+        });
+        
+        // Update display
+        this.displayTeams();
     }
     
     updateQuestionsPage(state) {

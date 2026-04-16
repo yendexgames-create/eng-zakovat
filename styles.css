@@ -2237,6 +2237,25 @@ body {
     display: none !important;
 }
 
+/* Team scoring buttons */
+.team-scoring-buttons {
+    display: flex;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.team-scoring-buttons .btn {
+    flex: 1;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+}
+
+.team-score-input h4 {
+    margin: 0 0 10px 0;
+    color: #333;
+    font-size: 1.1rem;
+}
+
 /* Scoring Interface Styles */
 .question-info {
     background: rgba(255, 255, 255, 0.1);
