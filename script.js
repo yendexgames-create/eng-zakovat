@@ -38,6 +38,19 @@ class QuizApp {
         // Initialize socket connection
         this.initializeSocket();
         
+        // Add beforeunload event listener to prevent accidental refresh
+        window.addEventListener('beforeunload', (event) => {
+            const quizStarted = localStorage.getItem('quizStarted');
+            const currentPhase = localStorage.getItem('currentPhase');
+            
+            if (quizStarted === 'true' && (currentPhase === 'question' || currentPhase === 'scoring')) {
+                // User is trying to refresh during active quiz
+                event.preventDefault();
+                event.returnValue = 'Quiz davom etayotgan. Sahifani yangilasangiz, progress yo\'qoladi. Davom etish uchun "Stay" tugmasini bosing.';
+                return 'Quiz davom etayotgan. Sahifani yangilasangiz, progress yo\'qoladi. Davom etish uchun "Stay" tugmasini bosing.';
+            }
+        });
+        
         // Check which page we're on
         if (window.location.pathname.includes('questions.html') || window.location.pathname.endsWith('/questions')) {
             this.initializeQuestionsPage();
