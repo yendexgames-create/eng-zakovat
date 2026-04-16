@@ -807,25 +807,36 @@ class QuizApp {
     }
 
     submitScores() {
-        const scores = {};
-        let hasScore = false;
+        console.log('=== SUBMIT SCORES ===');
         
-        // Collect scores from all team inputs
+        // Check if any team was marked as correct
+        let hasCorrectScore = false;
+        const scores = {};
+        
+        // Collect scores from correct/incorrect buttons
         this.teams.forEach(team => {
-            const scoreInput = document.querySelector(`input[name="score-${team.id}"]:checked`);
-            const score = parseInt(scoreInput.value) || 0;
-            scores[team.id] = score;
-            if (score > 0) hasScore = true;
+            const teamScore = this.scores[team.id] || 0;
+            scores[team.id] = teamScore;
+            if (teamScore > 0) hasCorrectScore = true;
         });
-
-        if (!hasScore) {
-            alert('Iltimos, kamida bitta jamoa uchun ball belgilang!');
+        
+        console.log('Scores to submit:', scores);
+        console.log('Has correct score:', hasCorrectScore);
+        
+        if (!hasCorrectScore) {
+            alert('Iltimos, kamida bitta jamoa uchun "Correct" belgilang!');
             return;
         }
 
         // Send scores to server
         this.socket.emit('submitScores', scores);
-        console.log('Scores submitted:', scores);
+        console.log('Scores submitted to server:', scores);
+
+        // Auto proceed to next question after 2 seconds
+        setTimeout(() => {
+            console.log('Auto proceeding to next question...');
+            this.goToNextQuestion();
+        }, 2000);
 
         // Show loading state in scoring section
         const scoringQuestion = document.getElementById('scoringQuestion');
@@ -847,7 +858,7 @@ class QuizApp {
             scoringActions.innerHTML = '';
         }
         
-        console.log('Scoring completed - waiting for next question');
+        console.log('=== SUBMIT SCORES END ===');
     }
 
     restoreSetupSection() {
