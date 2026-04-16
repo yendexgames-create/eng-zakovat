@@ -318,39 +318,85 @@ class QuizApp {
                 `;
                 teamScores.appendChild(teamScoreDiv);
                 
-                // Add event listeners
-                const correctBtn = teamScoreDiv.querySelector('.correct-btn');
-                const incorrectBtn = teamScoreDiv.querySelector('.incorrect-btn');
-                
-                if (correctBtn) {
-                    correctBtn.addEventListener('click', () => this.scoreTeam(team.id, true));
-                }
-                
-                if (incorrectBtn) {
-                    incorrectBtn.addEventListener('click', () => this.scoreTeam(team.id, false));
-                }
+                // Add event listeners with delay
+                setTimeout(() => {
+                    const correctBtn = teamScoreDiv.querySelector('.correct-btn');
+                    const incorrectBtn = teamScoreDiv.querySelector('.incorrect-btn');
+                    
+                    console.log(`Adding event listeners for team ${team.id}:`);
+                    console.log('Correct button:', correctBtn);
+                    console.log('Incorrect button:', incorrectBtn);
+                    
+                    if (correctBtn) {
+                        correctBtn.addEventListener('click', (e) => {
+                            console.log(`Correct button clicked for team ${team.id}`);
+                            e.preventDefault();
+                            e.stopPropagation();
+                            this.scoreTeam(team.id, true);
+                        });
+                        console.log('Correct button event listener added');
+                    } else {
+                        console.error('Correct button not found for team:', team.id);
+                    }
+                    
+                    if (incorrectBtn) {
+                        incorrectBtn.addEventListener('click', (e) => {
+                            console.log(`Incorrect button clicked for team ${team.id}`);
+                            e.preventDefault();
+                            e.stopPropagation();
+                            this.scoreTeam(team.id, false);
+                        });
+                        console.log('Incorrect button event listener added');
+                    } else {
+                        console.error('Incorrect button not found for team:', team.id);
+                    }
+                }, 100);
             });
         }
     }
     
     scoreTeam(teamId, isCorrect) {
-        console.log(`Team ${teamId} scored as ${isCorrect ? 'Correct' : 'Incorrect'}`);
+        console.log(`=== SCORE TEAM CALLED ===`);
+        console.log(`Team ID: ${teamId}`);
+        console.log(`Is Correct: ${isCorrect}`);
+        console.log(`Current scores before:`, this.scores);
+        console.log(`Teams available:`, this.teams);
         
         // Update score if correct
         if (isCorrect) {
             this.scores[teamId] = (this.scores[teamId] || 0) + 1;
             console.log(`Updated score for team ${teamId}: ${this.scores[teamId]}`);
+        } else {
+            console.log(`Team ${teamId} got incorrect answer, no points awarded`);
         }
         
+        console.log(`Current scores after:`, this.scores);
+        
         // Send score to server
-        this.socket.emit('teamScore', {
-            teamId: teamId,
-            isCorrect: isCorrect,
-            newScore: this.scores[teamId]
-        });
+        if (this.socket) {
+            this.socket.emit('teamScore', {
+                teamId: teamId,
+                isCorrect: isCorrect,
+                newScore: this.scores[teamId]
+            });
+            console.log(`Score sent to server for team ${teamId}`);
+        } else {
+            console.error('Socket not available, cannot send score to server');
+        }
         
         // Update display
         this.displayTeams();
+        
+        // Visual feedback
+        const teamButton = document.querySelector(`[data-team-id="${teamId}"]`);
+        if (teamButton) {
+            teamButton.style.background = isCorrect ? '#d4edda' : '#f8d7da';
+            setTimeout(() => {
+                teamButton.style.background = '';
+            }, 1000);
+        }
+        
+        console.log(`=== SCORE TEAM COMPLETED ===`);
     }
     
     showTimeUpMessage() {
