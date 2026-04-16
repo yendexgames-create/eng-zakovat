@@ -1466,28 +1466,32 @@ class QuizApp {
             // Update scoring content
             const scoringContent = scoringSection.querySelector('.card');
             if (scoringContent) {
-                scoringContent.innerHTML = `
-                    <h2>Scoring</h2>
-                    <div class="question-info">
-                        <p><strong>Question:</strong> ${this.currentQuestion.question}</p>
-                        <p><strong>Category:</strong> ${this.currentCategory}</p>
-                        <p><strong>Correct Answer:</strong> ${this.currentQuestion.options[this.currentQuestion.correct]}</p>
-                    </div>
-                    <div class="scoring-buttons">
-                        <button class="btn btn-success" onclick="app.markAnswer(true)">
-                            Correct (1 point)
-                        </button>
-                        <button class="btn btn-danger" onclick="app.markAnswer(false)">
-                            Incorrect (0 points)
-                        </button>
-                    </div>
-                    <div class="teams-scoring">
-                        <h3>Select Team to Award Points:</h3>
-                        <div class="team-scoring-list" id="teamScoringList">
-                            <!-- Team buttons will be generated here -->
-                        </div>
-                    </div>
-                `;
+                const questionText = this.currentQuestion.question || 'Question not available';
+                const categoryText = this.currentCategory || 'Category not available';
+                const correctAnswerText = this.currentQuestion.options && this.currentQuestion.correct !== undefined 
+                    ? this.currentQuestion.options[this.currentQuestion.correct] 
+                    : 'Answer not available';
+                
+                scoringContent.innerHTML = '<h2>Scoring</h2>' +
+                    '<div class="question-info">' +
+                        '<p><strong>Question:</strong> ' + questionText + '</p>' +
+                        '<p><strong>Category:</strong> ' + categoryText + '</p>' +
+                        '<p><strong>Correct Answer:</strong> ' + correctAnswerText + '</p>' +
+                    '</div>' +
+                    '<div class="scoring-buttons">' +
+                        '<button class="btn btn-success" onclick="app.markAnswer(true)">' +
+                            'Correct (1 point)' +
+                        '</button>' +
+                        '<button class="btn btn-danger" onclick="app.markAnswer(false)">' +
+                            'Incorrect (0 points)' +
+                        '</button>' +
+                    '</div>' +
+                    '<div class="teams-scoring">' +
+                        '<h3>Select Team to Award Points:</h3>' +
+                        '<div class="team-scoring-list" id="teamScoringList">' +
+                            '<!-- Team buttons will be generated here -->' +
+                        '</div>' +
+                    '</div>';
                 
                 // Generate team scoring buttons
                 this.generateTeamScoringButtons();
