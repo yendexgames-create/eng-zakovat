@@ -896,7 +896,6 @@ class QuizApp {
             }
         } else {
             console.log('Quiz not started, showing welcome section');
-            this.displayTeams();
         }
         
         this.displayTeams();
