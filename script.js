@@ -1206,6 +1206,20 @@ class QuizApp {
         console.log('Current window width:', window.innerWidth);
         console.log('Current window height:', window.innerHeight);
         
+        // Hide question section first
+        const questionSection = document.querySelector('.question-section');
+        if (questionSection) {
+            questionSection.classList.add('hidden');
+            console.log('Question section hidden');
+        }
+        
+        // Hide scoring section
+        const scoringSection = document.querySelector('.scoring-section');
+        if (scoringSection) {
+            scoringSection.classList.add('hidden');
+            console.log('Scoring section hidden');
+        }
+        
         // IMMEDIATE CSS INJECTION TO FORCE FIX
         const style = document.createElement('style');
         style.textContent = `
@@ -1237,11 +1251,21 @@ class QuizApp {
             .questions-page .category-section {
                 max-width: 1500px !important;
                 margin: 0 auto !important;
+                display: block !important;
             }
             
             .questions-page .card {
                 max-width: 1500px !important;
                 margin: 0 auto !important;
+            }
+            
+            /* Hide question and scoring sections during category selection */
+            .questions-page .question-section {
+                display: none !important;
+            }
+            
+            .questions-page .scoring-section {
+                display: none !important;
             }
         `;
         document.head.appendChild(style);
@@ -1807,12 +1831,21 @@ class QuizApp {
         const categorySection = document.querySelector('.category-section');
         if (categorySection) {
             categorySection.classList.add('hidden');
+            categorySection.style.display = 'none';
+        }
+        
+        // Hide scoring section
+        const scoringSection = document.querySelector('.scoring-section');
+        if (scoringSection) {
+            scoringSection.classList.add('hidden');
+            scoringSection.style.display = 'none';
         }
         
         // Show question section
         const questionSection = document.querySelector('.question-section');
         if (questionSection) {
             questionSection.classList.remove('hidden');
+            questionSection.style.display = 'block';
         }
         
         // Update question content
