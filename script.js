@@ -1411,14 +1411,30 @@ class QuizApp {
         const answerOptions = document.querySelector('.answer-options');
         if (answerOptions) {
             answerOptions.innerHTML = '';
-            question.answers.forEach((answer, index) => {
-                const button = document.createElement('button');
-                button.className = 'answer-btn';
-                button.textContent = answer;
-                button.dataset.answer = index;
-                button.addEventListener('click', () => this.selectAnswer(index));
-                answerOptions.appendChild(button);
-            });
+            
+            // Check if question.options exists
+            if (question.options && Array.isArray(question.options)) {
+                question.options.forEach((answer, index) => {
+                    const button = document.createElement('button');
+                    button.className = 'answer-btn';
+                    button.textContent = answer;
+                    button.dataset.answer = index;
+                    button.addEventListener('click', () => this.selectAnswer(index));
+                    answerOptions.appendChild(button);
+                });
+            } else {
+                console.error('Question options not found:', question);
+                // Create default options if missing
+                const defaultOptions = ['Option A', 'Option B', 'Option C', 'Option D'];
+                defaultOptions.forEach((answer, index) => {
+                    const button = document.createElement('button');
+                    button.className = 'answer-btn';
+                    button.textContent = answer;
+                    button.dataset.answer = index;
+                    button.addEventListener('click', () => this.selectAnswer(index));
+                    answerOptions.appendChild(button);
+                });
+            }
         }
     }
     
@@ -1426,7 +1442,7 @@ class QuizApp {
         this.stopQuestionTimer();
         
         // Check if answer is correct
-        const correct = this.currentQuestion.correctAnswer === answerIndex;
+        const correct = this.currentQuestion.correct === answerIndex;
         
         // Send answer to server
         this.socket.emit('answerQuestion', {
