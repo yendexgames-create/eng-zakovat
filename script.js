@@ -171,6 +171,26 @@ class QuizApp {
         
         console.log('=== SOCKET INITIALIZATION COMPLETE ===');
         
+        // Handle server state updates
+        this.socket.on('quizStateUpdate', (state) => {
+            console.log('Quiz state update received from server:', state);
+            
+            // Update local state
+            this.teams = state.teams || [];
+            this.scores = state.scores || {};
+            this.currentCategory = state.currentCategory;
+            this.currentQuestion = state.currentQuestion;
+            this.selectedCategories = state.selectedCategories || [];
+            this.mixedQuestions = state.mixedQuestions || [];
+            this.currentQuestionIndex = state.currentQuestionIndex || 0;
+            
+            // Update localStorage
+            localStorage.setItem('quizState', JSON.stringify(state));
+            localStorage.setItem('currentPhase', state.currentPhase);
+            
+            console.log('State updated from server and saved to localStorage');
+        });
+        
         // Handle state updates
         this.socket.on('stateUpdate', (state) => {
             console.log('State update received:', state);
@@ -1060,7 +1080,11 @@ class QuizApp {
         }
         
         // Fallback to default logic if no valid saved state
-        console.log('No valid saved state, using default logic');
+        console.log('No valid saved state, requesting from server');
+        
+        // Request current state from server for multi-device sync
+        this.socket.emit('requestQuizState');
+        console.log('Requested quiz state from server');
         
         // Check if quiz was started (prevent refresh from going to welcome)
         const quizStarted = localStorage.getItem('quizStarted');
@@ -1609,8 +1633,8 @@ class QuizApp {
         this.currentQuestion = question;
         this.currentCategory = question.category;
         
-        // Save complete state to localStorage (prevent refresh changes)
-        localStorage.setItem('quizState', JSON.stringify({
+        // Save complete state to localStorage AND send to server
+        const stateData = {
             quizStarted: true,
             currentPhase: 'question',
             currentQuestion: this.currentQuestion,
@@ -1620,9 +1644,14 @@ class QuizApp {
             selectedCategories: this.selectedCategories,
             mixedQuestions: this.mixedQuestions,
             currentQuestionIndex: this.currentQuestionIndex
-        }));
+        };
         
+        localStorage.setItem('quizState', JSON.stringify(stateData));
         console.log('Question state saved to localStorage');
+        
+        // Send state to server for multi-device sync
+        this.socket.emit('saveQuizState', stateData);
+        console.log('Quiz state sent to server for multi-device sync');
         
         // Show question UI
         this.displayQuestion(question);
@@ -1832,8 +1861,8 @@ class QuizApp {
         // Set current phase to scoring
         localStorage.setItem('currentPhase', 'scoring');
         
-        // Save complete state to localStorage (prevent data loss)
-        localStorage.setItem('quizState', JSON.stringify({
+        // Save complete state to localStorage AND send to server
+        const stateData = {
             quizStarted: true,
             currentPhase: 'scoring',
             currentQuestion: this.currentQuestion,
@@ -1843,9 +1872,14 @@ class QuizApp {
             selectedCategories: this.selectedCategories,
             mixedQuestions: this.mixedQuestions,
             currentQuestionIndex: this.currentQuestionIndex
-        }));
+        };
         
-        console.log('Complete state saved to localStorage');
+        localStorage.setItem('quizState', JSON.stringify(stateData));
+        console.log('Scoring state saved to localStorage');
+        
+        // Send state to server for multi-device sync
+        this.socket.emit('saveQuizState', stateData);
+        console.log('Scoring state sent to server for multi-device sync');
         
         // Send time up to server
         this.socket.emit('timeUp', {
