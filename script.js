@@ -599,27 +599,29 @@ class QuizApp {
             console.error('Start button not found!');
         }
 
-        // Add event listener for start-quiz-btn
-        const startQuizBtn = document.querySelector('.start-quiz-btn');
-        if (startQuizBtn) {
-            console.log('Start quiz button found, adding event listener');
-            startQuizBtn.addEventListener('click', (e) => {
-                console.log('=== START QUIZ BUTTON CLICKED ===');
-                console.log('Event:', e);
-                console.log('Button element:', startQuizBtn);
-                console.log('Button classes:', startQuizBtn.classList);
-                console.log('Button disabled:', startQuizBtn.disabled);
-                
-                if (startQuizBtn.disabled) {
-                    console.log('Button is disabled - click ignored');
-                    return;
-                }
-                
-                console.log('Button is enabled - calling startQuestionsQuiz()');
-                this.startQuestionsQuiz();
-            });
-        } else {
-            console.error('Start quiz button not found!');
+        // Add event listener for start-quiz-btn (only on questions page)
+        if (window.location.pathname.includes('questions.html') || window.location.pathname.endsWith('/questions')) {
+            const startQuizBtn = document.querySelector('.start-quiz-btn');
+            if (startQuizBtn) {
+                console.log('Start quiz button found, adding event listener');
+                startQuizBtn.addEventListener('click', (e) => {
+                    console.log('=== START QUIZ BUTTON CLICKED ===');
+                    console.log('Event:', e);
+                    console.log('Button element:', startQuizBtn);
+                    console.log('Button classes:', startQuizBtn.classList);
+                    console.log('Button disabled:', startQuizBtn.disabled);
+                    
+                    if (startQuizBtn.disabled) {
+                        console.log('Button is disabled - click ignored');
+                        return;
+                    }
+                    
+                    console.log('Button is enabled - calling startQuestionsQuiz()');
+                    this.startQuestionsQuiz();
+                });
+            } else {
+                console.error('Start quiz button not found on questions page!');
+            }
         }
 
         // Scoring events
