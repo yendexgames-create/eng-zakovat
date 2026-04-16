@@ -892,6 +892,45 @@ class QuizApp {
     initializeQuestionsPage() {
         console.log('Questions page initialized');
         
+        // Try to restore state from localStorage
+        try {
+            const savedState = localStorage.getItem('quizState');
+            if (savedState) {
+                const state = JSON.parse(savedState);
+                console.log('Restoring state from localStorage:', state);
+                
+                // Restore all state
+                this.teams = state.teams || [];
+                this.scores = state.scores || {};
+                this.currentCategory = state.currentCategory;
+                this.currentQuestion = state.currentQuestion;
+                this.selectedCategories = state.selectedCategories || [];
+                this.mixedQuestions = state.mixedQuestions || [];
+                this.currentQuestionIndex = state.currentQuestionIndex || 0;
+                
+                console.log('State restored successfully');
+                
+                // Show appropriate section based on phase
+                if (state.currentPhase === 'scoring') {
+                    console.log('Restoring scoring phase');
+                    this.showScoringInterface();
+                } else if (state.currentPhase === 'question') {
+                    console.log('Restoring question phase');
+                    this.displayQuestion(state.currentQuestion);
+                } else {
+                    console.log('Showing category selection');
+                    this.showCategorySelection();
+                }
+                
+                return; // Don't continue to default logic
+            }
+        } catch (error) {
+            console.error('Error restoring state:', error);
+        }
+        
+        // Fallback to original logic if no saved state
+        console.log('No saved state, using default logic');
+        
         // Check if quiz was started (prevent refresh from going to welcome)
         const quizStarted = localStorage.getItem('quizStarted');
         console.log('Quiz started from localStorage:', quizStarted);
@@ -912,9 +951,8 @@ class QuizApp {
             }
         } else {
             console.log('Quiz not started, showing welcome section');
+            this.displayTeams();
         }
-        
-        this.displayTeams();
     }
 
     displayTeams() {
@@ -1552,6 +1590,21 @@ class QuizApp {
         
         // Set current phase to scoring
         localStorage.setItem('currentPhase', 'scoring');
+        
+        // Save complete state to localStorage (prevent data loss)
+        localStorage.setItem('quizState', JSON.stringify({
+            quizStarted: true,
+            currentPhase: 'scoring',
+            currentQuestion: this.currentQuestion,
+            currentCategory: this.currentCategory,
+            teams: this.teams,
+            scores: this.scores,
+            selectedCategories: this.selectedCategories,
+            mixedQuestions: this.mixedQuestions,
+            currentQuestionIndex: this.currentQuestionIndex
+        }));
+        
+        console.log('Complete state saved to localStorage');
         
         // Send time up to server
         this.socket.emit('timeUp', {
