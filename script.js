@@ -28,6 +28,7 @@ class QuizApp {
         this.currentTimeLeft = 0; // joriy timer qiymati
         this.currentTimerInterval = null; // timer interval ID
         this.lastAnswerCorrect = false; // oxirgi javob to'g'ri yoki noto'g'ri
+        this.teamsScoredForQuestion = []; // qaysi jamoalar ushbu savol uchun baholandi
         
         // Socket.io connection
         this.socket = null;
@@ -278,11 +279,33 @@ class QuizApp {
     scoreTeam(teamId, isCorrect) {
         console.log(`Team ${teamId} scored as ${isCorrect ? 'Correct' : 'Incorrect'}`);
         
+        // Check if team already scored for this question
+        if (this.teamsScoredForQuestion && this.teamsScoredForQuestion.includes(teamId)) {
+            console.log(`Team ${teamId} already scored for this question`);
+            return;
+        }
+        
+        // Initialize teamsScoredForQuestion array if not exists
+        if (!this.teamsScoredForQuestion) {
+            this.teamsScoredForQuestion = [];
+        }
+        
+        // Mark team as scored for this question
+        this.teamsScoredForQuestion.push(teamId);
+        
         // Update score if correct
         if (isCorrect) {
             this.scores[teamId] = (this.scores[teamId] || 0) + 1;
             console.log(`Updated score for team ${teamId}: ${this.scores[teamId]}`);
         }
+        
+        // Disable buttons for this team
+        const teamButtons = document.querySelectorAll(`button[onclick*="scoreTeam(${teamId},"]`);
+        teamButtons.forEach(button => {
+            button.disabled = true;
+            button.style.opacity = '0.5';
+            button.style.cursor = 'not-allowed';
+        });
         
         // Send score to server
         this.socket.emit('teamScore', {
@@ -848,7 +871,12 @@ class QuizApp {
         // Auto proceed to next question after 2 seconds
         setTimeout(() => {
             console.log('Auto proceeding to next question...');
-            this.goToNextQuestion();
+            
+            // Reset scored teams for next question
+            this.teamsScoredForQuestion = [];
+            
+            // Show next question directly instead of going to category selection
+            this.showNextQuestion();
         }, 2000);
 
         // Show loading state in scoring section
