@@ -38,48 +38,12 @@ class QuizApp {
         // Initialize socket connection
         this.initializeSocket();
         
-        // Add beforeunload event listener
-        this.initializeRefreshWarning();
-        
         // Check which page we're on
         if (window.location.pathname.includes('questions.html') || window.location.pathname.endsWith('/questions')) {
             this.initializeQuestionsPage();
         } else {
             this.initializeIndexPage();
         }
-    }
-    
-    initializeRefreshWarning() {
-        console.log('=== INITIALIZING REFRESH WARNING ===');
-        
-        // Add beforeunload event listener
-        window.addEventListener('beforeunload', (event) => {
-            // Check if we're in question or scoring phase
-            const currentPhase = localStorage.getItem('currentPhase');
-            const quizStarted = localStorage.getItem('quizStarted');
-            
-            console.log('Beforeunload check - currentPhase:', currentPhase);
-            console.log('Beforeunload check - quizStarted:', quizStarted);
-            
-            // Show warning if quiz is started and we're in question or scoring phase
-            if (quizStarted === 'true' && (currentPhase === 'question' || currentPhase === 'scoring')) {
-                console.log('Showing refresh warning - user will lose progress');
-                
-                // Set the warning message
-                const message = 'Savol davom etmoqda! Sahifani tark etingiz barcha progress yo\'qolishiga olib kelishi mumkin. Davom etishni istaysizmi?';
-                
-                // Standard way for most browsers
-                event.preventDefault();
-                
-                // For older browsers
-                event.returnValue = message;
-                
-                // Return message for some browsers
-                return message;
-            }
-        });
-        
-        console.log('Refresh warning initialized');
     }
     
     initializeSocket() {
@@ -170,26 +134,6 @@ class QuizApp {
         });
         
         console.log('=== SOCKET INITIALIZATION COMPLETE ===');
-        
-        // Handle server state updates
-        this.socket.on('quizStateUpdate', (state) => {
-            console.log('Quiz state update received from server:', state);
-            
-            // Update local state
-            this.teams = state.teams || [];
-            this.scores = state.scores || {};
-            this.currentCategory = state.currentCategory;
-            this.currentQuestion = state.currentQuestion;
-            this.selectedCategories = state.selectedCategories || [];
-            this.mixedQuestions = state.mixedQuestions || [];
-            this.currentQuestionIndex = state.currentQuestionIndex || 0;
-            
-            // Update localStorage
-            localStorage.setItem('quizState', JSON.stringify(state));
-            localStorage.setItem('currentPhase', state.currentPhase);
-            
-            console.log('State updated from server and saved to localStorage');
-        });
         
         // Handle state updates
         this.socket.on('stateUpdate', (state) => {
@@ -318,119 +262,39 @@ class QuizApp {
                 `;
                 teamScores.appendChild(teamScoreDiv);
                 
-                // Add event listeners with delay
-                setTimeout(() => {
-                    const correctBtn = teamScoreDiv.querySelector('.correct-btn');
-                    const incorrectBtn = teamScoreDiv.querySelector('.incorrect-btn');
-                    
-                    console.log(`Adding event listeners for team ${team.id}:`);
-                    console.log('Correct button:', correctBtn);
-                    console.log('Incorrect button:', incorrectBtn);
-                    
-                    if (correctBtn) {
-                        correctBtn.addEventListener('click', (e) => {
-                            console.log(`Correct button clicked for team ${team.id}`);
-                            e.preventDefault();
-                            e.stopPropagation();
-                            this.scoreTeam(team.id, true);
-                        });
-                        console.log('Correct button event listener added');
-                    } else {
-                        console.error('Correct button not found for team:', team.id);
-                    }
-                    
-                    if (incorrectBtn) {
-                        incorrectBtn.addEventListener('click', (e) => {
-                            console.log(`Incorrect button clicked for team ${team.id}`);
-                            e.preventDefault();
-                            e.stopPropagation();
-                            this.scoreTeam(team.id, false);
-                        });
-                        console.log('Incorrect button event listener added');
-                    } else {
-                        console.error('Incorrect button not found for team:', team.id);
-                    }
-                }, 100);
+                // Add event listeners
+                const correctBtn = teamScoreDiv.querySelector('.correct-btn');
+                const incorrectBtn = teamScoreDiv.querySelector('.incorrect-btn');
+                
+                if (correctBtn) {
+                    correctBtn.addEventListener('click', () => this.scoreTeam(team.id, true));
+                }
+                
+                if (incorrectBtn) {
+                    incorrectBtn.addEventListener('click', () => this.scoreTeam(team.id, false));
+                }
             });
         }
     }
     
     scoreTeam(teamId, isCorrect) {
-        console.log(`=== SCORE TEAM CALLED ===`);
-        console.log(`Team ID: ${teamId}`);
-        console.log(`Is Correct: ${isCorrect}`);
-        console.log(`Current scores before:`, this.scores);
-        console.log(`Teams available:`, this.teams);
+        console.log(`Team ${teamId} scored as ${isCorrect ? 'Correct' : 'Incorrect'}`);
         
         // Update score if correct
         if (isCorrect) {
             this.scores[teamId] = (this.scores[teamId] || 0) + 1;
             console.log(`Updated score for team ${teamId}: ${this.scores[teamId]}`);
-        } else {
-            console.log(`Team ${teamId} got incorrect answer, no points awarded`);
         }
-        
-        console.log(`Current scores after:`, this.scores);
         
         // Send score to server
-        if (this.socket) {
-            this.socket.emit('teamScore', {
-                teamId: teamId,
-                isCorrect: isCorrect,
-                newScore: this.scores[teamId]
-            });
-            console.log(`Score sent to server for team ${teamId}`);
-        } else {
-            console.error('Socket not available, cannot send score to server');
-        }
+        this.socket.emit('teamScore', {
+            teamId: teamId,
+            isCorrect: isCorrect,
+            newScore: this.scores[teamId]
+        });
         
         // Update display
         this.displayTeams();
-        
-        // Visual feedback
-        const teamButton = document.querySelector(`[data-team-id="${teamId}"]`);
-        if (teamButton) {
-            teamButton.style.background = isCorrect ? '#d4edda' : '#f8d7da';
-            setTimeout(() => {
-                teamButton.style.background = '';
-            }, 1000);
-        }
-        
-        console.log(`=== SCORE TEAM COMPLETED ===`);
-    }
-    
-    showTimeUpMessage() {
-        console.log('=== SHOW TIME UP MESSAGE ===');
-        
-        // Hide question section
-        const questionSection = document.querySelector('.question-section');
-        if (questionSection) {
-            questionSection.classList.add('hidden');
-        }
-        
-        // Show time up message
-        const questionText = document.querySelector('.question-text');
-        if (questionText) {
-            questionText.innerHTML = `
-                <div style="color: #e74c3c; font-size: 2.5rem; font-weight: 800; text-align: center;">
-                    TIME'S UP!
-                </div>
-                <div style="color: #4a90e2; font-size: 1.3rem; margin-top: 20px; text-align: center;">
-                    Scoring is available on the main screen
-                </div>
-                <div style="color: #666; font-size: 1rem; margin-top: 15px; text-align: center;">
-                    Please wait for the administrator to complete scoring
-                </div>
-            `;
-        }
-        
-        // Hide timer
-        const timerElement = document.getElementById('questionTimer');
-        if (timerElement) {
-            timerElement.style.display = 'none';
-        }
-        
-        console.log('Time up message shown on questions.html');
     }
     
     updateQuestionsPage(state) {
@@ -452,10 +316,9 @@ class QuizApp {
                 this.selectCategory(state.currentCategory);
             }
         } else if (state.scoringPhase) {
-            // Don't show scoring interface on questions.html
-            // Only index.html should show scoring interface
-            console.log('Scoring phase detected on questions.html - showing time up message');
-            this.showTimeUpMessage();
+            // Show time up screen
+            console.log('Showing time up screen');
+            this.timeUp();
         }
         
         console.log('=== UPDATE QUESTIONS PAGE END ===');
@@ -645,29 +508,27 @@ class QuizApp {
             console.error('Start button not found!');
         }
 
-        // Add event listener for start-quiz-btn (only on questions page)
-        if (window.location.pathname.includes('questions.html') || window.location.pathname.endsWith('/questions')) {
-            const startQuizBtn = document.querySelector('.start-quiz-btn');
-            if (startQuizBtn) {
-                console.log('Start quiz button found, adding event listener');
-                startQuizBtn.addEventListener('click', (e) => {
-                    console.log('=== START QUIZ BUTTON CLICKED ===');
-                    console.log('Event:', e);
-                    console.log('Button element:', startQuizBtn);
-                    console.log('Button classes:', startQuizBtn.classList);
-                    console.log('Button disabled:', startQuizBtn.disabled);
-                    
-                    if (startQuizBtn.disabled) {
-                        console.log('Button is disabled - click ignored');
-                        return;
-                    }
-                    
-                    console.log('Button is enabled - calling startQuestionsQuiz()');
-                    this.startQuestionsQuiz();
-                });
-            } else {
-                console.error('Start quiz button not found on questions page!');
-            }
+        // Add event listener for start-quiz-btn
+        const startQuizBtn = document.querySelector('.start-quiz-btn');
+        if (startQuizBtn) {
+            console.log('Start quiz button found, adding event listener');
+            startQuizBtn.addEventListener('click', (e) => {
+                console.log('=== START QUIZ BUTTON CLICKED ===');
+                console.log('Event:', e);
+                console.log('Button element:', startQuizBtn);
+                console.log('Button classes:', startQuizBtn.classList);
+                console.log('Button disabled:', startQuizBtn.disabled);
+                
+                if (startQuizBtn.disabled) {
+                    console.log('Button is disabled - click ignored');
+                    return;
+                }
+                
+                console.log('Button is enabled - calling startQuestionsQuiz()');
+                this.startQuestionsQuiz();
+            });
+        } else {
+            console.error('Start quiz button not found!');
         }
 
         // Scoring events
@@ -1061,78 +922,60 @@ class QuizApp {
                 const state = JSON.parse(savedState);
                 console.log('Restoring state from localStorage:', state);
                 
-                // Check if this is a valid state (has currentQuestion and currentCategory)
-                if (state.currentQuestion && state.currentCategory && state.currentPhase) {
-                    console.log('Valid state found, restoring...');
+                // Restore all state
+                this.teams = state.teams || [];
+                this.scores = state.scores || {};
+                this.currentCategory = state.currentCategory;
+                this.currentQuestion = state.currentQuestion;
+                this.selectedCategories = state.selectedCategories || [];
+                this.mixedQuestions = state.mixedQuestions || [];
+                this.currentQuestionIndex = state.currentQuestionIndex || 0;
+                
+                console.log('State restored successfully');
+                
+                // Show appropriate section based on phase
+                if (state.currentPhase === 'scoring') {
+                    console.log('Restoring scoring phase');
+                    this.showScoringInterface();
+                } else if (state.currentPhase === 'question') {
+                    console.log('Restoring question phase');
+                    this.displayQuestion(state.currentQuestion);
                     
-                    // Restore all state
-                    this.teams = state.teams || [];
-                    this.scores = state.scores || {};
-                    this.currentCategory = state.currentCategory;
-                    this.currentQuestion = state.currentQuestion;
-                    this.selectedCategories = state.selectedCategories || [];
-                    this.mixedQuestions = state.mixedQuestions || [];
-                    this.currentQuestionIndex = state.currentQuestionIndex || 0;
-                    
-                    console.log('State restored successfully');
-                    
-                    // Show appropriate section based on phase
-                    if (state.currentPhase === 'scoring') {
-                        console.log('Restoring scoring phase');
-                        this.showScoringInterface();
-                    } else if (state.currentPhase === 'question') {
-                        console.log('Restoring question phase');
-                        this.displayQuestion(state.currentQuestion);
+                    // Restore timer state if available
+                    const timerState = localStorage.getItem('timerState');
+                    if (timerState) {
+                        const timerData = JSON.parse(timerState);
+                        console.log('Restoring timer state:', timerData);
                         
-                        // Restore timer state if available
-                        const timerState = localStorage.getItem('timerState');
-                        if (timerState) {
-                            const timerData = JSON.parse(timerState);
-                            console.log('Restoring timer state:', timerData);
-                            
-                            // Calculate remaining time
-                            const elapsed = Date.now() - timerData.startTime;
-                            const remaining = Math.max(0, timerData.countdown - Math.floor(elapsed / 1000));
-                            
-                            if (remaining > 0) {
-                                console.log('Timer has', remaining, 'seconds remaining');
-                                // Start timer with remaining time
-                                this.startTimerWithRemaining(remaining);
-                            } else {
-                                console.log('Timer expired, showing scoring interface');
-                                this.timeUp();
-                            }
+                        // Calculate remaining time
+                        const elapsed = Date.now() - timerData.startTime;
+                        const remaining = Math.max(0, timerData.countdown - Math.floor(elapsed / 1000));
+                        
+                        if (remaining > 0) {
+                            console.log('Timer has', remaining, 'seconds remaining');
+                            // Start timer with remaining time
+                            this.startTimerWithRemaining(remaining);
                         } else {
-                            // Start fresh timer
-                            this.startQuestionTimer();
+                            console.log('Timer expired, showing scoring interface');
+                            this.timeUp();
                         }
                     } else {
-                        console.log('Showing category selection');
-                        this.showCategorySelection();
+                        // Start fresh timer
+                        this.startQuestionTimer();
                     }
-                    
-                    return; // Don't continue to default logic
                 } else {
-                    console.log('Invalid or incomplete state, clearing localStorage');
-                    localStorage.removeItem('quizState');
-                    localStorage.removeItem('timerState');
-                    localStorage.removeItem('currentPhase');
+                    console.log('Showing category selection');
+                    this.showCategorySelection();
                 }
+                
+                return; // Don't continue to default logic
             }
         } catch (error) {
             console.error('Error restoring state:', error);
-            // Clear corrupted state
-            localStorage.removeItem('quizState');
-            localStorage.removeItem('timerState');
-            localStorage.removeItem('currentPhase');
         }
         
-        // Fallback to default logic if no valid saved state
-        console.log('No valid saved state, requesting from server');
-        
-        // Request current state from server for multi-device sync
-        this.socket.emit('requestQuizState');
-        console.log('Requested quiz state from server');
+        // Fallback to original logic if no saved state
+        console.log('No saved state, using default logic');
         
         // Check if quiz was started (prevent refresh from going to welcome)
         const quizStarted = localStorage.getItem('quizStarted');
@@ -1254,20 +1097,6 @@ class QuizApp {
         console.log('Current window width:', window.innerWidth);
         console.log('Current window height:', window.innerHeight);
         
-        // Hide question section first
-        const questionSection = document.querySelector('.question-section');
-        if (questionSection) {
-            questionSection.classList.add('hidden');
-            console.log('Question section hidden');
-        }
-        
-        // Hide scoring section
-        const scoringSection = document.querySelector('.scoring-section');
-        if (scoringSection) {
-            scoringSection.classList.add('hidden');
-            console.log('Scoring section hidden');
-        }
-        
         // IMMEDIATE CSS INJECTION TO FORCE FIX
         const style = document.createElement('style');
         style.textContent = `
@@ -1299,21 +1128,11 @@ class QuizApp {
             .questions-page .category-section {
                 max-width: 1500px !important;
                 margin: 0 auto !important;
-                display: block !important;
             }
             
             .questions-page .card {
                 max-width: 1500px !important;
                 margin: 0 auto !important;
-            }
-            
-            /* Hide question and scoring sections during category selection */
-            .questions-page .question-section {
-                display: none !important;
-            }
-            
-            .questions-page .scoring-section {
-                display: none !important;
             }
         `;
         document.head.appendChild(style);
@@ -1568,12 +1387,6 @@ class QuizApp {
         console.log('Total questions expected:', this.selectedCategories.length * 1);
         console.log('Questions should be mixed from all selected categories');
         
-        // Clear old localStorage state to prevent interference
-        localStorage.removeItem('quizState');
-        localStorage.removeItem('timerState');
-        localStorage.removeItem('currentPhase');
-        console.log('Cleared old localStorage state');
-        
         // Mark quiz as started in localStorage (prevent refresh from going to welcome)
         localStorage.setItem('quizStarted', 'true');
         console.log('Quiz started flag saved to localStorage');
@@ -1640,90 +1453,47 @@ class QuizApp {
     startQuestions() {
         console.log('=== START QUESTIONS ===');
         console.log('Starting questions phase');
-        console.log('Selected categories:', this.selectedCategories);
-        console.log('Questions available:', this.questions);
         
         // Mix all questions from selected categories
         this.mixedQuestions = this.mixQuestionsFromCategories();
         this.currentQuestionIndex = 0;
         
         console.log('Mixed questions prepared:', this.mixedQuestions.length);
-        console.log('Mixed questions:', this.mixedQuestions);
         console.log('Current question index:', this.currentQuestionIndex);
-        
-        if (this.mixedQuestions.length === 0) {
-            console.error('No questions found! Check selected categories and questions data.');
-            alert('No questions found! Please check your categories selection.');
-            return;
-        }
-        
-        // Hide category section
-        const categorySection = document.querySelector('.category-section');
-        if (categorySection) {
-            categorySection.classList.add('hidden');
-            categorySection.style.display = 'none';
-            console.log('Category section hidden');
-        }
         
         // Show question section
         const questionSection = document.querySelector('.question-section');
         if (questionSection) {
             questionSection.classList.remove('hidden');
-            questionSection.style.display = 'block';
-            questionSection.style.visibility = 'visible';
-            questionSection.style.opacity = '1';
-            questionSection.style.position = 'relative';
-            questionSection.style.zIndex = '10';
-            console.log('Question section shown with force styles');
-        } else {
-            console.error('Question section not found!');
+            console.log('Question section shown');
         }
         
         // Show first question
-        console.log('Calling showNextQuestion...');
         this.showNextQuestion();
         
         console.log('=== START QUESTIONS END ===');
     }
     
     mixQuestionsFromCategories() {
-        console.log('=== MIX QUESTIONS FROM CATEGORIES ===');
-        console.log('Selected categories:', this.selectedCategories);
-        console.log('Available questions:', this.questions);
-        console.log('Questions per category:', this.questionsPerCategory);
-        
         const allQuestions = [];
         
         // Collect questions from all selected categories
         this.selectedCategories.forEach(category => {
-            console.log(`Processing category: ${category}`);
             const categoryQuestions = this.questions[category] || [];
-            console.log(`Questions found in ${category}:`, categoryQuestions.length);
-            
-            // Take first X questions from each category
+            // Take first 10 questions from each category
             const limitedQuestions = categoryQuestions.slice(0, this.questionsPerCategory);
-            console.log(`Taking ${limitedQuestions.length} questions from ${category}`);
             
             // Add category info to each question
-            limitedQuestions.forEach((question, index) => {
-                const questionWithCategory = {
+            limitedQuestions.forEach(question => {
+                allQuestions.push({
                     ...question,
                     category: category
-                };
-                allQuestions.push(questionWithCategory);
-                console.log(`Added question ${index + 1} from ${category}:`, question.question);
+                });
             });
         });
         
-        console.log('Total questions collected:', allQuestions.length);
-        console.log('All questions:', allQuestions);
-        
         // Shuffle all questions
-        const shuffledQuestions = this.shuffleArray(allQuestions);
-        console.log('Shuffled questions:', shuffledQuestions);
-        
-        console.log('=== MIX QUESTIONS FROM CATEGORIES END ===');
-        return shuffledQuestions;
+        return this.shuffleArray(allQuestions);
     }
     
     shuffleArray(array) {
@@ -1748,8 +1518,8 @@ class QuizApp {
         this.currentQuestion = question;
         this.currentCategory = question.category;
         
-        // Save complete state to localStorage AND send to server
-        const stateData = {
+        // Save complete state to localStorage (prevent refresh changes)
+        localStorage.setItem('quizState', JSON.stringify({
             quizStarted: true,
             currentPhase: 'question',
             currentQuestion: this.currentQuestion,
@@ -1759,14 +1529,9 @@ class QuizApp {
             selectedCategories: this.selectedCategories,
             mixedQuestions: this.mixedQuestions,
             currentQuestionIndex: this.currentQuestionIndex
-        };
+        }));
         
-        localStorage.setItem('quizState', JSON.stringify(stateData));
         console.log('Question state saved to localStorage');
-        
-        // Send state to server for multi-device sync
-        this.socket.emit('saveQuizState', stateData);
-        console.log('Quiz state sent to server for multi-device sync');
         
         // Show question UI
         this.displayQuestion(question);
@@ -1905,11 +1670,6 @@ class QuizApp {
     }
     
     displayQuestion(question) {
-        console.log('=== DISPLAY QUESTION START ===');
-        console.log('Question object:', question);
-        console.log('Question text:', question.question);
-        console.log('Question category:', question.category);
-        
         // Save state to prevent refresh changes
         localStorage.setItem('quizState', JSON.stringify({
             quizStarted: true,
@@ -1927,64 +1687,24 @@ class QuizApp {
         const categorySection = document.querySelector('.category-section');
         if (categorySection) {
             categorySection.classList.add('hidden');
-            categorySection.style.display = 'none';
-            console.log('Category section hidden');
-        } else {
-            console.log('Category section not found');
-        }
-        
-        // Hide scoring section
-        const scoringSection = document.querySelector('.scoring-section');
-        if (scoringSection) {
-            scoringSection.classList.add('hidden');
-            scoringSection.style.display = 'none';
-            console.log('Scoring section hidden');
-        } else {
-            console.log('Scoring section not found');
-        }
-        
-        // Hide countdown section
-        const countdownSection = document.querySelector('.start-countdown');
-        if (countdownSection) {
-            countdownSection.classList.add('hidden');
-            countdownSection.style.display = 'none';
-            console.log('Countdown section hidden');
-        } else {
-            console.log('Countdown section not found');
         }
         
         // Show question section
         const questionSection = document.querySelector('.question-section');
         if (questionSection) {
             questionSection.classList.remove('hidden');
-            questionSection.style.display = 'block';
-            questionSection.style.visibility = 'visible';
-            questionSection.style.opacity = '1';
-            questionSection.style.position = 'relative';
-            questionSection.style.zIndex = '10';
-            console.log('Question section shown with force styles');
-        } else {
-            console.log('Question section not found');
         }
         
         // Update question content
         const questionText = document.querySelector('.question-text');
-        console.log('Question text element:', questionText);
         if (questionText) {
             questionText.textContent = question.question;
-            console.log('Question text updated:', question.question);
-        } else {
-            console.log('Question text element not found');
         }
         
         // Update category indicator
         const categoryIndicator = document.querySelector('.category-indicator');
-        console.log('Category indicator element:', categoryIndicator);
         if (categoryIndicator) {
             categoryIndicator.textContent = question.category;
-            console.log('Category indicator updated:', question.category);
-        } else {
-            console.log('Category indicator element not found');
         }
         
         // Update answer options - REMOVED (no variants needed)
@@ -1993,8 +1713,6 @@ class QuizApp {
             answerOptions.innerHTML = ''; // Empty - no variants needed
             console.log('Answer options cleared - no variants needed');
         }
-        
-        console.log('=== DISPLAY QUESTION END ===');
     }
     
     selectAnswer(answerIndex) {
@@ -2018,13 +1736,13 @@ class QuizApp {
     }
     
     timeUp() {
-        console.log('Time up for question');
+        console.log('Time up for question - showing scoring interface');
         
         // Set current phase to scoring
         localStorage.setItem('currentPhase', 'scoring');
         
-        // Save complete state to localStorage AND send to server
-        const stateData = {
+        // Save complete state to localStorage (prevent data loss)
+        localStorage.setItem('quizState', JSON.stringify({
             quizStarted: true,
             currentPhase: 'scoring',
             currentQuestion: this.currentQuestion,
@@ -2034,14 +1752,9 @@ class QuizApp {
             selectedCategories: this.selectedCategories,
             mixedQuestions: this.mixedQuestions,
             currentQuestionIndex: this.currentQuestionIndex
-        };
+        }));
         
-        localStorage.setItem('quizState', JSON.stringify(stateData));
-        console.log('Scoring state saved to localStorage');
-        
-        // Send state to server for multi-device sync
-        this.socket.emit('saveQuizState', stateData);
-        console.log('Scoring state sent to server for multi-device sync');
+        console.log('Complete state saved to localStorage');
         
         // Send time up to server
         this.socket.emit('timeUp', {
@@ -2056,16 +1769,12 @@ class QuizApp {
             scoringPhase: true
         });
         
-        // Don't show scoring interface on questions.html
-        // Let updateQuestionsPage handle it
-        console.log('Time up completed - waiting for server response');
+        // Show scoring interface instead of next question
+        this.showScoringInterface();
     }
     
     showScoringInterface() {
         console.log('=== SHOW SCORING INTERFACE ===');
-        
-        // Reset timeUpCalled flag to allow future timeUp calls
-        this.timeUpCalled = false;
         
         // Hide question section
         const questionSection = document.querySelector('.question-section');
