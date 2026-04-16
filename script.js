@@ -333,6 +333,40 @@ class QuizApp {
         this.displayTeams();
     }
     
+    showTimeUpMessage() {
+        console.log('=== SHOW TIME UP MESSAGE ===');
+        
+        // Hide question section
+        const questionSection = document.querySelector('.question-section');
+        if (questionSection) {
+            questionSection.classList.add('hidden');
+        }
+        
+        // Show time up message
+        const questionText = document.querySelector('.question-text');
+        if (questionText) {
+            questionText.innerHTML = `
+                <div style="color: #e74c3c; font-size: 2.5rem; font-weight: 800; text-align: center;">
+                    TIME'S UP!
+                </div>
+                <div style="color: #4a90e2; font-size: 1.3rem; margin-top: 20px; text-align: center;">
+                    Scoring is available on the main screen
+                </div>
+                <div style="color: #666; font-size: 1rem; margin-top: 15px; text-align: center;">
+                    Please wait for the administrator to complete scoring
+                </div>
+            `;
+        }
+        
+        // Hide timer
+        const timerElement = document.getElementById('questionTimer');
+        if (timerElement) {
+            timerElement.style.display = 'none';
+        }
+        
+        console.log('Time up message shown on questions.html');
+    }
+    
     updateQuestionsPage(state) {
         console.log('=== UPDATE QUESTIONS PAGE START ===');
         console.log('State received:', state);
@@ -352,9 +386,10 @@ class QuizApp {
                 this.selectCategory(state.currentCategory);
             }
         } else if (state.scoringPhase) {
-            // Show scoring interface
-            console.log('Showing scoring interface');
-            this.showScoringInterface();
+            // Don't show scoring interface on questions.html
+            // Only index.html should show scoring interface
+            console.log('Scoring phase detected on questions.html - showing time up message');
+            this.showTimeUpMessage();
         }
         
         console.log('=== UPDATE QUESTIONS PAGE END ===');
@@ -1772,7 +1807,7 @@ class QuizApp {
     }
     
     timeUp() {
-        console.log('Time up for question - showing scoring interface');
+        console.log('Time up for question');
         
         // Set current phase to scoring
         localStorage.setItem('currentPhase', 'scoring');
@@ -1805,8 +1840,9 @@ class QuizApp {
             scoringPhase: true
         });
         
-        // Show scoring interface instead of next question
-        this.showScoringInterface();
+        // Don't show scoring interface on questions.html
+        // Let updateQuestionsPage handle it
+        console.log('Time up completed - waiting for server response');
     }
     
     showScoringInterface() {
