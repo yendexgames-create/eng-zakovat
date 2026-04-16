@@ -1564,10 +1564,10 @@ class QuizApp {
                         '<p><strong>Correct Answer:</strong> ' + correctAnswerText + '</p>' +
                     '</div>' +
                     '<div class="scoring-buttons">' +
-                        '<button class="btn btn-success" onclick="app.markAnswer(true)">' +
+                        '<button class="btn btn-success" id="correctBtn">' +
                             'Correct (1 point)' +
                         '</button>' +
-                        '<button class="btn btn-danger" onclick="app.markAnswer(false)">' +
+                        '<button class="btn btn-danger" id="incorrectBtn">' +
                             'Incorrect (0 points)' +
                         '</button>' +
                     '</div>' +
@@ -1577,6 +1577,20 @@ class QuizApp {
                             '<!-- Team buttons will be generated here -->' +
                         '</div>' +
                     '</div>';
+                
+                // Add event listeners to scoring buttons
+                setTimeout(() => {
+                    const correctBtn = document.getElementById('correctBtn');
+                    const incorrectBtn = document.getElementById('incorrectBtn');
+                    
+                    if (correctBtn) {
+                        correctBtn.addEventListener('click', () => this.markAnswer(true));
+                    }
+                    
+                    if (incorrectBtn) {
+                        incorrectBtn.addEventListener('click', () => this.markAnswer(false));
+                    }
+                }, 100);
                 
                 // Generate team scoring buttons
                 this.generateTeamScoringButtons();
