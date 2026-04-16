@@ -47,26 +47,93 @@ class QuizApp {
     }
     
     initializeSocket() {
-        // Connect to Socket.io server
-        this.socket = io();
+        console.log('=== INITIALIZING SOCKET ===');
+        
+        // Determine server URL
+        const serverUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:3000' 
+            : window.location.origin;
+        
+        console.log('Connecting to server:', serverUrl);
+        
+        // Connect to Socket.io server with better configuration
+        this.socket = io(serverUrl, {
+            transports: ['websocket', 'polling'], // Try websocket first, fallback to polling
+            timeout: 20000, // 20 second timeout
+            forceNew: true, // Force new connection
+            reconnection: true, // Enable reconnection
+            reconnectionAttempts: 5, // Max reconnection attempts
+            reconnectionDelay: 1000, // Delay between reconnections
+            reconnectionDelayMax: 5000 // Max delay
+        });
         
         // Handle connection
         this.socket.on('connect', () => {
-            console.log('Connected to server');
+            console.log('✅ Connected to server successfully');
             console.log('Socket ID:', this.socket.id);
+            console.log('Transport:', this.socket.io.engine.transport.name);
         });
         
         // Handle connection error
         this.socket.on('connect_error', (error) => {
-            console.error('Socket connection error:', error);
-            alert('Serverga ulanishda xatolik: ' + error.message);
+            console.error('❌ Socket connection error:', error);
+            console.error('Error details:', error.message, error.description, error.context, error.type);
+            
+            // Show user-friendly error message
+            const errorDiv = document.createElement('div');
+            errorDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #ff4757;
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                z-index: 9999;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                font-weight: 600;
+                max-width: 300px;
+            `;
+            errorDiv.innerHTML = `
+                <strong>Serverga ulanishda xatolik!</strong><br>
+                Xatolik: ${error.message || 'Noma\'lum'}<br>
+                <small>Iltimos, server ishlayotganini tekshiring yoki qayta urining</small>
+            `;
+            
+            document.body.appendChild(errorDiv);
+            
+            // Auto-remove after 10 seconds
+            setTimeout(() => {
+                if (errorDiv.parentNode) {
+                    errorDiv.parentNode.removeChild(errorDiv);
+                }
+            }, 10000);
         });
         
         // Handle disconnection
         this.socket.on('disconnect', (reason) => {
-            console.log('Disconnected from server:', reason);
-            alert('Server bilan aloq uzildi: ' + reason);
+            console.warn('⚠️ Disconnected from server:', reason);
+            
+            if (reason === 'io server disconnect') {
+                // Server was stopped
+                console.log('Server was stopped');
+            }
         });
+        
+        // Handle reconnection attempts
+        this.socket.on('reconnect_attempt', (attemptNumber) => {
+            console.log(`🔄 Reconnection attempt ${attemptNumber}`);
+        });
+        
+        this.socket.on('reconnect', (attemptNumber) => {
+            console.log(`✅ Reconnected after ${attemptNumber} attempts`);
+        });
+        
+        this.socket.on('reconnect_failed', () => {
+            console.error('❌ Failed to reconnect to server');
+        });
+        
+        console.log('=== SOCKET INITIALIZATION COMPLETE ===');
         
         // Handle state updates
         this.socket.on('stateUpdate', (state) => {
