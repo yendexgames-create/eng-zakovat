@@ -1412,6 +1412,9 @@ class QuizApp {
             return;
         }
         
+        // Set current phase to question
+        localStorage.setItem('currentPhase', 'question');
+        
         const question = this.mixedQuestions[this.currentQuestionIndex];
         this.currentQuestion = question;
         this.currentCategory = question.category;
@@ -1531,6 +1534,9 @@ class QuizApp {
     
     timeUp() {
         console.log('Time up for question - showing scoring interface');
+        
+        // Set current phase to scoring
+        localStorage.setItem('currentPhase', 'scoring');
         
         // Send time up to server
         this.socket.emit('timeUp', {
