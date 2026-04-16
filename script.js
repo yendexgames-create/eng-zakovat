@@ -219,21 +219,18 @@ class QuizApp {
         const scoringQuestion = document.getElementById('scoringQuestion');
         const teamScores = document.getElementById('teamScores');
         
-        // Hide entire setup section including card with more aggressive hiding
+        // Hide entire setup section including card
         if (setupSection) {
-            setupSection.style.display = 'none';
             setupSection.classList.add('hidden');
         }
         
         // Hide setup status as well
         if (setupStatus) {
-            setupStatus.style.display = 'none';
             setupStatus.classList.add('hidden');
         }
         
         // Show scoring section
         if (scoringSection) {
-            scoringSection.style.display = 'block';
             scoringSection.classList.remove('hidden');
         }
         
@@ -252,27 +249,15 @@ class QuizApp {
                 teamScoreDiv.innerHTML = `
                     <h4>${team.name}</h4>
                     <div class="team-scoring-buttons">
-                        <button class="btn btn-success correct-btn" data-team-id="${team.id}">
+                        <button class="btn btn-success" onclick="app.scoreTeam(${team.id}, true)">
                             Correct (1 point)
                         </button>
-                        <button class="btn btn-danger incorrect-btn" data-team-id="${team.id}">
+                        <button class="btn btn-danger" onclick="app.scoreTeam(${team.id}, false)">
                             Incorrect (0 points)
                         </button>
                     </div>
                 `;
                 teamScores.appendChild(teamScoreDiv);
-                
-                // Add event listeners
-                const correctBtn = teamScoreDiv.querySelector('.correct-btn');
-                const incorrectBtn = teamScoreDiv.querySelector('.incorrect-btn');
-                
-                if (correctBtn) {
-                    correctBtn.addEventListener('click', () => this.scoreTeam(team.id, true));
-                }
-                
-                if (incorrectBtn) {
-                    incorrectBtn.addEventListener('click', () => this.scoreTeam(team.id, false));
-                }
             });
         }
     }
@@ -940,29 +925,6 @@ class QuizApp {
                 } else if (state.currentPhase === 'question') {
                     console.log('Restoring question phase');
                     this.displayQuestion(state.currentQuestion);
-                    
-                    // Restore timer state if available
-                    const timerState = localStorage.getItem('timerState');
-                    if (timerState) {
-                        const timerData = JSON.parse(timerState);
-                        console.log('Restoring timer state:', timerData);
-                        
-                        // Calculate remaining time
-                        const elapsed = Date.now() - timerData.startTime;
-                        const remaining = Math.max(0, timerData.countdown - Math.floor(elapsed / 1000));
-                        
-                        if (remaining > 0) {
-                            console.log('Timer has', remaining, 'seconds remaining');
-                            // Start timer with remaining time
-                            this.startTimerWithRemaining(remaining);
-                        } else {
-                            console.log('Timer expired, showing scoring interface');
-                            this.timeUp();
-                        }
-                    } else {
-                        // Start fresh timer
-                        this.startQuestionTimer();
-                    }
                 } else {
                     console.log('Showing category selection');
                     this.showCategorySelection();
@@ -1518,21 +1480,6 @@ class QuizApp {
         this.currentQuestion = question;
         this.currentCategory = question.category;
         
-        // Save complete state to localStorage (prevent refresh changes)
-        localStorage.setItem('quizState', JSON.stringify({
-            quizStarted: true,
-            currentPhase: 'question',
-            currentQuestion: this.currentQuestion,
-            currentCategory: this.currentCategory,
-            teams: this.teams,
-            scores: this.scores,
-            selectedCategories: this.selectedCategories,
-            mixedQuestions: this.mixedQuestions,
-            currentQuestionIndex: this.currentQuestionIndex
-        }));
-        
-        console.log('Question state saved to localStorage');
-        
         // Show question UI
         this.displayQuestion(question);
         
@@ -1565,13 +1512,6 @@ class QuizApp {
         timerElement.textContent = countdown;
         console.log('Timer set to:', countdown);
         
-        // Save timer state
-        localStorage.setItem('timerState', JSON.stringify({
-            countdown: countdown,
-            isRunning: true,
-            startTime: Date.now()
-        }));
-        
         // Simple countdown
         this.currentTimerInterval = setInterval(() => {
             countdown--;
@@ -1580,85 +1520,16 @@ class QuizApp {
             // Update display
             timerElement.textContent = countdown;
             
-            // Update timer state
-            localStorage.setItem('timerState', JSON.stringify({
-                countdown: countdown,
-                isRunning: true,
-                startTime: Date.now()
-            }));
-            
             // Check if time is up
             if (countdown <= 0) {
                 console.log('TIME UP!');
                 clearInterval(this.currentTimerInterval);
                 this.currentTimerInterval = null;
-                
-                // Clear timer state
-                localStorage.removeItem('timerState');
-                
                 this.timeUp();
             }
         }, 1000);
         
         console.log('Timer started');
-    }
-    
-    startTimerWithRemaining(remaining) {
-        console.log('=== STARTING TIMER WITH REMAINING TIME ===');
-        console.log('Remaining seconds:', remaining);
-        
-        // Stop any existing timer
-        if (this.currentTimerInterval) {
-            clearInterval(this.currentTimerInterval);
-            this.currentTimerInterval = null;
-        }
-        
-        // Get timer element
-        const timerElement = document.getElementById('questionTimer');
-        if (!timerElement) {
-            console.error('Timer element not found!');
-            return;
-        }
-        
-        // Set initial time
-        timerElement.textContent = remaining;
-        
-        // Save timer state
-        localStorage.setItem('timerState', JSON.stringify({
-            countdown: remaining,
-            isRunning: true,
-            startTime: Date.now()
-        }));
-        
-        // Start countdown from remaining time
-        this.currentTimerInterval = setInterval(() => {
-            remaining--;
-            console.log('Countdown from remaining:', remaining);
-            
-            // Update display
-            timerElement.textContent = remaining;
-            
-            // Update timer state
-            localStorage.setItem('timerState', JSON.stringify({
-                countdown: remaining,
-                isRunning: true,
-                startTime: Date.now()
-            }));
-            
-            // Check if time is up
-            if (remaining <= 0) {
-                console.log('TIME UP!');
-                clearInterval(this.currentTimerInterval);
-                this.currentTimerInterval = null;
-                
-                // Clear timer state
-                localStorage.removeItem('timerState');
-                
-                this.timeUp();
-            }
-        }, 1000);
-        
-        console.log('Timer started with remaining time');
     }
     
     stopQuestionTimer() {
@@ -1670,19 +1541,6 @@ class QuizApp {
     }
     
     displayQuestion(question) {
-        // Save state to prevent refresh changes
-        localStorage.setItem('quizState', JSON.stringify({
-            quizStarted: true,
-            currentPhase: 'question',
-            currentQuestion: this.currentQuestion,
-            currentCategory: this.currentCategory,
-            teams: this.teams,
-            scores: this.scores,
-            selectedCategories: this.selectedCategories,
-            mixedQuestions: this.mixedQuestions,
-            currentQuestionIndex: this.currentQuestionIndex
-        }));
-        
         // Hide category selection
         const categorySection = document.querySelector('.category-section');
         if (categorySection) {
@@ -2372,4 +2230,3 @@ window.addEventListener('load', () => {
 
 // Create global app instance for HTML onclick handlers
 const app = new QuizApp();
-window.app = app; // Make it globally available
