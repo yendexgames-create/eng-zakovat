@@ -214,14 +214,22 @@ class QuizApp {
     
     showScoringSection() {
         const setupSection = document.getElementById('setupSection');
+        const setupStatus = document.getElementById('setupStatus');
         const scoringSection = document.getElementById('scoringSection');
         const scoringQuestion = document.getElementById('scoringQuestion');
         const teamScores = document.getElementById('teamScores');
         
+        // Hide entire setup section including card
         if (setupSection) {
             setupSection.classList.add('hidden');
         }
         
+        // Hide setup status as well
+        if (setupStatus) {
+            setupStatus.classList.add('hidden');
+        }
+        
+        // Show scoring section
         if (scoringSection) {
             scoringSection.classList.remove('hidden');
         }
@@ -229,7 +237,7 @@ class QuizApp {
         if (scoringQuestion) {
             scoringQuestion.innerHTML = `
                 <h3>Time's Up!</h3>
-                <p>Please score the teams for this question (0-5 points).</p>
+                <p>Mark each team as Correct or Incorrect for this question</p>
             `;
         }
         
