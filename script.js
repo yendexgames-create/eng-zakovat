@@ -925,6 +925,29 @@ class QuizApp {
                 } else if (state.currentPhase === 'question') {
                     console.log('Restoring question phase');
                     this.displayQuestion(state.currentQuestion);
+                    
+                    // Restore timer state if available
+                    const timerState = localStorage.getItem('timerState');
+                    if (timerState) {
+                        const timerData = JSON.parse(timerState);
+                        console.log('Restoring timer state:', timerData);
+                        
+                        // Calculate remaining time
+                        const elapsed = Date.now() - timerData.startTime;
+                        const remaining = Math.max(0, timerData.countdown - Math.floor(elapsed / 1000));
+                        
+                        if (remaining > 0) {
+                            console.log('Timer has', remaining, 'seconds remaining');
+                            // Start timer with remaining time
+                            this.startTimerWithRemaining(remaining);
+                        } else {
+                            console.log('Timer expired, showing scoring interface');
+                            this.timeUp();
+                        }
+                    } else {
+                        // Start fresh timer
+                        this.startQuestionTimer();
+                    }
                 } else {
                     console.log('Showing category selection');
                     this.showCategorySelection();
@@ -1480,6 +1503,21 @@ class QuizApp {
         this.currentQuestion = question;
         this.currentCategory = question.category;
         
+        // Save complete state to localStorage (prevent refresh changes)
+        localStorage.setItem('quizState', JSON.stringify({
+            quizStarted: true,
+            currentPhase: 'question',
+            currentQuestion: this.currentQuestion,
+            currentCategory: this.currentCategory,
+            teams: this.teams,
+            scores: this.scores,
+            selectedCategories: this.selectedCategories,
+            mixedQuestions: this.mixedQuestions,
+            currentQuestionIndex: this.currentQuestionIndex
+        }));
+        
+        console.log('Question state saved to localStorage');
+        
         // Show question UI
         this.displayQuestion(question);
         
@@ -1512,6 +1550,13 @@ class QuizApp {
         timerElement.textContent = countdown;
         console.log('Timer set to:', countdown);
         
+        // Save timer state
+        localStorage.setItem('timerState', JSON.stringify({
+            countdown: countdown,
+            isRunning: true,
+            startTime: Date.now()
+        }));
+        
         // Simple countdown
         this.currentTimerInterval = setInterval(() => {
             countdown--;
@@ -1520,16 +1565,85 @@ class QuizApp {
             // Update display
             timerElement.textContent = countdown;
             
+            // Update timer state
+            localStorage.setItem('timerState', JSON.stringify({
+                countdown: countdown,
+                isRunning: true,
+                startTime: Date.now()
+            }));
+            
             // Check if time is up
             if (countdown <= 0) {
                 console.log('TIME UP!');
                 clearInterval(this.currentTimerInterval);
                 this.currentTimerInterval = null;
+                
+                // Clear timer state
+                localStorage.removeItem('timerState');
+                
                 this.timeUp();
             }
         }, 1000);
         
         console.log('Timer started');
+    }
+    
+    startTimerWithRemaining(remaining) {
+        console.log('=== STARTING TIMER WITH REMAINING TIME ===');
+        console.log('Remaining seconds:', remaining);
+        
+        // Stop any existing timer
+        if (this.currentTimerInterval) {
+            clearInterval(this.currentTimerInterval);
+            this.currentTimerInterval = null;
+        }
+        
+        // Get timer element
+        const timerElement = document.getElementById('questionTimer');
+        if (!timerElement) {
+            console.error('Timer element not found!');
+            return;
+        }
+        
+        // Set initial time
+        timerElement.textContent = remaining;
+        
+        // Save timer state
+        localStorage.setItem('timerState', JSON.stringify({
+            countdown: remaining,
+            isRunning: true,
+            startTime: Date.now()
+        }));
+        
+        // Start countdown from remaining time
+        this.currentTimerInterval = setInterval(() => {
+            remaining--;
+            console.log('Countdown from remaining:', remaining);
+            
+            // Update display
+            timerElement.textContent = remaining;
+            
+            // Update timer state
+            localStorage.setItem('timerState', JSON.stringify({
+                countdown: remaining,
+                isRunning: true,
+                startTime: Date.now()
+            }));
+            
+            // Check if time is up
+            if (remaining <= 0) {
+                console.log('TIME UP!');
+                clearInterval(this.currentTimerInterval);
+                this.currentTimerInterval = null;
+                
+                // Clear timer state
+                localStorage.removeItem('timerState');
+                
+                this.timeUp();
+            }
+        }, 1000);
+        
+        console.log('Timer started with remaining time');
     }
     
     stopQuestionTimer() {
@@ -1541,6 +1655,19 @@ class QuizApp {
     }
     
     displayQuestion(question) {
+        // Save state to prevent refresh changes
+        localStorage.setItem('quizState', JSON.stringify({
+            quizStarted: true,
+            currentPhase: 'question',
+            currentQuestion: this.currentQuestion,
+            currentCategory: this.currentCategory,
+            teams: this.teams,
+            scores: this.scores,
+            selectedCategories: this.selectedCategories,
+            mixedQuestions: this.mixedQuestions,
+            currentQuestionIndex: this.currentQuestionIndex
+        }));
+        
         // Hide category selection
         const categorySection = document.querySelector('.category-section');
         if (categorySection) {
