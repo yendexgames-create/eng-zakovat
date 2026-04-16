@@ -139,10 +139,8 @@ class QuizApp {
     }
     
     updateIndexPage(state) {
-        if (state.scoringPhase) {
-            // Show scoring section
-            this.showScoringSection();
-        }
+        // No scoring section on index.html anymore
+        // Only questions.html has scoring interface
     }
     
     showScoringSection() {
