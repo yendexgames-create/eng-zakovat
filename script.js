@@ -808,6 +808,22 @@ class QuizApp {
 
     initializeQuestionsPage() {
         console.log('Questions page initialized');
+        
+        // Check if quiz was started (prevent refresh from going to welcome)
+        const quizStarted = localStorage.getItem('quizStarted');
+        console.log('Quiz started from localStorage:', quizStarted);
+        
+        if (quizStarted === 'true') {
+            console.log('Quiz was started, showing category selection directly');
+            // Don't show welcome section, go directly to category selection
+            setTimeout(() => {
+                this.showCategorySelection();
+            }, 100);
+        } else {
+            console.log('Quiz not started, showing welcome section');
+            this.displayTeams();
+        }
+        
         this.displayTeams();
     }
 
@@ -1197,6 +1213,10 @@ class QuizApp {
         console.log('Total questions expected:', this.selectedCategories.length * 1);
         console.log('Questions should be mixed from all selected categories');
         
+        // Mark quiz as started in localStorage (prevent refresh from going to welcome)
+        localStorage.setItem('quizStarted', 'true');
+        console.log('Quiz started flag saved to localStorage');
+        
         // Show 3-second countdown
         this.showStartCountdown();
         
@@ -1505,8 +1525,9 @@ class QuizApp {
         
         teamScoringList.innerHTML = '';
         
-        // Get teams from registered teams
-        const teams = this.registeredTeams || [];
+        // Get teams from this.teams (not this.registeredTeams)
+        const teams = this.teams || [];
+        console.log('Teams for scoring:', teams);
         
         teams.forEach((team, index) => {
             const teamButton = document.createElement('button');
@@ -1516,6 +1537,8 @@ class QuizApp {
             teamButton.onclick = () => this.awardPointsToTeam(index);
             teamScoringList.appendChild(teamButton);
         });
+        
+        console.log('Team scoring buttons generated:', teams.length);
     }
     
     markAnswer(isCorrect) {
