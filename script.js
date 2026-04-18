@@ -977,9 +977,20 @@ class QuizApp {
                 } else if (state.currentPhase === 'question') {
                     console.log('Restoring question phase');
                     this.displayQuestion(state.currentQuestion);
-                } else {
-                    console.log('Showing category selection');
+                    // Start timer for restored question
+                    this.startQuestionTimer();
+                } else if (state.currentPhase === 'categorySelection') {
+                    console.log('Restoring category selection');
                     this.showCategorySelection();
+                } else {
+                    console.log('No specific phase, checking if quiz was started');
+                    if (state.quizStarted && state.selectedCategories && state.selectedCategories.length > 0) {
+                        console.log('Quiz was started with categories, showing category selection');
+                        this.showCategorySelection();
+                    } else {
+                        console.log('Quiz not started or no categories, showing welcome');
+                        this.displayTeams();
+                    }
                 }
                 
                 return; // Don't continue to default logic
@@ -1110,6 +1121,24 @@ class QuizApp {
         console.log('=== SHOW CATEGORY SELECTION START ===');
         console.log('Current window width:', window.innerWidth);
         console.log('Current window height:', window.innerHeight);
+        
+        // Save current phase to localStorage
+        localStorage.setItem('currentPhase', 'categorySelection');
+        
+        // Save complete state to localStorage
+        localStorage.setItem('quizState', JSON.stringify({
+            quizStarted: true,
+            currentPhase: 'categorySelection',
+            currentQuestion: this.currentQuestion,
+            currentCategory: this.currentCategory,
+            teams: this.teams,
+            scores: this.scores,
+            selectedCategories: this.selectedCategories,
+            mixedQuestions: this.mixedQuestions,
+            currentQuestionIndex: this.currentQuestionIndex
+        }));
+        
+        console.log('Category selection phase saved to localStorage');
         
         // IMMEDIATE CSS INJECTION TO FORCE FIX
         const style = document.createElement('style');
@@ -1593,6 +1622,26 @@ class QuizApp {
     }
     
     displayQuestion(question) {
+        console.log('=== DISPLAY QUESTION ===');
+        
+        // Save current phase to localStorage
+        localStorage.setItem('currentPhase', 'question');
+        
+        // Save complete state to localStorage
+        localStorage.setItem('quizState', JSON.stringify({
+            quizStarted: true,
+            currentPhase: 'question',
+            currentQuestion: question,
+            currentCategory: this.currentCategory,
+            teams: this.teams,
+            scores: this.scores,
+            selectedCategories: this.selectedCategories,
+            mixedQuestions: this.mixedQuestions,
+            currentQuestionIndex: this.currentQuestionIndex
+        }));
+        
+        console.log('Question phase saved to localStorage');
+        
         // Hide category selection
         const categorySection = document.querySelector('.category-section');
         if (categorySection) {
