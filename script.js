@@ -563,15 +563,6 @@ class QuizApp {
             skipScoringBtn.addEventListener('click', () => this.skipScoring());
         }
 
-        // Category buttons
-        const categoryBtns = document.querySelectorAll('.category-btn');
-        categoryBtns.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const category = e.currentTarget.dataset.category;
-                this.selectCategory(category);
-            });
-        });
-
         // Next question button
         const nextBtn = document.getElementById('nextQuestion');
         if (nextBtn) {
@@ -950,7 +941,7 @@ class QuizApp {
     }
 
     initializeQuestionsPage() {
-        console.log('Questions page initialized');
+        console.log('=== INITIALIZE QUESTIONS PAGE ===');
         
         // Try to restore state from localStorage
         try {
@@ -999,31 +990,27 @@ class QuizApp {
             console.error('Error restoring state:', error);
         }
         
-        // Fallback to original logic if no saved state
-        console.log('No saved state, using default logic');
+        // Fallback logic - only show welcome if no quiz started
+        console.log('No saved state, checking quiz status');
         
-        // Check if quiz was started (prevent refresh from going to welcome)
         const quizStarted = localStorage.getItem('quizStarted');
-        console.log('Quiz started from localStorage:', quizStarted);
-        
-        // Check current phase from localStorage
         const currentPhase = localStorage.getItem('currentPhase');
+        
+        console.log('Quiz started from localStorage:', quizStarted);
         console.log('Current phase from localStorage:', currentPhase);
         
-        if (quizStarted === 'true') {
-            if (currentPhase === 'question' || currentPhase === 'scoring') {
-                console.log('Already in question or scoring phase, maintaining current state');
-                // Don't go to category selection, let updateQuestionsPage handle it
-            } else {
-                console.log('Quiz was started but not in question phase, showing category selection');
-                setTimeout(() => {
-                    this.showCategorySelection();
-                }, 100);
-            }
+        if (quizStarted === 'true' && (currentPhase === 'question' || currentPhase === 'scoring')) {
+            console.log('Quiz is in progress but no state found - showing welcome as fallback');
+            this.displayTeams();
+        } else if (quizStarted === 'true') {
+            console.log('Quiz was started but not in progress - showing category selection');
+            this.showCategorySelection();
         } else {
-            console.log('Quiz not started, showing welcome section');
+            console.log('Quiz not started - showing welcome');
             this.displayTeams();
         }
+        
+        console.log('=== INITIALIZE QUESTIONS PAGE END ===');
     }
 
     displayTeams() {
@@ -1139,6 +1126,26 @@ class QuizApp {
         }));
         
         console.log('Category selection phase saved to localStorage');
+        
+        // Add category button event listeners (only once when showing category selection)
+        const categoryBtns = document.querySelectorAll('.category-btn');
+        console.log('Adding event listeners to category buttons:', categoryBtns.length);
+        
+        // Remove existing listeners first
+        categoryBtns.forEach(btn => {
+            const newBtn = btn.cloneNode(true);
+            btn.parentNode.replaceChild(newBtn, btn);
+        });
+        
+        // Add fresh listeners
+        const freshCategoryBtns = document.querySelectorAll('.category-btn');
+        freshCategoryBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const category = e.currentTarget.dataset.category;
+                console.log('Category button clicked:', category);
+                this.selectCategory(category);
+            });
+        });
         
         // IMMEDIATE CSS INJECTION TO FORCE FIX
         const style = document.createElement('style');
