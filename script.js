@@ -948,56 +948,48 @@ class QuizApp {
     initializeQuestionsPage() {
         console.log('=== INITIALIZE QUESTIONS PAGE ===');
         
-        // Try to restore state from localStorage
-        try {
-            const savedState = localStorage.getItem('quizState');
-            if (savedState) {
-                const state = JSON.parse(savedState);
-                console.log('Restoring state from localStorage:', state);
-                
-                // Restore all state
-                this.teams = state.teams || [];
-                this.scores = state.scores || {};
-                this.currentCategory = state.currentCategory;
-                this.currentQuestion = state.currentQuestion;
-                this.selectedCategories = state.selectedCategories || [];
-                this.mixedQuestions = state.mixedQuestions || [];
-                this.currentQuestionIndex = state.currentQuestionIndex || 0;
-                
-                console.log('State restored successfully');
-                
-                // Show appropriate section based on phase
-                if (state.currentPhase === 'scoring') {
-                    console.log('Restoring scoring phase');
-                    this.showScoringInterface();
-                } else if (state.currentPhase === 'question') {
-                    console.log('Restoring question phase');
-                    this.displayQuestion(state.currentQuestion);
-                    // Start timer for restored question
-                    this.startQuestionTimer();
-                } else if (state.currentPhase === 'categorySelection') {
-                    console.log('Restoring category selection');
-                    // Stop any existing timer when showing category selection
-                    this.stopQuestionTimer();
-                    this.showCategorySelection();
-                } else {
-                    console.log('No specific phase, always show category selection');
-                    // Stop any existing timer when showing category selection
-                    this.stopQuestionTimer();
-                    this.showCategorySelection();
-                }
-                
-                return; // Don't continue to default logic
-            }
-        } catch (error) {
-            console.error('Error restoring state:', error);
-        }
+        // Request current state from server
+        console.log('Requesting current state from server...');
         
-        // Fallback logic - always show category selection
-        console.log('No saved state, showing category selection');
-        // Stop any existing timer when showing category selection
-        this.stopQuestionTimer();
-        this.showCategorySelection();
+        // Set up one-time listener for server state
+        const handleServerState = (state) => {
+            console.log('Received state from server:', state);
+            
+            // Remove this listener after first use
+            this.socket.off('stateUpdate', handleServerState);
+            
+            // Restore all state from server
+            this.teams = state.teams || [];
+            this.scores = state.scores || {};
+            this.currentCategory = state.currentCategory;
+            this.currentQuestion = state.currentQuestion;
+            this.currentQuestionIndex = state.currentQuestionIndex || 0;
+            this.quizActivated = state.quizActivated || false;
+            this.scoringPhase = state.scoringPhase || false;
+            this.completedCategories = state.completedCategories || [];
+            
+            console.log('Server state restored successfully');
+            
+            // Show appropriate section based on server state
+            if (state.scoringPhase) {
+                console.log('Restoring scoring phase from server');
+                this.showScoringInterface();
+            } else if (state.currentCategory && !state.scoringPhase) {
+                console.log('Restoring question phase from server');
+                this.displayQuestion(state.currentQuestion);
+                // Start timer for restored question
+                this.startQuestionTimer();
+            } else if (state.quizActivated && !state.currentCategory) {
+                console.log('Restoring category selection from server');
+                this.showCategorySelection();
+            }
+        };
+        
+        // Listen for server state update
+        this.socket.on('stateUpdate', handleServerState);
+        
+        // Request current state from server
+        this.socket.emit('getState');
         
         console.log('=== INITIALIZE QUESTIONS PAGE END ===');
     }
@@ -1106,23 +1098,11 @@ class QuizApp {
             this.selectedCategories = [];
         }
         
-        // Save current phase to localStorage
-        localStorage.setItem('currentPhase', 'categorySelection');
+        // Save state to server (multi-device sync)
+        console.log('Category selection phase - syncing with server');
         
-        // Save complete state to localStorage
-        localStorage.setItem('quizState', JSON.stringify({
-            quizStarted: true,
-            currentPhase: 'categorySelection',
-            currentQuestion: this.currentQuestion,
-            teams: this.teams,
-            scores: this.scores,
-            currentCategory: this.currentCategory,
-            selectedCategories: this.selectedCategories,
-            mixedQuestions: this.mixedQuestions,
-            currentQuestionIndex: this.currentQuestionIndex
-        }));
-        
-        console.log('Category selection phase saved to localStorage');
+        // Server will broadcast state to all devices
+        // No need for localStorage anymore
         
         // Check if event listeners already added
         if (this.categoryListenersAdded) {
@@ -1651,23 +1631,8 @@ class QuizApp {
     displayQuestion(question) {
         console.log('=== DISPLAY QUESTION ===');
         
-        // Save current phase to localStorage
-        localStorage.setItem('currentPhase', 'question');
-        
-        // Save complete state to localStorage
-        localStorage.setItem('quizState', JSON.stringify({
-            quizStarted: true,
-            currentPhase: 'question',
-            currentQuestion: question,
-            teams: this.teams,
-            scores: this.scores,
-            currentCategory: this.currentCategory,
-            selectedCategories: this.selectedCategories,
-            mixedQuestions: this.mixedQuestions,
-            currentQuestionIndex: this.currentQuestionIndex
-        }));
-        
-        console.log('Question phase saved to localStorage');
+        // State is managed by server - no localStorage needed
+        console.log('Question phase - server manages state');
         
         // Hide category selection
         const categorySection = document.querySelector('.category-section');
@@ -1724,23 +1689,8 @@ class QuizApp {
     timeUp() {
         console.log('Time up for question - showing scoring interface');
         
-        // Set current phase to scoring
-        localStorage.setItem('currentPhase', 'scoring');
-        
-        // Save complete state to localStorage (prevent data loss)
-        localStorage.setItem('quizState', JSON.stringify({
-            quizStarted: true,
-            currentPhase: 'scoring',
-            currentQuestion: this.currentQuestion,
-            teams: this.teams,
-            scores: this.scores,
-            currentCategory: this.currentCategory,
-            selectedCategories: this.selectedCategories,
-            mixedQuestions: this.mixedQuestions,
-            currentQuestionIndex: this.currentQuestionIndex
-        }));
-        
-        console.log('Complete state saved to localStorage');
+        // State is managed by server - no localStorage needed
+        console.log('Scoring phase - server manages state');
         
         // Send time up to server
         this.socket.emit('timeUp', {

@@ -37,6 +37,12 @@ io.on('connection', (socket) => {
     // Send current state to new client
     socket.emit('stateUpdate', quizState);
     
+    // Handle get state request
+    socket.on('getState', () => {
+        console.log('State requested by client:', socket.id);
+        socket.emit('stateUpdate', quizState);
+    });
+    
     // Handle team setup
     socket.on('setupTeams', (teams) => {
         quizState.teams = teams;
