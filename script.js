@@ -1185,6 +1185,12 @@ class QuizApp {
         // Reset scores for next question
         this.teamsScoredForQuestion = [];
         
+        // Auto proceed to next question after 2 seconds
+        setTimeout(() => {
+            console.log('Auto proceeding to next question...');
+            this.showNextQuestion();
+        }, 2000);
+        
         console.log('=== SUBMIT MODAL SCORES END ===');
     }
 
@@ -1197,6 +1203,12 @@ class QuizApp {
         
         // Close modal
         this.closeScoringModal();
+        
+        // Auto proceed to next question after 2 seconds
+        setTimeout(() => {
+            console.log('Auto proceeding to next question after skip...');
+            this.showNextQuestion();
+        }, 2000);
         
         console.log('Modal scoring skipped');
     }
