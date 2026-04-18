@@ -64,6 +64,28 @@
         </main>
     </div>
 
+    <!-- Scoring Modal -->
+    <div id="scoringModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Score This Question</h2>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="modalScoringQuestion" class="scoring-question">
+                    <!-- Question will be displayed here -->
+                </div>
+                <div id="modalTeamScores" class="team-scores">
+                    <!-- Team scoring buttons will be generated here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="modalSubmitScores" class="btn btn-primary">Submit Scores</button>
+                <button id="modalSkipScoring" class="btn btn-secondary">Skip Scoring</button>
+            </div>
+        </div>
+    </div>
+
     <script src="/socket.io/socket.io.js"></script>
     <script src="script.js"></script>
 </body>

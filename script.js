@@ -223,8 +223,8 @@ class QuizApp {
     
     updateIndexPage(state) {
         if (state.scoringPhase) {
-            // Show scoring section on index.html
-            this.showScoringSection();
+            // Show scoring modal on index.html
+            this.showScoringModal();
         }
     }
     
@@ -582,6 +582,22 @@ class QuizApp {
         const skipScoringBtn = document.getElementById('skipScoring');
         if (skipScoringBtn) {
             skipScoringBtn.addEventListener('click', () => this.skipScoring());
+        }
+
+        // Modal event listeners
+        const modalCloseBtn = document.getElementById('closeModal');
+        if (modalCloseBtn) {
+            modalCloseBtn.addEventListener('click', () => this.closeScoringModal());
+        }
+
+        const modalSubmitBtn = document.getElementById('modalSubmitScores');
+        if (modalSubmitBtn) {
+            modalSubmitBtn.addEventListener('click', () => this.submitModalScores());
+        }
+
+        const modalSkipBtn = document.getElementById('modalSkipScoring');
+        if (modalSkipBtn) {
+            modalSkipBtn.addEventListener('click', () => this.skipModalScoring());
         }
 
         // Next question button
@@ -1005,6 +1021,157 @@ class QuizApp {
         if (setupSection) {
             setupSection.classList.remove('hidden');
         }
+    }
+
+    showScoringSection() {
+        const scoringSection = document.getElementById('scoringSection');
+        if (scoringSection) {
+            scoringSection.classList.remove('hidden');
+        }
+        
+        const setupSection = document.getElementById('setupSection');
+        if (setupSection) {
+            setupSection.classList.add('hidden');
+        }
+    }
+
+    showScoringModal() {
+        console.log('=== SHOW SCORING MODAL ===');
+        
+        const modal = document.getElementById('scoringModal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            
+            // Populate modal with question and team scoring
+            this.populateScoringModal();
+            
+            console.log('Scoring modal displayed');
+        } else {
+            console.error('Scoring modal not found');
+        }
+    }
+
+    closeScoringModal() {
+        console.log('=== CLOSE SCORING MODAL ===');
+        
+        const modal = document.getElementById('scoringModal');
+        if (modal) {
+            modal.classList.add('hidden');
+            console.log('Scoring modal closed');
+        }
+    }
+
+    populateScoringModal() {
+        console.log('=== POPULATE SCORING MODAL ===');
+        
+        const modalQuestion = document.getElementById('modalScoringQuestion');
+        const modalTeamScores = document.getElementById('modalTeamScores');
+        
+        if (modalQuestion && this.currentQuestion) {
+            modalQuestion.innerHTML = `
+                <h3>${this.currentQuestion.question}</h3>
+                <p><strong>Category:</strong> ${this.currentCategory}</p>
+                <p><strong>Correct Answer:</strong> ${this.currentQuestion.answer}</p>
+            `;
+        }
+        
+        if (modalTeamScores) {
+            modalTeamScores.innerHTML = '';
+            
+            this.teams.forEach(team => {
+                const teamScoreDiv = document.createElement('div');
+                teamScoreDiv.className = 'team-score-item';
+                teamScoreDiv.innerHTML = `
+                    <div class="team-info">
+                        <span class="team-name">${team.name}</span>
+                    </div>
+                    <div class="score-buttons">
+                        <button class="btn btn-success score-btn" data-team-id="${team.id}" data-score="1">Correct</button>
+                        <button class="btn btn-danger score-btn" data-team-id="${team.id}" data-score="0">Incorrect</button>
+                    </div>
+                `;
+                modalTeamScores.appendChild(teamScoreDiv);
+            });
+            
+            // Add event listeners to score buttons
+            const scoreButtons = modalTeamScores.querySelectorAll('.score-btn');
+            scoreButtons.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const teamId = parseInt(e.target.dataset.teamId);
+                    const score = parseInt(e.target.dataset.score);
+                    this.markTeamScore(teamId, score, e.target);
+                });
+            });
+        }
+        
+        console.log('Scoring modal populated');
+    }
+
+    markTeamScore(teamId, score, button) {
+        console.log('=== MARK TEAM SCORE ===');
+        console.log('Team ID:', teamId);
+        console.log('Score:', score);
+        
+        // Update score
+        this.scores[teamId] = score;
+        
+        // Disable buttons for this team
+        const teamScoreItem = button.closest('.team-score-item');
+        const teamButtons = teamScoreItem.querySelectorAll('.score-btn');
+        teamButtons.forEach(btn => btn.disabled = true);
+        
+        // Highlight selected button
+        if (score === 1) {
+            button.classList.add('selected-correct');
+        } else {
+            button.classList.add('selected-incorrect');
+        }
+        
+        console.log('Team score marked:', { teamId, score });
+    }
+
+    submitModalScores() {
+        console.log('=== SUBMIT MODAL SCORES ===');
+        
+        // Check if any team was marked as correct
+        let hasCorrectScore = false;
+        const scores = {};
+        
+        this.teams.forEach(team => {
+            const teamScore = this.scores[team.id] || 0;
+            scores[team.id] = teamScore;
+            if (teamScore > 0) hasCorrectScore = true;
+        });
+        
+        if (!hasCorrectScore) {
+            alert('Iltimos, kamida bitta jamoa uchun "Correct" belgilang!');
+            return;
+        }
+        
+        // Send scores to server
+        this.socket.emit('submitScores', scores);
+        console.log('Modal scores submitted to server:', scores);
+        
+        // Close modal
+        this.closeScoringModal();
+        
+        // Reset scores for next question
+        this.teamsScoredForQuestion = [];
+        
+        console.log('=== SUBMIT MODAL SCORES END ===');
+    }
+
+    skipModalScoring() {
+        console.log('=== SKIP MODAL SCORING ===');
+        
+        // Send empty scores to server
+        this.socket.emit('submitScores', {});
+        console.log('Modal scoring skipped - signal sent to server');
+        
+        // Close modal
+        this.closeScoringModal();
+        
+        console.log('Modal scoring skipped');
     }
 
     initializeIndexPage() {
