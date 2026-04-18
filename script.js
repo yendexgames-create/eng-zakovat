@@ -215,9 +215,8 @@ class QuizApp {
             this.updateIndexPage(state);
         }
         
-        // Update teams display if not in animation and not in scoring phase
-        // Allow teams to show during category selection phase
-        if (!this.isAnimating && !state.scoringPhase) {
+        // Only update teams display if not in animation, not in scoring phase, and not in question phase
+        if (!this.isAnimating && !state.scoringPhase && !state.currentCategory) {
             this.displayTeams();
         }
     }
@@ -1101,9 +1100,8 @@ class QuizApp {
         console.log('Current window width:', window.innerWidth);
         console.log('Current window height:', window.innerHeight);
         
-        // Don't reset selectedCategories - preserve user selections
-        // Only reset if explicitly starting fresh quiz
-        if (false && this.selectedCategories.length > 0 && !this.quizStarted) {
+        // Reset selectedCategories when showing category selection fresh
+        if (this.selectedCategories.length > 0 && !this.quizStarted) {
             console.log('Resetting selectedCategories because quiz not started');
             this.selectedCategories = [];
         }
@@ -1116,9 +1114,9 @@ class QuizApp {
             quizStarted: true,
             currentPhase: 'categorySelection',
             currentQuestion: this.currentQuestion,
-            currentCategory: this.currentCategory,
             teams: this.teams,
             scores: this.scores,
+            currentCategory: this.currentCategory,
             selectedCategories: this.selectedCategories,
             mixedQuestions: this.mixedQuestions,
             currentQuestionIndex: this.currentQuestionIndex
@@ -1419,37 +1417,13 @@ class QuizApp {
         if (startBtn) {
             if (this.selectedCategories.length === this.categoriesToSelect) {
                 // Show start button when exactly 8 categories are selected
-                startBtn.style.setProperty('display', 'block', 'important');
-                startBtn.style.setProperty('visibility', 'visible', 'important');
-                startBtn.style.setProperty('opacity', '1', 'important');
+                startBtn.style.display = 'block';
                 startBtn.classList.remove('hidden');
                 startBtn.disabled = false;
                 console.log('Start button shown - 8 categories selected');
-                console.log('Start button styles applied:', startBtn.style.cssText);
-                
-                // Add event listener if not already added
-                if (!startBtn.hasAttribute('data-start-listener')) {
-                    startBtn.addEventListener('click', (e) => {
-                        console.log('=== START QUIZ BUTTON CLICKED ===');
-                        console.log('Button element:', startBtn);
-                        console.log('Button disabled:', startBtn.disabled);
-                        
-                        if (startBtn.disabled) {
-                            console.log('Button is disabled - click ignored');
-                            return;
-                        }
-                        
-                        console.log('Button is enabled - calling startQuestionsQuiz()');
-                        this.startQuestionsQuiz();
-                    });
-                    startBtn.setAttribute('data-start-listener', 'true');
-                    console.log('Start button event listener added');
-                }
             } else {
                 // Hide start button when not exactly 8 categories are selected
-                startBtn.style.setProperty('display', 'none', 'important');
-                startBtn.style.setProperty('visibility', 'hidden', 'important');
-                startBtn.style.setProperty('opacity', '0', 'important');
+                startBtn.style.display = 'none';
                 startBtn.classList.add('hidden');
                 startBtn.disabled = true;
                 console.log('Start button hidden - not 8 categories selected');
@@ -1685,9 +1659,9 @@ class QuizApp {
             quizStarted: true,
             currentPhase: 'question',
             currentQuestion: question,
-            currentCategory: this.currentCategory,
             teams: this.teams,
             scores: this.scores,
+            currentCategory: this.currentCategory,
             selectedCategories: this.selectedCategories,
             mixedQuestions: this.mixedQuestions,
             currentQuestionIndex: this.currentQuestionIndex
@@ -1758,9 +1732,9 @@ class QuizApp {
             quizStarted: true,
             currentPhase: 'scoring',
             currentQuestion: this.currentQuestion,
-            currentCategory: this.currentCategory,
             teams: this.teams,
             scores: this.scores,
+            currentCategory: this.currentCategory,
             selectedCategories: this.selectedCategories,
             mixedQuestions: this.mixedQuestions,
             currentQuestionIndex: this.currentQuestionIndex
