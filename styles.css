@@ -2292,68 +2292,78 @@ body {
     transform: translateY(-1px);
 }
 
-/* Team Info Glow Animation Styles */
-.team-info-correct-glow {
-    animation: correctGlow 1.5s ease-out;
+/* Leaderboard Team Glow Animation Styles */
+.leaderboard-correct-glow {
+    animation: leaderboardCorrectGlow 1.5s ease-out;
 }
 
-.team-info-incorrect-glow {
-    animation: incorrectGlow 1.5s ease-out;
+.leaderboard-incorrect-glow {
+    animation: leaderboardIncorrectGlow 1.5s ease-out;
 }
 
-@keyframes correctGlow {
+@keyframes leaderboardCorrectGlow {
     0% {
-        background-color: transparent;
+        background-color: var(--bg-secondary);
         box-shadow: none;
         transform: scale(1);
+        border-color: transparent;
     }
     20% {
-        background-color: rgba(39, 174, 96, 0.3);
-        box-shadow: 0 0 15px rgba(39, 174, 96, 0.6);
-        transform: scale(1.02);
+        background-color: rgba(39, 174, 96, 0.2);
+        box-shadow: 0 0 20px rgba(39, 174, 96, 0.6);
+        transform: scale(1.03);
+        border-color: rgba(39, 174, 96, 0.8);
     }
     50% {
-        background-color: rgba(39, 174, 96, 0.5);
-        box-shadow: 0 0 25px rgba(39, 174, 96, 0.8);
-        transform: scale(1.05);
+        background-color: rgba(39, 174, 96, 0.4);
+        box-shadow: 0 0 30px rgba(39, 174, 96, 0.8);
+        transform: scale(1.06);
+        border-color: rgba(39, 174, 96, 1);
     }
     80% {
-        background-color: rgba(39, 174, 96, 0.3);
-        box-shadow: 0 0 15px rgba(39, 174, 96, 0.6);
-        transform: scale(1.02);
+        background-color: rgba(39, 174, 96, 0.2);
+        box-shadow: 0 0 20px rgba(39, 174, 96, 0.6);
+        transform: scale(1.03);
+        border-color: rgba(39, 174, 96, 0.8);
     }
     100% {
-        background-color: transparent;
+        background-color: var(--bg-secondary);
         box-shadow: none;
         transform: scale(1);
+        border-color: transparent;
     }
 }
 
-@keyframes incorrectGlow {
+@keyframes leaderboardIncorrectGlow {
     0% {
-        background-color: transparent;
+        background-color: var(--bg-secondary);
         box-shadow: none;
         transform: scale(1);
+        border-color: transparent;
     }
     20% {
-        background-color: rgba(231, 76, 60, 0.3);
-        box-shadow: 0 0 15px rgba(231, 76, 60, 0.6);
-        transform: scale(1.02);
+        background-color: rgba(231, 76, 60, 0.2);
+        box-shadow: 0 0 20px rgba(231, 76, 60, 0.6);
+        transform: scale(1.03);
+        border-color: rgba(231, 76, 60, 0.8);
     }
     50% {
-        background-color: rgba(231, 76, 60, 0.5);
-        box-shadow: 0 0 25px rgba(231, 76, 60, 0.8);
-        transform: scale(1.05);
+        background-color: rgba(231, 76, 60, 0.4);
+        box-shadow: 0 0 30px rgba(231, 76, 60, 0.8);
+        transform: scale(1.06);
+        border-color: rgba(231, 76, 60, 1);
     }
     80% {
-        background-color: rgba(231, 76, 60, 0.3);
-        box-shadow: 0 0 15px rgba(231, 76, 60, 0.6);
-        transform: scale(1.02);
+        background-color: rgba(231, 76, 60, 0.2);
+        box-shadow: 0 0 20px rgba(231, 76, 60, 0.6);
+        transform: scale(1.03);
+        border-color: rgba(231, 76, 60, 0.8);
     }
     100% {
-        background-color: transparent;
+        background-color: var(--bg-secondary);
         box-shadow: none;
         transform: scale(1);
+        border-color: transparent;
     }
 }
 

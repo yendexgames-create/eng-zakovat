@@ -1151,8 +1151,8 @@ class QuizApp {
             button.classList.add('selected-incorrect');
         }
         
-        // Show team info glow animation
-        this.showTeamInfoGlow(teamId, score === 1, button);
+        // Show leaderboard team item glow animation
+        this.showLeaderboardTeamGlow(teamId, score === 1);
         
         console.log('Team score marked:', { teamId, score });
     }
@@ -1201,35 +1201,29 @@ class QuizApp {
         console.log('Modal scoring skipped');
     }
 
-    // Team Info Glow Animation Function
-    showTeamInfoGlow(teamId, isCorrect, targetElement) {
-        console.log('=== SHOW TEAM INFO GLOW ===');
+    // Leaderboard Team Glow Animation Function
+    showLeaderboardTeamGlow(teamId, isCorrect) {
+        console.log('=== SHOW LEADERBOARD TEAM GLOW ===');
         console.log('Team ID:', teamId);
         console.log('Is Correct:', isCorrect);
         
-        // Find the team info element in the modal
-        const teamScoreItem = targetElement.closest('.team-score-item');
-        if (!teamScoreItem) {
-            console.error('Team score item not found');
+        // Find the team item in the questions.html leaderboard
+        const teamItem = document.querySelector(`[data-team-id="${teamId}"]`);
+        if (!teamItem) {
+            console.error('Team item not found in leaderboard');
             return;
         }
         
-        const teamInfo = teamScoreItem.querySelector('.team-info');
-        if (!teamInfo) {
-            console.error('Team info element not found');
-            return;
-        }
-        
-        // Add glow animation class
-        const glowClass = isCorrect ? 'team-info-correct-glow' : 'team-info-incorrect-glow';
-        teamInfo.classList.add(glowClass);
+        // Add glow animation class to the entire team item
+        const glowClass = isCorrect ? 'leaderboard-correct-glow' : 'leaderboard-incorrect-glow';
+        teamItem.classList.add(glowClass);
         
         // Remove animation class after animation completes
         setTimeout(() => {
-            teamInfo.classList.remove(glowClass);
+            teamItem.classList.remove(glowClass);
         }, 1500);
         
-        console.log('Team info glow animation shown');
+        console.log('Leaderboard team glow animation shown');
     }
 
     // Emoji Animation Functions (kept for compatibility)
