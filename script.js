@@ -967,6 +967,7 @@ class QuizApp {
             this.quizActivated = state.quizActivated || false;
             this.scoringPhase = state.scoringPhase || false;
             this.completedCategories = state.completedCategories || [];
+            this.selectedCategories = state.selectedCategories || [];
             
             console.log('Server state restored successfully');
             
