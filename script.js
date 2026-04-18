@@ -1419,7 +1419,7 @@ class QuizApp {
         if (startBtn) {
             if (this.selectedCategories.length === this.categoriesToSelect) {
                 // Show start button when exactly 8 categories are selected
-                startBtn.style.display = 'block';
+                startBtn.style.setProperty('display', 'block', 'important');
                 startBtn.classList.remove('hidden');
                 startBtn.disabled = false;
                 console.log('Start button shown - 8 categories selected');
@@ -1444,7 +1444,7 @@ class QuizApp {
                 }
             } else {
                 // Hide start button when not exactly 8 categories are selected
-                startBtn.style.display = 'none';
+                startBtn.style.setProperty('display', 'none', 'important');
                 startBtn.classList.add('hidden');
                 startBtn.disabled = true;
                 console.log('Start button hidden - not 8 categories selected');
