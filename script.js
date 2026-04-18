@@ -557,6 +557,22 @@ class QuizApp {
             console.error('Start quiz button not found!');
         }
 
+        // Add event listener for reset button
+        const resetBtn = document.getElementById('resetQuiz');
+        if (resetBtn) {
+            console.log('Reset button found, adding event listener');
+            resetBtn.addEventListener('click', (e) => {
+                console.log('=== RESET QUIZ BUTTON CLICKED ===');
+                
+                // Confirm reset
+                if (confirm('Quizni to\'liq qayta boshlashni xohlaysizmi? Barcha ma\'lumotlar o\'chib ketadi.')) {
+                    this.resetQuiz();
+                }
+            });
+        } else {
+            console.error('Reset button not found!');
+        }
+
         // Scoring events
         const submitScoresBtn = document.getElementById('submitScores');
         if (submitScoresBtn) {
@@ -808,6 +824,74 @@ class QuizApp {
         // Don't open questions page automatically
         // Let other devices handle the questions page
         console.log('Quiz activated - waiting for other devices to open questions page');
+    }
+
+    resetQuiz() {
+        console.log('=== RESET QUIZ START ===');
+        
+        // Stop any running timers
+        this.stopQuestionTimer();
+        
+        // Reset all local state
+        this.teams = [];
+        this.scores = {};
+        this.currentCategory = null;
+        this.currentQuestion = null;
+        this.currentQuestionIndex = 0;
+        this.selectedCategories = [];
+        this.mixedQuestions = [];
+        this.quizStarted = false;
+        this.quizActivated = false;
+        this.scoringPhase = false;
+        this.completedCategories = [];
+        this.teamsScoredForQuestion = [];
+        
+        // Clear localStorage
+        localStorage.removeItem('quizState');
+        localStorage.removeItem('currentPhase');
+        localStorage.removeItem('quizStarted');
+        
+        // Send reset signal to server
+        this.socket.emit('resetQuiz');
+        console.log('Reset signal sent to server');
+        
+        // Reset UI based on current page
+        if (window.location.pathname.includes('questions.html') || 
+            window.location.pathname.endsWith('/questions') ||
+            window.location.href.includes('questions.html')) {
+            
+            // On questions page - redirect to index.html
+            console.log('Redirecting to index.html after reset');
+            window.location.href = 'index.html';
+            
+        } else {
+            // On index.html - reset to initial state
+            console.log('Resetting index.html to initial state');
+            
+            // Hide header and setup status
+            const header = document.querySelector('.header');
+            const setupStatus = document.getElementById('setupStatus');
+            const scoringSection = document.getElementById('scoringSection');
+            const setupSection = document.getElementById('setupSection');
+            
+            if (header) header.classList.add('hidden');
+            if (setupStatus) setupStatus.classList.add('hidden');
+            if (scoringSection) scoringSection.classList.add('hidden');
+            if (setupSection) setupSection.classList.remove('hidden');
+            
+            // Reset team inputs
+            this.generateTeamInputs();
+            
+            // Reset start button
+            const startBtn = document.getElementById('startQuiz');
+            if (startBtn) startBtn.disabled = true;
+            
+            // Reset team count input
+            const teamCountInput = document.getElementById('teamCount');
+            if (teamCountInput) teamCountInput.value = 2;
+        }
+        
+        console.log('=== RESET QUIZ END ===');
     }
 
     skipScoring() {
