@@ -1949,13 +1949,22 @@ class QuizApp {
     }
     
     mixQuestionsFromCategories() {
+        console.log('=== MIX QUESTIONS FROM CATEGORIES START ===');
+        console.log('Selected categories:', this.selectedCategories);
+        console.log('Questions per category:', this.questionsPerCategory);
+        console.log('Available questions:', Object.keys(this.questions));
+        
         const allQuestions = [];
         
         // Collect questions from all selected categories
         this.selectedCategories.forEach(category => {
+            console.log(`Processing category: ${category}`);
             const categoryQuestions = this.questions[category] || [];
+            console.log(`Questions in ${category}:`, categoryQuestions.length);
+            
             // Take first 10 questions from each category
             const limitedQuestions = categoryQuestions.slice(0, this.questionsPerCategory);
+            console.log(`Limited questions for ${category}:`, limitedQuestions.length);
             
             // Add category info to each question
             limitedQuestions.forEach(question => {
@@ -1980,7 +1989,13 @@ class QuizApp {
     }
     
     showNextQuestion() {
+        console.log('=== SHOW NEXT QUESTION START ===');
+        console.log('Current question index:', this.currentQuestionIndex);
+        console.log('Mixed questions length:', this.mixedQuestions.length);
+        console.log('Mixed questions:', this.mixedQuestions);
+        
         if (this.currentQuestionIndex >= this.mixedQuestions.length) {
+            console.log('No more questions, ending quiz');
             this.endQuiz();
             return;
         }
@@ -1989,6 +2004,8 @@ class QuizApp {
         localStorage.setItem('currentPhase', 'question');
         
         const question = this.mixedQuestions[this.currentQuestionIndex];
+        console.log('Next question:', question);
+        
         this.currentQuestion = question;
         this.currentCategory = question.category;
         
@@ -1999,6 +2016,8 @@ class QuizApp {
         this.startQuestionTimer();
         
         this.currentQuestionIndex++;
+        
+        console.log('=== SHOW NEXT QUESTION END ===');
     }
     
     startQuestionTimer() {
@@ -2386,13 +2405,19 @@ class QuizApp {
 
     showQuestion() {
         const categorySection = document.querySelector('.category-section');
-        const questionSection = document.getElementById('questionSection');
-        const categoryDisplay = document.getElementById('categoryDisplay');
-        const questionNumber = document.getElementById('questionNumber');
-        const questionText = document.getElementById('questionText');
-        const answerOptions = document.getElementById('answerOptions');
+        const questionSection = document.querySelector('.question-section');
+        const categoryDisplay = document.querySelector('.question-category');
+        const questionText = document.querySelector('.question-text');
+        const answerOptions = document.querySelector('.answer-options');
         
-        if (!categorySection || !questionSection || !categoryDisplay || !questionNumber || !questionText || !answerOptions) {
+        console.log('=== SHOW QUESTION DEBUG ===');
+        console.log('Category section:', categorySection);
+        console.log('Question section:', questionSection);
+        console.log('Category display:', categoryDisplay);
+        console.log('Question text:', questionText);
+        console.log('Answer options:', answerOptions);
+        
+        if (!categorySection || !questionSection || !categoryDisplay || !questionText || !answerOptions) {
             console.error('Question display elements not found');
             return;
         }
@@ -2403,9 +2428,6 @@ class QuizApp {
         
         // Update category display
         categoryDisplay.textContent = this.currentCategory.charAt(0).toUpperCase() + this.currentCategory.slice(1);
-        
-        // Update question number
-        questionNumber.textContent = `Question ${this.currentQuestionIndex + 1} of ${this.currentQuestions.length}`;
         
         // Update question text
         questionText.textContent = this.currentQuestion.question;
