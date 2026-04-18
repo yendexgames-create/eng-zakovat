@@ -1101,8 +1101,9 @@ class QuizApp {
         console.log('Current window width:', window.innerWidth);
         console.log('Current window height:', window.innerHeight);
         
-        // Reset selectedCategories when showing category selection fresh
-        if (this.selectedCategories.length > 0 && !this.quizStarted) {
+        // Don't reset selectedCategories - preserve user selections
+        // Only reset if explicitly starting fresh quiz
+        if (false && this.selectedCategories.length > 0 && !this.quizStarted) {
             console.log('Resetting selectedCategories because quiz not started');
             this.selectedCategories = [];
         }
