@@ -1151,6 +1151,9 @@ class QuizApp {
             button.classList.add('selected-incorrect');
         }
         
+        // Show emoji animation immediately
+        this.showEmojiAnimation(teamId, score === 1, button);
+        
         console.log('Team score marked:', { teamId, score });
     }
 
