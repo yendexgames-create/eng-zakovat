@@ -23,6 +23,7 @@ class QuizApp {
         this.categoriesToSelect = 8; // 8 tasini tanlash
         this.questionsPerCategory = 1; // har bir turdan 1 ta savol (8 ta jami)
         this.selectedCategories = []; // tanlangan turlar
+        this.categories = ['music', 'sports', 'science', 'history', 'geography', 'literature', 'movies', 'technology', 'games', 'art', 'food', 'nature']; // barcha turlar ro'yxati
         this.questionTimer = 30; // 30 soniyalik timer
         this.startTimer = 3; // 3 sekundlik start timer
         this.currentTimeLeft = 0; // joriy timer qiymati
@@ -213,8 +214,8 @@ class QuizApp {
             this.updateIndexPage(state);
         }
         
-        // Only update teams display if not in animation
-        if (!this.isAnimating) {
+        // Only update teams display if not in animation and not in scoring phase
+        if (!this.isAnimating && !state.scoringPhase) {
             this.displayTeams();
         }
     }
