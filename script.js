@@ -2406,7 +2406,7 @@ class QuizApp {
     showQuestion() {
         const categorySection = document.querySelector('.category-section');
         const questionSection = document.querySelector('.question-section');
-        const categoryDisplay = document.querySelector('.question-category');
+        const categoryDisplay = document.querySelector('.category-indicator');
         const questionText = document.querySelector('.question-text');
         const answerOptions = document.querySelector('.answer-options');
         
@@ -2434,6 +2434,7 @@ class QuizApp {
         
         // Update answer options
         answerOptions.innerHTML = '';
+        answerOptions.style.display = 'block'; // Make sure options are visible
         this.currentQuestion.options.forEach((option, index) => {
             const optionElement = document.createElement('div');
             optionElement.className = 'answer-option';
