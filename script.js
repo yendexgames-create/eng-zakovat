@@ -1286,29 +1286,34 @@ class QuizApp {
     }
 
     selectCategory(category) {
-        console.log('=== SELECT CATEGORY DEBUG ===');
+        console.log('=== SELECT CATEGORY DEBUG START ===');
         console.log('Selected category:', category);
-        console.log('Currently selected categories:', this.selectedCategories);
+        console.log('Currently selected categories BEFORE:', this.selectedCategories);
         console.log('Categories to select:', this.categoriesToSelect);
-        console.log('Selected categories length:', this.selectedCategories.length);
+        console.log('Selected categories length BEFORE:', this.selectedCategories.length);
         
         // Check if category is already selected
         if (this.selectedCategories.includes(category)) {
             console.log('Category already selected, removing:', category);
             this.removeSelectedCategory(category);
+            console.log('=== SELECT CATEGORY DEBUG END (REMOVED) ===');
             return;
         }
         
         // Check if we can select more categories
         if (this.selectedCategories.length >= this.categoriesToSelect) {
             console.log('Maximum categories selected, cannot select more');
+            console.log('Current length:', this.selectedCategories.length);
+            console.log('Max allowed:', this.categoriesToSelect);
+            console.log('=== SELECT CATEGORY DEBUG END (MAX REACHED) ===');
             return;
         }
         
         // Add category to selected list
         this.selectedCategories.push(category);
         console.log('Category added to selection:', category);
-        console.log('Updated selected categories:', this.selectedCategories);
+        console.log('Updated selected categories AFTER:', this.selectedCategories);
+        console.log('Selected categories length AFTER:', this.selectedCategories.length);
         
         // Update UI to show selection
         this.updateCategorySelectionUI();
@@ -1323,12 +1328,20 @@ class QuizApp {
             category: category,
             selectedCategories: this.selectedCategories
         });
+        
+        console.log('Category selection sent to server');
+        console.log('=== SELECT CATEGORY DEBUG END ===');
     }
     
     removeSelectedCategory(category) {
+        console.log('=== REMOVE SELECTED CATEGORY DEBUG START ===');
+        console.log('Removing category:', category);
+        console.log('Currently selected categories BEFORE:', this.selectedCategories);
+        
         // Remove category from selected list
         this.selectedCategories = this.selectedCategories.filter(cat => cat !== category);
         console.log('Category removed from selection:', category);
+        console.log('Updated selected categories AFTER:', this.selectedCategories);
         
         // Update UI
         this.updateCategorySelectionUI();
