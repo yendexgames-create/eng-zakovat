@@ -193,7 +193,13 @@ class QuizApp {
     }
     
     updateState(state) {
-        // Update local state with server state
+        console.log('=== UPDATE STATE START ===');
+        console.log('State received:', state);
+        
+        // Store old scores for animation comparison
+        const oldScores = { ...this.scores };
+        
+        // Update local state
         this.teams = state.teams || [];
         this.scores = state.scores || {};
         this.currentCategory = state.currentCategory;
@@ -202,6 +208,24 @@ class QuizApp {
         
         console.log('updateState called, current page:', window.location.pathname);
         console.log('State received:', state);
+        
+        // Animate score changes on questions.html
+        if (window.location.pathname.includes('questions.html') || 
+            window.location.pathname.endsWith('/questions') ||
+            window.location.href.includes('questions.html')) {
+            
+            Object.keys(this.scores).forEach(teamId => {
+                const oldScore = oldScores[teamId] || 0;
+                const newScore = this.scores[teamId] || 0;
+                
+                if (oldScore !== newScore) {
+                    console.log(`Score changed for team ${teamId}: ${oldScore} -> ${newScore}`);
+                    setTimeout(() => {
+                        this.animateTeamScoreUpdate(parseInt(teamId), oldScore, newScore);
+                    }, 100); // Small delay for visual effect
+                }
+            });
+        }
         
         // Update UI based on current page
         if (window.location.pathname.includes('questions.html') || 
@@ -1174,6 +1198,88 @@ class QuizApp {
         console.log('Modal scoring skipped');
     }
 
+    // Emoji Animation Functions
+    showEmojiAnimation(teamId, isCorrect, targetElement) {
+        console.log('=== SHOW EMOJI ANIMATION ===');
+        console.log('Team ID:', teamId);
+        console.log('Is Correct:', isCorrect);
+        
+        const container = document.getElementById('emojiContainer');
+        if (!container) {
+            console.error('Emoji container not found');
+            return;
+        }
+        
+        // Create emoji element
+        const emoji = document.createElement('div');
+        emoji.className = `emoji ${isCorrect ? 'correct' : 'incorrect'}`;
+        emoji.textContent = isCorrect ? '??' : '??';
+        
+        // Position emoji near the target element
+        if (targetElement) {
+            const rect = targetElement.getBoundingClientRect();
+            emoji.style.left = `${rect.left + rect.width / 2}px`;
+            emoji.style.top = `${rect.top}px`;
+        } else {
+            // Center of screen if no target
+            emoji.style.left = '50%';
+            emoji.style.top = '50%';
+            emoji.style.transform = 'translate(-50%, -50%)';
+        }
+        
+        // Add to container
+        container.appendChild(emoji);
+        
+        // Remove after animation
+        setTimeout(() => {
+            if (emoji.parentNode) {
+                emoji.parentNode.removeChild(emoji);
+            }
+        }, 2000);
+        
+        console.log('Emoji animation shown');
+    }
+
+    animateTeamScoreUpdate(teamId, oldScore, newScore) {
+        console.log('=== ANIMATE TEAM SCORE UPDATE ===');
+        console.log('Team ID:', teamId);
+        console.log('Old Score:', oldScore);
+        console.log('New Score:', newScore);
+        
+        // Find team element in leaderboard
+        const teamElement = document.querySelector(`[data-team-id="${teamId}"]`);
+        if (!teamElement) {
+            console.error('Team element not found for animation');
+            return;
+        }
+        
+        // Add animation class based on score change
+        if (newScore > oldScore) {
+            teamElement.classList.add('score-updated');
+            
+            // Show emoji animation
+            this.showEmojiAnimation(teamId, true, teamElement);
+            
+            // Remove animation class after animation
+            setTimeout(() => {
+                teamElement.classList.remove('score-updated');
+            }, 1000);
+            
+        } else if (newScore < oldScore) {
+            teamElement.classList.add('score-decreased');
+            
+            // Show emoji animation
+            this.showEmojiAnimation(teamId, false, teamElement);
+            
+            // Remove animation class after animation
+            setTimeout(() => {
+                teamElement.classList.remove('score-decreased');
+            }, 500);
+        }
+        
+        console.log('Team score animation completed');
+    }
+
     initializeIndexPage() {
         console.log('=== INITIALIZE INDEX PAGE START ===');
         
@@ -1221,6 +1327,9 @@ class QuizApp {
             // Remove this listener after first use
             this.socket.off('stateUpdate', handleServerState);
             
+            // Store old scores for animation comparison
+            const oldScores = { ...this.scores };
+            
             // Restore all state from server
             this.teams = state.teams || [];
             this.scores = state.scores || {};
@@ -1233,6 +1342,17 @@ class QuizApp {
             this.selectedCategories = state.selectedCategories || [];
             
             console.log('Server state restored successfully');
+            
+            // Animate score changes
+            Object.keys(this.scores).forEach(teamId => {
+                const oldScore = oldScores[teamId] || 0;
+                const newScore = this.scores[teamId] || 0;
+                
+                if (oldScore !== newScore) {
+                    console.log(`Score changed for team ${teamId}: ${oldScore} -> ${newScore}`);
+                    this.animateTeamScoreUpdate(parseInt(teamId), oldScore, newScore);
+                }
+            });
             
             // Show appropriate section based on server state
             if (state.scoringPhase) {
