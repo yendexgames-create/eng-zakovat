@@ -327,12 +327,15 @@ class QuizApp {
         console.log('currentCategory:', state.currentCategory);
         console.log('scoringPhase:', state.scoringPhase);
         
-        if (state.quizActivated && !state.currentCategory) {
+        // Check if currentCategory is actually empty (not just truthy)
+        const hasValidCategory = state.currentCategory && typeof state.currentCategory === 'string' && state.currentCategory.trim() !== '';
+        
+        if (state.quizActivated && !hasValidCategory) {
             // Show category selection
-            console.log('Condition met: quizActivated=true, currentCategory=false');
+            console.log('Condition met: quizActivated=true, no valid currentCategory');
             console.log('Calling showCategorySelection...');
             this.showCategorySelection();
-        } else if (state.currentCategory && !state.scoringPhase) {
+        } else if (hasValidCategory && !state.scoringPhase) {
             // Show question
             console.log('Showing question for category:', state.currentCategory);
             if (this.currentCategory !== state.currentCategory || this.currentQuestionIndex !== state.currentQuestionIndex) {
