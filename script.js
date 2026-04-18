@@ -1123,8 +1123,16 @@ class QuizApp {
         
         // Check if event listeners already added
         if (this.categoryListenersAdded) {
-            console.log('Category listeners already added, skipping...');
-        } else {
+            console.log('Category listeners already added, but checking if they work...');
+            // Test if listeners actually work by trying to add a test click
+            const testBtn = document.querySelector('.category-btn');
+            if (testBtn && !testBtn.hasAttribute('data-listener-test')) {
+                console.log('Listeners exist but may not work, resetting...');
+                this.categoryListenersAdded = false;
+            }
+        }
+        
+        if (!this.categoryListenersAdded) {
             // Add category button event listeners (only once when showing category selection)
             const categoryBtns = document.querySelectorAll('.category-btn');
             console.log('Adding event listeners to category buttons:', categoryBtns.length);
@@ -1143,6 +1151,8 @@ class QuizApp {
                     console.log('Category button clicked:', category);
                     this.selectCategory(category);
                 });
+                // Mark button as having listener
+                btn.setAttribute('data-listener-test', 'true');
             });
             
             this.categoryListenersAdded = true;
@@ -2337,7 +2347,7 @@ class QuizApp {
 
 // Initialize the app when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    new QuizApp();
+    window.app = new QuizApp();
 });
 
 // Generate initial team inputs on page load
@@ -2349,6 +2359,3 @@ window.addEventListener('load', () => {
         teamCountInput.dispatchEvent(event);
     }
 });
-
-// Create global app instance for HTML onclick handlers
-const app = new QuizApp();
