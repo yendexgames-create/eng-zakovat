@@ -30,6 +30,7 @@ class QuizApp {
         this.currentTimerInterval = null; // timer interval ID
         this.lastAnswerCorrect = false; // oxirgi javob to'g'ri yoki noto'g'ri
         this.teamsScoredForQuestion = []; // qaysi jamoalar ushbu savol uchun baholandi
+        this.categoryListenersAdded = false; // category event listeners qo'shilganmi
         
         // Socket.io connection
         this.socket = null;
@@ -975,14 +976,8 @@ class QuizApp {
                     console.log('Restoring category selection');
                     this.showCategorySelection();
                 } else {
-                    console.log('No specific phase, checking if quiz was started');
-                    if (state.quizStarted && state.selectedCategories && state.selectedCategories.length > 0) {
-                        console.log('Quiz was started with categories, showing category selection');
-                        this.showCategorySelection();
-                    } else {
-                        console.log('Quiz not started or no categories, showing welcome');
-                        this.displayTeams();
-                    }
+                    console.log('No specific phase, always show category selection');
+                    this.showCategorySelection();
                 }
                 
                 return; // Don't continue to default logic
@@ -991,25 +986,9 @@ class QuizApp {
             console.error('Error restoring state:', error);
         }
         
-        // Fallback logic - only show welcome if no quiz started
-        console.log('No saved state, checking quiz status');
-        
-        const quizStarted = localStorage.getItem('quizStarted');
-        const currentPhase = localStorage.getItem('currentPhase');
-        
-        console.log('Quiz started from localStorage:', quizStarted);
-        console.log('Current phase from localStorage:', currentPhase);
-        
-        if (quizStarted === 'true' && (currentPhase === 'question' || currentPhase === 'scoring')) {
-            console.log('Quiz is in progress but no state found - showing welcome as fallback');
-            this.displayTeams();
-        } else if (quizStarted === 'true') {
-            console.log('Quiz was started but not in progress - showing category selection');
-            this.showCategorySelection();
-        } else {
-            console.log('Quiz not started - showing welcome');
-            this.displayTeams();
-        }
+        // Fallback logic - always show category selection
+        console.log('No saved state, showing category selection');
+        this.showCategorySelection();
         
         console.log('=== INITIALIZE QUESTIONS PAGE END ===');
     }
@@ -1128,25 +1107,33 @@ class QuizApp {
         
         console.log('Category selection phase saved to localStorage');
         
-        // Add category button event listeners (only once when showing category selection)
-        const categoryBtns = document.querySelectorAll('.category-btn');
-        console.log('Adding event listeners to category buttons:', categoryBtns.length);
-        
-        // Remove existing listeners first
-        categoryBtns.forEach(btn => {
-            const newBtn = btn.cloneNode(true);
-            btn.parentNode.replaceChild(newBtn, btn);
-        });
-        
-        // Add fresh listeners
-        const freshCategoryBtns = document.querySelectorAll('.category-btn');
-        freshCategoryBtns.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const category = e.currentTarget.dataset.category;
-                console.log('Category button clicked:', category);
-                this.selectCategory(category);
+        // Check if event listeners already added
+        if (this.categoryListenersAdded) {
+            console.log('Category listeners already added, skipping...');
+        } else {
+            // Add category button event listeners (only once when showing category selection)
+            const categoryBtns = document.querySelectorAll('.category-btn');
+            console.log('Adding event listeners to category buttons:', categoryBtns.length);
+            
+            // Remove existing listeners first
+            categoryBtns.forEach(btn => {
+                const newBtn = btn.cloneNode(true);
+                btn.parentNode.replaceChild(newBtn, btn);
             });
-        });
+            
+            // Add fresh listeners
+            const freshCategoryBtns = document.querySelectorAll('.category-btn');
+            freshCategoryBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const category = e.currentTarget.dataset.category;
+                    console.log('Category button clicked:', category);
+                    this.selectCategory(category);
+                });
+            });
+            
+            this.categoryListenersAdded = true;
+            console.log('Category listeners added and flagged');
+        }
         
         // IMMEDIATE CSS INJECTION TO FORCE FIX
         const style = document.createElement('style');
