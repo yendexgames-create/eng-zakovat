@@ -1151,8 +1151,8 @@ class QuizApp {
             button.classList.add('selected-incorrect');
         }
         
-        // Show emoji animation immediately
-        this.showEmojiAnimation(teamId, score === 1, button);
+        // Show team info glow animation
+        this.showTeamInfoGlow(teamId, score === 1, button);
         
         console.log('Team score marked:', { teamId, score });
     }
@@ -1201,7 +1201,38 @@ class QuizApp {
         console.log('Modal scoring skipped');
     }
 
-    // Emoji Animation Functions
+    // Team Info Glow Animation Function
+    showTeamInfoGlow(teamId, isCorrect, targetElement) {
+        console.log('=== SHOW TEAM INFO GLOW ===');
+        console.log('Team ID:', teamId);
+        console.log('Is Correct:', isCorrect);
+        
+        // Find the team info element in the modal
+        const teamScoreItem = targetElement.closest('.team-score-item');
+        if (!teamScoreItem) {
+            console.error('Team score item not found');
+            return;
+        }
+        
+        const teamInfo = teamScoreItem.querySelector('.team-info');
+        if (!teamInfo) {
+            console.error('Team info element not found');
+            return;
+        }
+        
+        // Add glow animation class
+        const glowClass = isCorrect ? 'team-info-correct-glow' : 'team-info-incorrect-glow';
+        teamInfo.classList.add(glowClass);
+        
+        // Remove animation class after animation completes
+        setTimeout(() => {
+            teamInfo.classList.remove(glowClass);
+        }, 1500);
+        
+        console.log('Team info glow animation shown');
+    }
+
+    // Emoji Animation Functions (kept for compatibility)
     showEmojiAnimation(teamId, isCorrect, targetElement) {
         console.log('=== SHOW EMOJI ANIMATION ===');
         console.log('Team ID:', teamId);

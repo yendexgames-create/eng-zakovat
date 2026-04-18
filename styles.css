@@ -2292,6 +2292,71 @@ body {
     transform: translateY(-1px);
 }
 
+/* Team Info Glow Animation Styles */
+.team-info-correct-glow {
+    animation: correctGlow 1.5s ease-out;
+}
+
+.team-info-incorrect-glow {
+    animation: incorrectGlow 1.5s ease-out;
+}
+
+@keyframes correctGlow {
+    0% {
+        background-color: transparent;
+        box-shadow: none;
+        transform: scale(1);
+    }
+    20% {
+        background-color: rgba(39, 174, 96, 0.3);
+        box-shadow: 0 0 15px rgba(39, 174, 96, 0.6);
+        transform: scale(1.02);
+    }
+    50% {
+        background-color: rgba(39, 174, 96, 0.5);
+        box-shadow: 0 0 25px rgba(39, 174, 96, 0.8);
+        transform: scale(1.05);
+    }
+    80% {
+        background-color: rgba(39, 174, 96, 0.3);
+        box-shadow: 0 0 15px rgba(39, 174, 96, 0.6);
+        transform: scale(1.02);
+    }
+    100% {
+        background-color: transparent;
+        box-shadow: none;
+        transform: scale(1);
+    }
+}
+
+@keyframes incorrectGlow {
+    0% {
+        background-color: transparent;
+        box-shadow: none;
+        transform: scale(1);
+    }
+    20% {
+        background-color: rgba(231, 76, 60, 0.3);
+        box-shadow: 0 0 15px rgba(231, 76, 60, 0.6);
+        transform: scale(1.02);
+    }
+    50% {
+        background-color: rgba(231, 76, 60, 0.5);
+        box-shadow: 0 0 25px rgba(231, 76, 60, 0.8);
+        transform: scale(1.05);
+    }
+    80% {
+        background-color: rgba(231, 76, 60, 0.3);
+        box-shadow: 0 0 15px rgba(231, 76, 60, 0.6);
+        transform: scale(1.02);
+    }
+    100% {
+        background-color: transparent;
+        box-shadow: none;
+        transform: scale(1);
+    }
+}
+
 /* Emoji Animation Styles */
 .emoji-container {
     position: fixed;
