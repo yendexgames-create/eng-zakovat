@@ -1423,6 +1423,25 @@ class QuizApp {
                 startBtn.classList.remove('hidden');
                 startBtn.disabled = false;
                 console.log('Start button shown - 8 categories selected');
+                
+                // Add event listener if not already added
+                if (!startBtn.hasAttribute('data-start-listener')) {
+                    startBtn.addEventListener('click', (e) => {
+                        console.log('=== START QUIZ BUTTON CLICKED ===');
+                        console.log('Button element:', startBtn);
+                        console.log('Button disabled:', startBtn.disabled);
+                        
+                        if (startBtn.disabled) {
+                            console.log('Button is disabled - click ignored');
+                            return;
+                        }
+                        
+                        console.log('Button is enabled - calling startQuestionsQuiz()');
+                        this.startQuestionsQuiz();
+                    });
+                    startBtn.setAttribute('data-start-listener', 'true');
+                    console.log('Start button event listener added');
+                }
             } else {
                 // Hide start button when not exactly 8 categories are selected
                 startBtn.style.display = 'none';
