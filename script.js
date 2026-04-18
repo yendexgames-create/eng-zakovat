@@ -215,8 +215,9 @@ class QuizApp {
             this.updateIndexPage(state);
         }
         
-        // Only update teams display if not in animation, not in scoring phase, and not in question phase
-        if (!this.isAnimating && !state.scoringPhase && !state.currentCategory) {
+        // Update teams display if not in animation and not in scoring phase
+        // Allow teams to show during category selection phase
+        if (!this.isAnimating && !state.scoringPhase) {
             this.displayTeams();
         }
     }
