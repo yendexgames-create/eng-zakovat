@@ -2429,8 +2429,10 @@ class QuizApp {
         // Update category display
         categoryDisplay.textContent = this.currentCategory.charAt(0).toUpperCase() + this.currentCategory.slice(1);
         
-        // Update question text
-        questionText.textContent = this.currentQuestion.question;
+        // Update question text with number
+        const currentQuestionNum = this.currentQuestionIndex + 1;
+        const totalQuestions = this.mixedQuestions.length;
+        questionText.textContent = `${currentQuestionNum} of ${totalQuestions}: ${this.currentQuestion.question}`;
         
         // Update answer options
         answerOptions.innerHTML = '';
@@ -2617,31 +2619,28 @@ class QuizApp {
 
     nextQuestion() {
         console.log('=== NEXT QUESTION DEBUG ===');
-        console.log('Current category:', this.currentCategory);
-        console.log('Current question index before increment:', this.currentQuestionIndex);
-        console.log('Questions array for this category:', this.questions[this.currentCategory]);
-        console.log('Questions array length:', this.questions[this.currentCategory] ? this.questions[this.currentCategory].length : 'undefined');
+        console.log('Current question index:', this.currentQuestionIndex);
+        console.log('Mixed questions length:', this.mixedQuestions.length);
         
-        this.currentQuestionIndex++;
-        console.log('Current question index after increment:', this.currentQuestionIndex);
-        
-        if (this.questions[this.currentCategory] && this.currentQuestionIndex < this.questions[this.currentCategory].length) {
-            console.log('Showing next question');
-            // Update current question object
-            this.currentQuestion = this.questions[this.currentCategory][this.currentQuestionIndex];
-            this.showQuestion();
-        } else {
-            console.log('Category completed - marking as completed');
-            // Mark this category as completed
-            this.markCategoryCompleted(this.currentCategory);
-            
-            // Update category buttons immediately
-            const completedCategories = this.completedCategories || [];
-            this.updateCategoryButtons(completedCategories);
-            
-            // Show category selection again
-            this.showCategorySelection();
+        if (this.currentQuestionIndex >= this.mixedQuestions.length) {
+            console.log('All questions completed - ending quiz');
+            this.endQuiz();
+            return;
         }
+        
+        // Get next question from mixed questions
+        const question = this.mixedQuestions[this.currentQuestionIndex];
+        console.log('Next question:', question);
+        
+        this.currentQuestion = question;
+        this.currentCategory = question.category;
+        
+        // Show question
+        this.showQuestion();
+        
+        // Increment index for next time
+        this.currentQuestionIndex++;
+        
         console.log('=== NEXT QUESTION END ===');
     }
 
