@@ -215,8 +215,8 @@ class QuizApp {
             this.updateIndexPage(state);
         }
         
-        // Only update teams display if not in animation and not in scoring phase
-        if (!this.isAnimating && !state.scoringPhase) {
+        // Only update teams display if not in animation, not in scoring phase, and not in question phase
+        if (!this.isAnimating && !state.scoringPhase && !state.currentCategory) {
             this.displayTeams();
         }
     }
@@ -974,9 +974,13 @@ class QuizApp {
                     this.startQuestionTimer();
                 } else if (state.currentPhase === 'categorySelection') {
                     console.log('Restoring category selection');
+                    // Stop any existing timer when showing category selection
+                    this.stopQuestionTimer();
                     this.showCategorySelection();
                 } else {
                     console.log('No specific phase, always show category selection');
+                    // Stop any existing timer when showing category selection
+                    this.stopQuestionTimer();
                     this.showCategorySelection();
                 }
                 
@@ -988,6 +992,8 @@ class QuizApp {
         
         // Fallback logic - always show category selection
         console.log('No saved state, showing category selection');
+        // Stop any existing timer when showing category selection
+        this.stopQuestionTimer();
         this.showCategorySelection();
         
         console.log('=== INITIALIZE QUESTIONS PAGE END ===');
@@ -1086,8 +1092,16 @@ class QuizApp {
 
     showCategorySelection() {
         console.log('=== SHOW CATEGORY SELECTION START ===');
+        console.log('Current selectedCategories:', this.selectedCategories);
+        console.log('Current categoryListenersAdded:', this.categoryListenersAdded);
         console.log('Current window width:', window.innerWidth);
         console.log('Current window height:', window.innerHeight);
+        
+        // Reset selectedCategories when showing category selection fresh
+        if (this.selectedCategories.length > 0 && !this.quizStarted) {
+            console.log('Resetting selectedCategories because quiz not started');
+            this.selectedCategories = [];
+        }
         
         // Save current phase to localStorage
         localStorage.setItem('currentPhase', 'categorySelection');
@@ -1218,15 +1232,7 @@ class QuizApp {
             console.log('Forced grid styles applied with !important');
         }
         
-        const welcomeSection = document.getElementById('welcomeSection');
-        
-        console.log('Welcome section found:', welcomeSection);
         console.log('Category section found:', categorySection);
-        
-        if (welcomeSection) {
-            welcomeSection.classList.add('hidden');
-            console.log('Welcome section hidden');
-        }
         
         if (categorySection) {
             categorySection.classList.remove('hidden');
@@ -2099,6 +2105,13 @@ class QuizApp {
         
         this.timeUpCalled = true;
         console.log('TimeUp called - setting flag');
+        
+        // STOP THE TIMER HERE!
+        if (this.currentTimerInterval) {
+            clearInterval(this.currentTimerInterval);
+            this.currentTimerInterval = null;
+            console.log('Timer stopped in timeUp method');
+        }
         
         // Play time's up sound
         this.playSound('timeup');
