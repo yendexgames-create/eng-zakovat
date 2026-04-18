@@ -2443,7 +2443,7 @@ class QuizApp {
         });
         
         // Start timer
-        this.startTimer();
+        this.startQuestionTimer();
     }
 
     startTimer() {
