@@ -709,6 +709,12 @@ class QuizApp {
         console.log('=== START QUIZ DEBUG ===');
         console.log('startQuiz method called');
         
+        // Show header with reset button
+        const header = document.querySelector('.header');
+        if (header) {
+            header.classList.remove('hidden');
+        }
+        
         const teamCount = parseInt(document.getElementById('teamCount').value);
         console.log('Team count:', teamCount);
         
@@ -774,6 +780,12 @@ class QuizApp {
     }
 
     showActivateButton() {
+        // Show header with reset button
+        const header = document.querySelector('.header');
+        if (header) {
+            header.classList.remove('hidden');
+        }
+        
         const setupStatus = document.getElementById('setupStatus');
         if (setupStatus) {
             // Show teams list and multi-device instructions
