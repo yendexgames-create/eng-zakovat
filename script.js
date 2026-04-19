@@ -1975,6 +1975,11 @@ class QuizApp {
             const categoryQuestions = this.questions[category] || [];
             console.log(`Questions in ${category}:`, categoryQuestions.length);
             
+            if (categoryQuestions.length === 0) {
+                console.warn(`WARNING: No questions found for category: ${category}`);
+                console.warn(`Available categories:`, Object.keys(this.questions));
+            }
+            
             // Take first 10 questions from each category
             const limitedQuestions = categoryQuestions.slice(0, this.questionsPerCategory);
             console.log(`Limited questions for ${category}:`, limitedQuestions.length);
