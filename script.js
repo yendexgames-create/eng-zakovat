@@ -2669,6 +2669,8 @@ class QuizApp {
         console.log('Next question:', question);
         console.log('Question text:', question.question);
         console.log('Question category:', question.category);
+        console.log('Mixed questions array before access:', this.mixedQuestions);
+        console.log('Mixed questions array length before access:', this.mixedQuestions.length);
         
         this.currentQuestion = question;
         this.currentCategory = question.category;
