@@ -1989,7 +1989,10 @@ class QuizApp {
         });
         
         console.log(`Total questions collected: ${allQuestions.length}`);
-        console.log(`Expected: ${this.selectedCategories.length} categories × ${this.questionsPerCategory} questions = ${this.selectedCategories.length * this.questionsPerCategory}`);
+        console.log(`Selected categories count: ${this.selectedCategories.length}`);
+        console.log(`Questions per category: ${this.questionsPerCategory}`);
+        console.log(`Expected: ${this.selectedCategories.length} × ${this.questionsPerCategory} = ${this.selectedCategories.length * this.questionsPerCategory}`);
+        console.log(`Selected categories array:`, this.selectedCategories);
         
         // Shuffle all questions
         return this.shuffleArray(allQuestions);
