@@ -575,6 +575,13 @@ class QuizApp {
                 }
                 
                 console.log('Button is enabled - calling startQuestionsQuiz()');
+                
+                // Check if quiz already started
+                if (this.quizStarted) {
+                    console.log('Quiz already started - ignoring click');
+                    return;
+                }
+                
                 this.startQuestionsQuiz();
             });
         } else {
@@ -1857,6 +1864,10 @@ class QuizApp {
         console.log('=== START QUESTIONS QUIZ DEBUG ===');
         console.log('Selected categories:', this.selectedCategories);
         console.log('Number of categories selected:', this.selectedCategories.length);
+        
+        // Set quiz started flag
+        this.quizStarted = true;
+        console.log('Quiz started flag set to true');
         console.log('Questions per category: 1');
         console.log('Total questions expected:', this.selectedCategories.length * 1);
         console.log('Questions should be mixed from all selected categories');
