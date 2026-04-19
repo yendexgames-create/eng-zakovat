@@ -1975,6 +1975,9 @@ class QuizApp {
             });
         });
         
+        console.log(`Total questions collected: ${allQuestions.length}`);
+        console.log(`Expected: ${this.selectedCategories.length} categories × ${this.questionsPerCategory} questions = ${this.selectedCategories.length * this.questionsPerCategory}`);
+        
         // Shuffle all questions
         return this.shuffleArray(allQuestions);
     }
@@ -2631,6 +2634,8 @@ class QuizApp {
         // Get next question from mixed questions
         const question = this.mixedQuestions[this.currentQuestionIndex];
         console.log('Next question:', question);
+        console.log('Question text:', question.question);
+        console.log('Question category:', question.category);
         
         this.currentQuestion = question;
         this.currentCategory = question.category;
