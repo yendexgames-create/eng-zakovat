@@ -2432,10 +2432,16 @@ class QuizApp {
         // Update category display
         categoryDisplay.textContent = this.currentCategory.charAt(0).toUpperCase() + this.currentCategory.slice(1);
         
-        // Update question text with number
-        const currentQuestionNum = this.currentQuestionIndex + 1;
-        const totalQuestions = this.mixedQuestions.length;
-        questionText.textContent = `${currentQuestionNum} of ${totalQuestions}: ${this.currentQuestion.question}`;
+        // Update question text without number
+        questionText.textContent = this.currentQuestion.question;
+        
+        // Update question number separately if element exists
+        const questionNumberElement = document.querySelector('.question-number');
+        if (questionNumberElement) {
+            const currentQuestionNum = this.currentQuestionIndex + 1;
+            const totalQuestions = this.mixedQuestions.length;
+            questionNumberElement.textContent = `${currentQuestionNum} of ${totalQuestions}`;
+        }
         
         // Update answer options
         answerOptions.innerHTML = '';
