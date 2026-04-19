@@ -1712,6 +1712,12 @@ class QuizApp {
         console.log('Categories to select:', this.categoriesToSelect);
         console.log('Selected categories length BEFORE:', this.selectedCategories.length);
         
+        // Don't remove categories during quiz - only allow selection
+        if (this.quizStarted) {
+            console.log('Quiz already started - ignoring category selection');
+            return;
+        }
+        
         // Check if category is already selected
         if (this.selectedCategories.includes(category)) {
             console.log('Category already selected, removing:', category);
