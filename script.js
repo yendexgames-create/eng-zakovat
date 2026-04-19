@@ -203,7 +203,8 @@ class QuizApp {
         this.teams = state.teams || [];
         this.scores = state.scores || {};
         this.currentCategory = state.currentCategory;
-        this.currentQuestionIndex = state.currentQuestionIndex || 0;
+        // Don't update currentQuestionIndex from server - it should be maintained locally
+        // this.currentQuestionIndex = state.currentQuestionIndex || 0;
         this.completedCategories = state.completedCategories || [];
         
         console.log('updateState called, current page:', window.location.pathname);
@@ -1382,7 +1383,8 @@ class QuizApp {
             this.scores = state.scores || {};
             this.currentCategory = state.currentCategory;
             this.currentQuestion = state.currentQuestion;
-            this.currentQuestionIndex = state.currentQuestionIndex || 0;
+            // Don't update currentQuestionIndex from server - it should be maintained locally
+            // this.currentQuestionIndex = state.currentQuestionIndex || 0;
             this.quizActivated = state.quizActivated || false;
             this.scoringPhase = state.scoringPhase || false;
             this.completedCategories = state.completedCategories || [];
