@@ -2378,21 +2378,126 @@ class QuizApp {
             selectedCategories: this.selectedCategories
         });
         
-        // Show scoring phase
-        this.showScoringPhase();
+        // Show results modal instead of category selection
+        this.showResultsModal();
+        
+        // Reset quiz state
+        this.quizStarted = false;
+        this.currentQuestionIndex = 0;
+        this.currentCategory = null;
+        this.currentQuestion = null;
+        this.mixedQuestions = [];
     }
     
-    showScoringPhase() {
+    showResultsModal() {
+        console.log('=== SHOW RESULTS MODAL ===');
+        
         // Hide question section
         const questionSection = document.querySelector('.question-section');
         if (questionSection) {
             questionSection.classList.add('hidden');
         }
         
-        // Show scoring section
-        const scoringSection = document.querySelector('.scoring-section');
-        if (scoringSection) {
-            scoringSection.classList.remove('hidden');
+        // Create results modal
+        const modal = document.createElement('div');
+        modal.className = 'results-modal-overlay';
+        modal.innerHTML = `
+            <div class="results-modal">
+                <div class="results-header">
+                    <h2>Quiz Complete! </h2>
+                    <button class="close-modal-btn" onclick="this.closest('.results-modal-overlay').remove()">×</button>
+                </div>
+                <div class="results-content">
+                    <div class="winner-animation" id="winnerAnimation">
+                        <div class="trophy"> </div>
+                        <h3>Congratulations!</h3>
+                    </div>
+                    <div class="final-leaderboard" id="finalLeaderboard">
+                        <!-- Leaderboard will be generated here -->
+                    </div>
+                </div>
+                <div class="results-actions">
+                    <button class="btn btn-primary" onclick="location.reload()">New Quiz</button>
+                </div>
+            </div>
+        `;
+        
+        // Add modal to page
+        document.body.appendChild(modal);
+        
+        // Generate leaderboard
+        this.generateFinalLeaderboard();
+        
+        // Show winner animation
+        this.showWinnerAnimation();
+        
+        console.log('Results modal shown');
+    }
+    
+    generateFinalLeaderboard() {
+        const leaderboard = document.getElementById('finalLeaderboard');
+        if (!leaderboard) return;
+        
+        // Sort teams by score (descending)
+        const sortedTeams = Object.entries(this.scores)
+            .sort(([,a], [,b]) => b - a)
+            .map(([teamId, score]) => {
+                const team = this.teams.find(t => t.id === parseInt(teamId));
+                return {
+                    ...team,
+                    score: score
+                };
+            });
+        
+        // Generate leaderboard HTML
+        leaderboard.innerHTML = '<h3>Final Scores</h3>';
+        
+        sortedTeams.forEach((team, index) => {
+            const position = index + 1;
+            const isWinner = position === 1;
+            
+            const teamElement = document.createElement('div');
+            teamElement.className = `leaderboard-item ${isWinner ? 'winner' : ''}`;
+            teamElement.innerHTML = `
+                <div class="position">${position}</div>
+                <div class="team-info">
+                    <span class="team-name">${team.name}</span>
+                </div>
+                <div class="team-score">${team.score}</div>
+            `;
+            
+            leaderboard.appendChild(teamElement);
+        });
+        
+        console.log('Final leaderboard generated:', sortedTeams);
+    }
+    
+    showWinnerAnimation() {
+        const winnerAnimation = document.getElementById('winnerAnimation');
+        if (!winnerAnimation) return;
+        
+        // Find the winning team
+        const sortedTeams = Object.entries(this.scores)
+            .sort(([,a], [,b]) => b - a);
+        
+        if (sortedTeams.length > 0) {
+            const [winnerId, winnerScore] = sortedTeams[0];
+            const winnerTeam = this.teams.find(t => t.id === parseInt(winnerId));
+            
+            if (winnerTeam) {
+                winnerAnimation.innerHTML = `
+                    <div class="trophy"> </div>
+                    <h3>Congratulations!</h3>
+                    <p class="winner-name">${winnerTeam.name}</p>
+                    <p class="winner-score">Score: ${winnerScore}</p>
+                `;
+                
+                // Add animation class
+                winnerAnimation.classList.add('animate');
+                
+                // Play victory sound
+                this.playSound('victory');
+            }
         }
     }
     
