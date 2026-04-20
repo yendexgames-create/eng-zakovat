@@ -1016,7 +1016,7 @@ class QuizApp {
             this.teamsScoredForQuestion = [];
             
             // Show next question directly instead of going to category selection
-            this.showNextQuestion();
+            this.nextQuestion();
         }, 2000);
 
         // Show loading state in scoring section
@@ -1196,7 +1196,7 @@ class QuizApp {
         // Auto proceed to next question after 2 seconds
         setTimeout(() => {
             console.log('Auto proceeding to next question...');
-            this.showNextQuestion();
+            this.nextQuestion();
         }, 2000);
         
         console.log('=== SUBMIT MODAL SCORES END ===');
@@ -1215,7 +1215,7 @@ class QuizApp {
         // Auto proceed to next question after 2 seconds
         setTimeout(() => {
             console.log('Auto proceeding to next question after skip...');
-            this.showNextQuestion();
+            this.nextQuestion();
         }, 2000);
         
         console.log('Modal scoring skipped');
@@ -1962,7 +1962,7 @@ class QuizApp {
         }
         
         // Show first question
-        this.showNextQuestion();
+        this.nextQuestion();
         
         console.log('=== START QUESTIONS END ===');
     }
@@ -2155,7 +2155,7 @@ class QuizApp {
         
         // Show next question after delay
         setTimeout(() => {
-            this.showNextQuestion();
+            this.nextQuestion();
         }, 2000);
     }
     
@@ -2333,7 +2333,7 @@ class QuizApp {
         this.lastAnswerCorrect = false;
         
         // Show next question
-        this.showNextQuestion();
+        this.nextQuestion();
     }
     
     endQuiz() {
