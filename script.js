@@ -512,6 +512,40 @@ class QuizApp {
                     options: ["George Orwell", "Aldous Huxley", "Ray Bradbury", "H.G. Wells"],
                     correct: 0
                 }
+            ],
+            technology: [
+                {
+                    question: "Who founded Microsoft?",
+                    options: ["Steve Jobs", "Bill Gates", "Mark Zuckerberg", "Larry Page"],
+                    correct: 1
+                },
+                {
+                    question: "What does 'HTML' stand for?",
+                    options: ["Hyper Text Markup Language", "High Tech Modern Language", "Home Tool Markup Language", "Hyperlink and Text Markup Language"],
+                    correct: 0
+                },
+                {
+                    question: "Which programming language is known as the 'language of the web'?",
+                    options: ["Python", "Java", "JavaScript", "C++"],
+                    correct: 2
+                }
+            ],
+            movies: [
+                {
+                    question: "Who directed the movie 'Titanic'?",
+                    options: ["Steven Spielberg", "James Cameron", "Christopher Nolan", "Martin Scorsese"],
+                    correct: 1
+                },
+                {
+                    question: "Which movie won the Academy Award for Best Picture in 2020?",
+                    options: ["1917", "Joker", "Parasite", "Once Upon a Time in Hollywood"],
+                    correct: 2
+                },
+                {
+                    question: "What is the highest-grossing movie of all time?",
+                    options: ["Avatar", "Avengers: Endgame", "Titanic", "Star Wars: The Force Awakens"],
+                    correct: 1
+                }
             ]
         };
     }
