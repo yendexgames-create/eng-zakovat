@@ -895,6 +895,9 @@ class QuizApp {
         // Update UI to show team categories
         this.displayTeamCategories();
         
+        // Update category cards with team names
+        this.updateCategoryCardsWithTeams();
+        
         // Enable start quiz button
         const startQuizBtn = document.querySelector('.start-quiz-btn');
         if (startQuizBtn) {
@@ -953,10 +956,64 @@ class QuizApp {
         categorySection.insertBefore(tempDiv.firstElementChild, categorySection.firstChild);
         
         console.log('Team categories displayed');
-
-        // Show setup status
-        this.showSetupStatus();
-        console.log('=== START QUIZ DEBUG END ===');
+    }
+    
+    updateCategoryCardsWithTeams() {
+        console.log('=== UPDATE CATEGORY CARDS WITH TEAMS ===');
+        
+        // Clear all existing team labels first
+        const categoryButtons = document.querySelectorAll('.category-btn');
+        categoryButtons.forEach(button => {
+            // Remove existing team labels
+            const existingLabel = button.querySelector('.team-label');
+            if (existingLabel) {
+                existingLabel.remove();
+            }
+            
+            // Remove team-specific classes
+            button.classList.remove('team-1', 'team-2', 'team-3', 'team-4', 'team-5', 'team-6', 'team-7', 'team-8');
+        });
+        
+        // Add team labels to selected categories
+        Object.entries(this.teamCategories).forEach(([teamId, categories]) => {
+            const team = this.teams.find(t => t.id === parseInt(teamId));
+            if (!team) return;
+            
+            categories.forEach(category => {
+                const button = document.querySelector(`[data-category="${category}"]`);
+                if (button) {
+                    // Create team label
+                    const teamLabel = document.createElement('div');
+                    teamLabel.className = 'team-label';
+                    teamLabel.textContent = team.name;
+                    teamLabel.style.backgroundColor = this.getTeamColor(team.id);
+                    
+                    // Add team class for styling
+                    button.classList.add(`team-${team.id}`);
+                    
+                    // Add label to button
+                    button.appendChild(teamLabel);
+                    
+                    console.log(`Added team label "${team.name}" to category "${category}"`);
+                }
+            });
+        });
+        
+        console.log('Category cards updated with team names');
+    }
+    
+    getTeamColor(teamId) {
+        const teamColors = {
+            1: '#e74c3c', // Red
+            2: '#3498db', // Blue
+            3: '#2ecc71', // Green
+            4: '#f39c12', // Orange
+            5: '#9b59b6', // Purple
+            6: '#1abc9c', // Teal
+            7: '#34495e', // Dark gray
+            8: '#e67e22'  // Dark orange
+        };
+        return teamColors[teamId] || '#95a5a6';
     }
 
     showSetupStatus() {
