@@ -555,6 +555,23 @@ class QuizApp {
                     correct: 1
                 }
             ],
+            games: [
+                {
+                    question: "What is the best-selling video game of all time?",
+                    options: ["Minecraft", "Grand Theft Auto V", "Tetris", "Wii Sports"],
+                    correct: 0
+                },
+                {
+                    question: "Which company created the PlayStation?",
+                    options: ["Nintendo", "Microsoft", "Sony", "Sega"],
+                    correct: 2
+                },
+                {
+                    question: "In which year was the first Nintendo Entertainment System (NES) released?",
+                    options: ["1983", "1985", "1987", "1989"],
+                    correct: 1
+                }
+            ],
             nature: [
                 {
                     question: "What is the largest ocean on Earth?",
@@ -3151,6 +3168,73 @@ class QuizApp {
         // Also reset animation flag
         this.isAnimating = false;
         this.nextQuestion();
+    }
+    
+    nextQuestion() {
+        console.log('=== NEXT QUESTION DEBUG ===');
+        console.log('Current team index:', this.currentTeamIndex);
+        console.log('Current team question index:', this.currentTeamQuestionIndex);
+        console.log('Current team questions length:', this.currentTeamQuestions.length);
+        
+        // Check if current team has more questions
+        if (this.currentTeamQuestionIndex >= this.currentTeamQuestions.length) {
+            console.log('Current team questions finished, moving to next team');
+            this.moveToNextTeam();
+            return;
+        }
+        
+        // Get current question from current team's questions
+        const question = this.currentTeamQuestions[this.currentTeamQuestionIndex];
+        console.log('Next question:', question);
+        console.log('Question text:', question.question);
+        console.log('Question category:', question.category);
+        console.log('Current answering team:', this.currentAnsweringTeam);
+        
+        this.currentQuestion = question;
+        this.currentCategory = question.category;
+        
+        // Show question
+        this.showQuestion();
+        
+        // Reset question answered flag
+        this.currentQuestionAnswered = false;
+        
+        // Show team answer modal for current answering team
+        setTimeout(() => {
+            this.showTeamAnswerModal();
+        }, 1000);
+        
+        // Increment question index for next time
+        this.currentTeamQuestionIndex++;
+        
+        console.log('=== NEXT QUESTION END ===');
+    }
+    
+    moveToNextTeam() {
+        console.log('=== MOVE TO NEXT TEAM ===');
+        
+        // Move to next team
+        this.currentTeamIndex++;
+        
+        // Check if all teams are done
+        if (this.currentTeamIndex >= this.teams.length) {
+            console.log('All teams finished, ending quiz');
+            this.endQuiz();
+            return;
+        }
+        
+        // Set new current answering team
+        this.currentAnsweringTeam = this.teams[this.currentTeamIndex].id;
+        
+        console.log('Moving to team:', this.teams[this.currentTeamIndex].name);
+        
+        // Load questions for new team
+        this.loadQuestionsForCurrentTeam();
+        
+        // Show next question after delay
+        setTimeout(() => {
+            this.nextQuestion();
+        }, 2000);
     }
     
     animateScoreUpdates(scores) {
