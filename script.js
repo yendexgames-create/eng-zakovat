@@ -554,6 +554,23 @@ class QuizApp {
                     options: ["Avatar", "Avengers: Endgame", "Titanic", "Star Wars: The Force Awakens"],
                     correct: 1
                 }
+            ],
+            nature: [
+                {
+                    question: "What is the largest ocean on Earth?",
+                    options: ["Atlantic Ocean", "Indian Ocean", "Arctic Ocean", "Pacific Ocean"],
+                    correct: 3
+                },
+                {
+                    question: "Which animal is known as the 'King of the Jungle'?",
+                    options: ["Tiger", "Lion", "Elephant", "Leopard"],
+                    correct: 1
+                },
+                {
+                    question: "What is the fastest land animal?",
+                    options: ["Lion", "Cheetah", "Leopard", "Gazelle"],
+                    correct: 1
+                }
             ]
         };
     }
@@ -2373,12 +2390,9 @@ class QuizApp {
         console.log('=== START QUESTIONS ===');
         console.log('Starting questions phase');
         
-        // Mix all questions from selected categories
-        this.mixedQuestions = this.mixQuestionsFromCategories();
-        this.currentQuestionIndex = 0;
-        
-        console.log('Mixed questions prepared:', this.mixedQuestions.length);
-        console.log('Current question index:', this.currentQuestionIndex);
+        // Team-specific questions are already loaded in initializeTeamQuestionSystem
+        console.log('Current team questions:', this.currentTeamQuestions.length);
+        console.log('Current answering team:', this.currentAnsweringTeam);
         
         // Show question section
         const questionSection = document.querySelector('.question-section');
