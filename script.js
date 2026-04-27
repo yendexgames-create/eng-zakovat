@@ -740,6 +740,16 @@ class QuizApp {
         if (nextBtn) {
             nextBtn.addEventListener('click', () => this.nextQuestion());
         }
+
+        // Next question button (new)
+        const nextQuestionBtn = document.getElementById('nextQuestionBtn');
+        if (nextQuestionBtn) {
+            nextQuestionBtn.addEventListener('click', () => {
+                console.log('Next question button clicked');
+                this.hideNextQuestionButton();
+                this.nextQuestion();
+            });
+        }
     }
 
     generateTeamInputs() {
@@ -2997,8 +3007,24 @@ class QuizApp {
             answerOptions.appendChild(optionElement);
         });
         
-        // Start timer
-        this.startQuestionTimer();
+        // Show next question button instead of timer
+        this.showNextQuestionButton();
+    }
+
+    showNextQuestionButton() {
+        const nextQuestionBtn = document.getElementById('nextQuestionBtn');
+        if (nextQuestionBtn) {
+            nextQuestionBtn.style.display = 'block';
+            console.log('Next question button shown');
+        }
+    }
+
+    hideNextQuestionButton() {
+        const nextQuestionBtn = document.getElementById('nextQuestionBtn');
+        if (nextQuestionBtn) {
+            nextQuestionBtn.style.display = 'none';
+            console.log('Next question button hidden');
+        }
     }
 
     startTimer() {
@@ -3201,6 +3227,7 @@ class QuizApp {
         
         // Show team answer modal for current answering team
         setTimeout(() => {
+            this.hideNextQuestionButton(); // Hide button when modal shows
             this.showTeamAnswerModal();
         }, 1000);
         
