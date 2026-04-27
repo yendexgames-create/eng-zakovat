@@ -1161,6 +1161,16 @@ class QuizApp {
     showTeamAnswerModal() {
         console.log('=== SHOW TEAM ANSWER MODAL ===');
         
+        // Check if we're on index.html
+        const currentPath = window.location.pathname;
+        console.log('Current path:', currentPath);
+        
+        // Only show modal if we're on index.html
+        if (!currentPath.includes('index.html') && currentPath !== '/') {
+            console.log('Not on index.html, skipping modal display');
+            return;
+        }
+        
         const modal = document.getElementById('teamAnswerModal');
         const teamNameElement = document.getElementById('answeringTeamName');
         const questionElement = document.getElementById('teamAnswerQuestion');
@@ -3234,7 +3244,11 @@ class QuizApp {
         
         // Show team answer modal for current answering team
         setTimeout(() => {
-            this.hideNextQuestionButton(); // Always hide button when modal shows
+            // Only hide button if modal will be shown (on index.html)
+            const currentPath = window.location.pathname;
+            if (currentPath.includes('index.html') || currentPath === '/') {
+                this.hideNextQuestionButton(); // Hide button when modal shows
+            }
             this.showTeamAnswerModal();
         }, 1000);
         
