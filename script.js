@@ -26,9 +26,11 @@ class QuizApp {
         this.teamCategories = {}; // har bir jamoa uchun turlar
         this.categories = ['music', 'sports', 'science', 'history', 'geography', 'literature', 'movies', 'technology', 'games', 'art', 'food', 'nature']; // barcha turlar ro'yxati
         
-        // Sequential answer system
+        // Team-specific question system
+        this.currentTeamIndex = 0; // hozirgi jamoa indeksi (0, 1, 2, ...)
+        this.currentTeamQuestions = []; // hozirgi jamoaning savollari
+        this.currentTeamQuestionIndex = 0; // hozirgi jamoaning savol indeksi
         this.currentAnsweringTeam = 1; // hozirgi javob beruvchi jamoa
-        this.teamAnswerOrder = []; // jamoalar javob berish tartibi
         this.currentQuestionAnswered = false; // hozirgi savolga javob berilganmi
         this.questionTimer = 30; // 30 soniyalik timer
         this.startTimer = 3; // 3 sekundlik start timer
@@ -942,22 +944,72 @@ class QuizApp {
         
         console.log('Team categories sent to server');
         
-        // Initialize team answer order
-        this.initializeTeamAnswerOrder();
+        // Initialize team-specific question system
+        this.initializeTeamQuestionSystem();
     }
     
-    initializeTeamAnswerOrder() {
-        console.log('=== INITIALIZE TEAM ANSWER ORDER ===');
+    initializeTeamQuestionSystem() {
+        console.log('=== INITIALIZE TEAM QUESTION SYSTEM ===');
         
-        // Create answer order based on team IDs
-        this.teamAnswerOrder = this.teams
-            .map(team => team.id)
-            .sort((a, b) => a - b); // 1, 2, 3, ...
+        // Set first team as current answering team
+        this.currentTeamIndex = 0;
+        this.currentAnsweringTeam = this.teams[0].id;
         
-        this.currentAnsweringTeam = this.teamAnswerOrder[0]; // Birinchi jamoa boshlaydi
+        // Load questions for first team
+        this.loadQuestionsForCurrentTeam();
         
-        console.log('Team answer order:', this.teamAnswerOrder);
         console.log('Current answering team:', this.currentAnsweringTeam);
+        console.log('Team categories:', this.teamCategories);
+    }
+    
+    loadQuestionsForCurrentTeam() {
+        console.log('=== LOAD QUESTIONS FOR CURRENT TEAM ===');
+        
+        const currentTeam = this.teams[this.currentTeamIndex];
+        const teamCategories = this.teamCategories[currentTeam.id] || [];
+        
+        console.log('Loading questions for team:', currentTeam.name);
+        console.log('Team categories:', teamCategories);
+        
+        // Mix questions from this team's categories
+        this.currentTeamQuestions = this.mixQuestionsForTeam(teamCategories);
+        this.currentTeamQuestionIndex = 0;
+        
+        console.log('Team questions loaded:', this.currentTeamQuestions.length);
+        console.log('Total questions for this team:', this.currentTeamQuestions.length);
+    }
+    
+    mixQuestionsForTeam(categories) {
+        console.log('=== MIX QUESTIONS FOR TEAM ===');
+        console.log('Team categories:', categories);
+        
+        const allQuestions = [];
+        
+        categories.forEach(category => {
+            console.log(`Processing category: ${category}`);
+            const categoryQuestions = this.questions[category] || [];
+            console.log(`Questions in ${category}:`, categoryQuestions.length);
+            
+            // Take first question from each category
+            const limitedQuestions = categoryQuestions.slice(0, this.questionsPerCategory);
+            console.log(`Limited questions for ${category}:`, limitedQuestions.length);
+            
+            // Add category info to each question
+            limitedQuestions.forEach(question => {
+                allQuestions.push({
+                    ...question,
+                    category: category
+                });
+            });
+        });
+        
+        // Shuffle the mixed questions
+        const shuffledQuestions = this.shuffleArray(allQuestions);
+        
+        console.log('Mixed questions for team:', shuffledQuestions);
+        console.log('Total questions for team:', shuffledQuestions.length);
+        
+        return shuffledQuestions;
     }
     
     displayTeamCategories() {
@@ -1144,18 +1196,15 @@ class QuizApp {
             }, 2000);
             
         } else {
-            // Incorrect answer - move to next team
+            // Incorrect answer - move to next question for same team
             console.log(`Team ${currentTeam.name} answered incorrectly`);
             
             // Close modal
             this.closeTeamAnswerModal();
             
-            // Move to next team
-            this.nextAnsweringTeam();
-            
-            // Show modal for next team after delay
+            // Move to next question (same team)
             setTimeout(() => {
-                this.showTeamAnswerModal();
+                this.nextQuestion();
             }, 1000);
         }
         
@@ -2901,9 +2950,10 @@ class QuizApp {
         // Update question number separately if element exists
         const questionNumberElement = document.querySelector('.question-number');
         if (questionNumberElement) {
-            const currentQuestionNum = this.currentQuestionIndex + 1;
-            const totalQuestions = this.mixedQuestions.length;
-            questionNumberElement.textContent = `${currentQuestionNum} of ${totalQuestions}`;
+            const currentQuestionNum = this.currentTeamQuestionIndex + 1;
+            const totalQuestions = this.currentTeamQuestions.length;
+            const currentTeam = this.teams[this.currentTeamIndex];
+            questionNumberElement.textContent = `${currentQuestionNum} of ${totalQuestions} (Team ${currentTeam.name})`;
         }
         
         // Update answer options
@@ -3088,52 +3138,13 @@ class QuizApp {
         this.isAnimating = false;
         this.nextQuestion();
     }
-
-    nextQuestion() {
-        console.log('=== NEXT QUESTION DEBUG ===');
-        console.log('Current question index:', this.currentQuestionIndex);
-        console.log('Mixed questions length:', this.mixedQuestions.length);
-        
-        if (this.currentQuestionIndex >= this.mixedQuestions.length) {
-            console.log('All questions completed - ending quiz');
-            this.endQuiz();
-            return;
-        }
-        
-        // Get next question from mixed questions
-        const question = this.mixedQuestions[this.currentQuestionIndex];
-        console.log('Next question:', question);
-        console.log('Question text:', question.question);
-        console.log('Question category:', question.category);
-        console.log('Mixed questions array before access:', this.mixedQuestions);
-        console.log('Mixed questions array length before access:', this.mixedQuestions.length);
-        
-        this.currentQuestion = question;
-        this.currentCategory = question.category;
-        
-        // Show question
-        this.showQuestion();
-        
-        // Reset question answered flag
-        this.currentQuestionAnswered = false;
-        
-        // Show team answer modal for current answering team
-        setTimeout(() => {
-            this.showTeamAnswerModal();
-        }, 1000);
-        
-        // Increment index for next time
-        this.currentQuestionIndex++;
-        
-        console.log('=== NEXT QUESTION END ===');
-    }
-
+    
     animateScoreUpdates(scores) {
         // Set animation flag
         this.isAnimating = true;
-        
+            
         console.log('Starting 3-second score animation for scores:', scores);
-        
+            
         // Simple animation - just update display with effect
         Object.keys(scores).forEach((teamId, index) => {
             const scoreValue = scores[teamId];
