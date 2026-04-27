@@ -25,6 +25,11 @@ class QuizApp {
         this.selectedCategories = []; // tanlangan turlar
         this.teamCategories = {}; // har bir jamoa uchun turlar
         this.categories = ['music', 'sports', 'science', 'history', 'geography', 'literature', 'movies', 'technology', 'games', 'art', 'food', 'nature']; // barcha turlar ro'yxati
+        
+        // Sequential answer system
+        this.currentAnsweringTeam = 1; // hozirgi javob beruvchi jamoa
+        this.teamAnswerOrder = []; // jamoalar javob berish tartibi
+        this.currentQuestionAnswered = false; // hozirgi savolga javob berilganmi
         this.questionTimer = 30; // 30 soniyalik timer
         this.startTimer = 3; // 3 sekundlik start timer
         this.currentTimeLeft = 0; // joriy timer qiymati
@@ -868,23 +873,31 @@ class QuizApp {
         const allCategories = [...this.categories];
         console.log('Available categories:', allCategories);
         
-        // Select 2 random categories for each team
+        // Create a pool of categories and distribute to teams
+        const categoryPool = this.shuffleArray([...allCategories]);
+        let categoryIndex = 0;
+        
+        // Select 2 random categories for each team (ensuring no duplicates)
         this.teams.forEach(team => {
-            // Shuffle categories for this team
-            const shuffledCategories = this.shuffleArray([...allCategories]);
+            const teamSelectedCategories = [];
             
-            // Take first 2 categories
-            const teamSelectedCategories = shuffledCategories.slice(0, 2);
+            // Take 2 unique categories from the pool
+            for (let i = 0; i < 2; i++) {
+                if (categoryIndex < categoryPool.length) {
+                    const category = categoryPool[categoryIndex];
+                    teamSelectedCategories.push(category);
+                    
+                    // Add to global selected categories
+                    if (!this.selectedCategories.includes(category)) {
+                        this.selectedCategories.push(category);
+                    }
+                    
+                    categoryIndex++;
+                }
+            }
             
             // Store for this team
             this.teamCategories[team.id] = teamSelectedCategories;
-            
-            // Add to global selected categories (avoid duplicates)
-            teamSelectedCategories.forEach(category => {
-                if (!this.selectedCategories.includes(category)) {
-                    this.selectedCategories.push(category);
-                }
-            });
             
             console.log(`Team ${team.name} (${team.id}) selected:`, teamSelectedCategories);
         });
@@ -912,6 +925,23 @@ class QuizApp {
         });
         
         console.log('Team categories sent to server');
+        
+        // Initialize team answer order
+        this.initializeTeamAnswerOrder();
+    }
+    
+    initializeTeamAnswerOrder() {
+        console.log('=== INITIALIZE TEAM ANSWER ORDER ===');
+        
+        // Create answer order based on team IDs
+        this.teamAnswerOrder = this.teams
+            .map(team => team.id)
+            .sort((a, b) => a - b); // 1, 2, 3, ...
+        
+        this.currentAnsweringTeam = this.teamAnswerOrder[0]; // Birinchi jamoa boshlaydi
+        
+        console.log('Team answer order:', this.teamAnswerOrder);
+        console.log('Current answering team:', this.currentAnsweringTeam);
     }
     
     displayTeamCategories() {
