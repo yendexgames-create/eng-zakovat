@@ -623,6 +623,17 @@ class QuizApp {
             console.error('Start quiz button not found!');
         }
 
+        // Add event listener for random category selection button
+        const randomCategoriesBtn = document.getElementById('randomCategoriesBtn');
+        if (randomCategoriesBtn) {
+            randomCategoriesBtn.addEventListener('click', () => {
+                console.log('=== RANDOM CATEGORIES BUTTON CLICKED ===');
+                this.selectRandomCategoriesForTeams();
+            });
+        } else {
+            console.log('Random categories button not found yet - will be created later');
+        }
+
         // Add event listener for reset button
         const resetBtn = document.getElementById('resetQuiz');
         if (resetBtn) {
@@ -2052,38 +2063,7 @@ class QuizApp {
         return shuffled;
     }
     
-    showNextQuestion() {
-        console.log('=== SHOW NEXT QUESTION START ===');
-        console.log('Current question index:', this.currentQuestionIndex);
-        console.log('Mixed questions length:', this.mixedQuestions.length);
-        console.log('Mixed questions:', this.mixedQuestions);
         
-        if (this.currentQuestionIndex >= this.mixedQuestions.length) {
-            console.log('No more questions, ending quiz');
-            this.endQuiz();
-            return;
-        }
-        
-        // Set current phase to question
-        localStorage.setItem('currentPhase', 'question');
-        
-        const question = this.mixedQuestions[this.currentQuestionIndex];
-        console.log('Next question:', question);
-        
-        this.currentQuestion = question;
-        this.currentCategory = question.category;
-        
-        // Show question UI
-        this.displayQuestion(question);
-        
-        // Start 30-second timer
-        this.startQuestionTimer();
-        
-        this.currentQuestionIndex++;
-        
-        console.log('=== SHOW NEXT QUESTION END ===');
-    }
-    
     startQuestionTimer() {
         console.log('=== SIMPLE TIMER START ===');
         
@@ -2354,22 +2334,7 @@ class QuizApp {
         }, 1500);
     }
     
-    goToNextQuestion() {
-        console.log('Proceeding to next question');
         
-        // Hide scoring section
-        const scoringSection = document.querySelector('.scoring-section');
-        if (scoringSection) {
-            scoringSection.classList.add('hidden');
-        }
-        
-        // Reset flags
-        this.lastAnswerCorrect = false;
-        
-        // Show next question
-        this.nextQuestion();
-    }
-    
     endQuiz() {
         console.log('Quiz ended');
         
