@@ -23,6 +23,7 @@ class QuizApp {
         this.categoriesToSelect = 8; // 8 tasini tanlash
         this.questionsPerCategory = 1; // har bir turdan 1 ta savol (8 ta jami)
         this.selectedCategories = []; // tanlangan turlar
+        this.teamCategories = {}; // har bir jamoa uchun turlar
         this.categories = ['music', 'sports', 'science', 'history', 'geography', 'literature', 'movies', 'technology', 'games', 'art', 'food', 'nature']; // barcha turlar ro'yxati
         this.questionTimer = 30; // 30 soniyalik timer
         this.startTimer = 3; // 3 sekundlik start timer
@@ -1468,6 +1469,18 @@ class QuizApp {
         
         // Request current state from server
         this.socket.emit('getState');
+        
+        // Add event listener for random categories button
+        const randomCategoriesBtn = document.getElementById('randomCategoriesBtn');
+        if (randomCategoriesBtn) {
+            randomCategoriesBtn.addEventListener('click', () => {
+                console.log('=== RANDOM CATEGORIES BUTTON CLICKED ===');
+                this.selectRandomCategoriesForTeams();
+            });
+            console.log('Random categories button event listener added');
+        } else {
+            console.log('Random categories button not found');
+        }
         
         console.log('=== INITIALIZE QUESTIONS PAGE END ===');
     }
