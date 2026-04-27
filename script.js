@@ -849,6 +849,110 @@ class QuizApp {
 
         // Store teams locally
         this.teams = teams;
+    }
+    
+    selectRandomCategoriesForTeams() {
+        console.log('=== SELECT RANDOM CATEGORIES FOR TEAMS ===');
+        
+        if (!this.teams || this.teams.length === 0) {
+            console.error('No teams found!');
+            alert('Avval jamoalarni sozlang!');
+            return;
+        }
+        
+        // Reset previous selections
+        this.selectedCategories = [];
+        this.teamCategories = {}; // Store categories for each team
+        
+        // All available categories
+        const allCategories = [...this.categories];
+        console.log('Available categories:', allCategories);
+        
+        // Select 2 random categories for each team
+        this.teams.forEach(team => {
+            // Shuffle categories for this team
+            const shuffledCategories = this.shuffleArray([...allCategories]);
+            
+            // Take first 2 categories
+            const teamSelectedCategories = shuffledCategories.slice(0, 2);
+            
+            // Store for this team
+            this.teamCategories[team.id] = teamSelectedCategories;
+            
+            // Add to global selected categories (avoid duplicates)
+            teamSelectedCategories.forEach(category => {
+                if (!this.selectedCategories.includes(category)) {
+                    this.selectedCategories.push(category);
+                }
+            });
+            
+            console.log(`Team ${team.name} (${team.id}) selected:`, teamSelectedCategories);
+        });
+        
+        console.log('All selected categories:', this.selectedCategories);
+        console.log('Team categories mapping:', this.teamCategories);
+        
+        // Update UI to show team categories
+        this.displayTeamCategories();
+        
+        // Enable start quiz button
+        const startQuizBtn = document.querySelector('.start-quiz-btn');
+        if (startQuizBtn) {
+            startQuizBtn.disabled = false;
+            console.log('Start quiz button enabled');
+        }
+        
+        // Send to server
+        this.socket.emit('selectCategories', {
+            selectedCategories: this.selectedCategories,
+            teamCategories: this.teamCategories
+        });
+        
+        console.log('Team categories sent to server');
+    }
+    
+    displayTeamCategories() {
+        console.log('=== DISPLAY TEAM CATEGORIES ===');
+        
+        const categorySection = document.querySelector('.category-section');
+        if (!categorySection) {
+            console.error('Category section not found!');
+            return;
+        }
+        
+        // Create team categories display
+        let teamCategoriesHTML = '<div class="team-categories-display">';
+        
+        // Display each team's categories
+        this.teams.forEach(team => {
+            const teamCats = this.teamCategories[team.id] || [];
+            teamCategoriesHTML += `
+                <div class="team-category-item">
+                    <h4>Team ${team.name}</h4>
+                    <div class="team-categories">
+                        ${teamCats.map(cat => `
+                            <span class="team-category-badge ${cat}">
+                                ${cat.charAt(0).toUpperCase() + cat.slice(1)}
+                            </span>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        });
+        
+        teamCategoriesHTML += '</div>';
+        
+        // Add to category section
+        const existingDisplay = categorySection.querySelector('.team-categories-display');
+        if (existingDisplay) {
+            existingDisplay.remove();
+        }
+        
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = teamCategoriesHTML;
+        categorySection.insertBefore(tempDiv.firstElementChild, categorySection.firstChild);
+        
+        console.log('Team categories displayed');
 
         // Show setup status
         this.showSetupStatus();
