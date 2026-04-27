@@ -1165,6 +1165,10 @@ class QuizApp {
         const teamNameElement = document.getElementById('answeringTeamName');
         const questionElement = document.getElementById('teamAnswerQuestion');
         
+        console.log('Modal element:', modal);
+        console.log('Team name element:', teamNameElement);
+        console.log('Question element:', questionElement);
+        
         if (!modal || !teamNameElement || !questionElement) {
             console.error('Team answer modal elements not found');
             return;
