@@ -3166,6 +3166,31 @@ body {
     transform: translateY(-2px);
 }
 
+/* Question Options in Team Answer Modal */
+.question-options {
+    margin: 20px 0;
+}
+
+.question-options .option {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: var(--radius-medium);
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    font-size: 1rem;
+    color: #495057;
+    transition: all 0.3s ease;
+}
+
+.question-options .option:hover {
+    background: #e9ecef;
+    border-color: #adb5bd;
+}
+
+.question-options .option:last-child {
+    margin-bottom: 0;
+}
+
 /* Results Modal Styles */
 .results-modal-overlay {
     position: fixed;

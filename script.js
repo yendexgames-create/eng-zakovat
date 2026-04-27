@@ -683,6 +683,22 @@ class QuizApp {
             modalSkipBtn.addEventListener('click', () => this.skipModalScoring());
         }
 
+        // Team Answer Modal event listeners
+        const answerCorrectBtn = document.getElementById('answerCorrect');
+        if (answerCorrectBtn) {
+            answerCorrectBtn.addEventListener('click', () => this.handleTeamAnswer(true));
+        }
+
+        const answerIncorrectBtn = document.getElementById('answerIncorrect');
+        if (answerIncorrectBtn) {
+            answerIncorrectBtn.addEventListener('click', () => this.handleTeamAnswer(false));
+        }
+
+        const closeTeamAnswerModalBtn = document.getElementById('closeTeamAnswerModal');
+        if (closeTeamAnswerModalBtn) {
+            closeTeamAnswerModalBtn.addEventListener('click', () => this.closeTeamAnswerModal());
+        }
+
         // Next question button
         const nextBtn = document.getElementById('nextQuestion');
         if (nextBtn) {
@@ -1044,6 +1060,118 @@ class QuizApp {
             8: '#e67e22'  // Dark orange
         };
         return teamColors[teamId] || '#95a5a6';
+    }
+    
+    showTeamAnswerModal() {
+        console.log('=== SHOW TEAM ANSWER MODAL ===');
+        
+        const modal = document.getElementById('teamAnswerModal');
+        const teamNameElement = document.getElementById('answeringTeamName');
+        const questionElement = document.getElementById('teamAnswerQuestion');
+        
+        if (!modal || !teamNameElement || !questionElement) {
+            console.error('Team answer modal elements not found');
+            return;
+        }
+        
+        // Get current answering team
+        const currentTeam = this.teams.find(t => t.id === this.currentAnsweringTeam);
+        if (!currentTeam) {
+            console.error('Current answering team not found');
+            return;
+        }
+        
+        // Set team name
+        teamNameElement.textContent = currentTeam.name;
+        
+        // Set question
+        if (this.currentQuestion) {
+            questionElement.innerHTML = `
+                <h3>${this.currentQuestion.question}</h3>
+                <div class="question-options">
+                    ${this.currentQuestion.options.map((option, index) => `
+                        <div class="option">${option}</div>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
+        // Show modal
+        modal.classList.remove('hidden');
+        
+        console.log(`Team ${currentTeam.name} answer modal shown`);
+    }
+    
+    closeTeamAnswerModal() {
+        console.log('=== CLOSE TEAM ANSWER MODAL ===');
+        
+        const modal = document.getElementById('teamAnswerModal');
+        if (modal) {
+            modal.classList.add('hidden');
+        }
+    }
+    
+    handleTeamAnswer(isCorrect) {
+        console.log('=== HANDLE TEAM ANSWER ===');
+        console.log('Team ID:', this.currentAnsweringTeam);
+        console.log('Answer correct:', isCorrect);
+        
+        const currentTeam = this.teams.find(t => t.id === this.currentAnsweringTeam);
+        if (!currentTeam) {
+            console.error('Current answering team not found');
+            return;
+        }
+        
+        // Add point if correct
+        if (isCorrect) {
+            this.scores[this.currentAnsweringTeam] = (this.scores[this.currentAnsweringTeam] || 0) + 1;
+            console.log(`Added 1 point to team ${currentTeam.name}`);
+            
+            // Send score to server
+            this.socket.emit('submitScores', {
+                [this.currentAnsweringTeam]: this.scores[this.currentAnsweringTeam]
+            });
+            
+            // Close modal
+            this.closeTeamAnswerModal();
+            
+            // Mark question as answered
+            this.currentQuestionAnswered = true;
+            
+            // Go to next question after delay
+            setTimeout(() => {
+                this.nextQuestion();
+            }, 2000);
+            
+        } else {
+            // Incorrect answer - move to next team
+            console.log(`Team ${currentTeam.name} answered incorrectly`);
+            
+            // Close modal
+            this.closeTeamAnswerModal();
+            
+            // Move to next team
+            this.nextAnsweringTeam();
+            
+            // Show modal for next team after delay
+            setTimeout(() => {
+                this.showTeamAnswerModal();
+            }, 1000);
+        }
+        
+        // Update display
+        this.displayTeams();
+    }
+    
+    nextAnsweringTeam() {
+        console.log('=== NEXT ANSWERING TEAM ===');
+        
+        const currentIndex = this.teamAnswerOrder.indexOf(this.currentAnsweringTeam);
+        const nextIndex = (currentIndex + 1) % this.teamAnswerOrder.length;
+        
+        this.currentAnsweringTeam = this.teamAnswerOrder[nextIndex];
+        
+        console.log('Next answering team:', this.currentAnsweringTeam);
     }
 
     showSetupStatus() {
@@ -2985,6 +3113,14 @@ class QuizApp {
         
         // Show question
         this.showQuestion();
+        
+        // Reset question answered flag
+        this.currentQuestionAnswered = false;
+        
+        // Show team answer modal for current answering team
+        setTimeout(() => {
+            this.showTeamAnswerModal();
+        }, 1000);
         
         // Increment index for next time
         this.currentQuestionIndex++;
