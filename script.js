@@ -750,6 +750,15 @@ class QuizApp {
                 this.nextQuestion();
             });
         }
+
+        // Ready to answer button
+        const readyToAnswerBtn = document.getElementById('readyToAnswerBtn');
+        if (readyToAnswerBtn) {
+            readyToAnswerBtn.addEventListener('click', () => {
+                console.log('Ready to answer button clicked');
+                this.handleReadyToAnswer();
+            });
+        }
     }
 
     generateTeamInputs() {
@@ -2504,7 +2513,7 @@ class QuizApp {
     
         
     startQuestionTimer() {
-        console.log('=== SIMPLE TIMER START ===');
+        console.log('=== QUESTION TIMER START ===');
         
         // Stop any existing timer
         if (this.currentTimerInterval) {
@@ -3024,8 +3033,9 @@ class QuizApp {
             answerOptions.appendChild(optionElement);
         });
         
-        // Show next question button instead of timer
-        this.showNextQuestionButton();
+        // Start timer and show ready to answer button
+        this.startQuestionTimer();
+        this.showReadyToAnswerButton();
     }
 
     showNextQuestionButton() {
@@ -3042,6 +3052,35 @@ class QuizApp {
             nextQuestionBtn.style.display = 'none';
             console.log('Next question button hidden');
         }
+    }
+
+    showReadyToAnswerButton() {
+        const readyToAnswerBtn = document.getElementById('readyToAnswerBtn');
+        if (readyToAnswerBtn) {
+            readyToAnswerBtn.style.display = 'block';
+            console.log('Ready to answer button shown');
+        }
+    }
+
+    hideReadyToAnswerButton() {
+        const readyToAnswerBtn = document.getElementById('readyToAnswerBtn');
+        if (readyToAnswerBtn) {
+            readyToAnswerBtn.style.display = 'none';
+            console.log('Ready to answer button hidden');
+        }
+    }
+
+    handleReadyToAnswer() {
+        console.log('=== HANDLE READY TO ANSWER ===');
+        
+        // Hide ready to answer button
+        this.hideReadyToAnswerButton();
+        
+        // Stop timer
+        this.stopQuestionTimer();
+        
+        // Show team answer modal on index.html
+        this.showTeamAnswerModal();
     }
 
     startTimer() {
@@ -3242,15 +3281,8 @@ class QuizApp {
         // Reset question answered flag
         this.currentQuestionAnswered = false;
         
-        // Show team answer modal for current answering team
-        setTimeout(() => {
-            // Only hide button if modal will be shown (on index.html)
-            const currentPath = window.location.pathname;
-            if (currentPath.includes('index.html') || currentPath === '/') {
-                this.hideNextQuestionButton(); // Hide button when modal shows
-            }
-            this.showTeamAnswerModal();
-        }, 1000);
+        // Don't auto-show modal - wait for ready to answer button
+        console.log('Waiting for ready to answer button click...');
         
         // Increment question index for next time
         this.currentTeamQuestionIndex++;
