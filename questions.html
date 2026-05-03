@@ -135,6 +135,25 @@
         </main>
     </div>
 
+    <!-- Team Answer Modal -->
+    <div id="teamAnswerModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Team <span id="answeringTeamName"></span> Answer</h2>
+                <button class="modal-close" id="closeTeamAnswerModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="teamAnswerQuestion" class="scoring-question">
+                    <!-- Question will be displayed here -->
+                </div>
+                <div class="team-answer-actions">
+                    <button id="answerCorrect" class="btn btn-success">Correct</button>
+                    <button id="answerIncorrect" class="btn btn-danger">Incorrect</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="/socket.io/socket.io.js"></script>
     <script src="script.js"></script>
 </body>

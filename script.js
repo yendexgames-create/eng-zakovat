@@ -1170,16 +1170,6 @@ class QuizApp {
     showTeamAnswerModal() {
         console.log('=== SHOW TEAM ANSWER MODAL ===');
         
-        // Check if we're on index.html
-        const currentPath = window.location.pathname;
-        console.log('Current path:', currentPath);
-        
-        // Only show modal if we're on index.html
-        if (!currentPath.includes('index.html') && currentPath !== '/') {
-            console.log('Not on index.html, skipping modal display');
-            return;
-        }
-        
         const modal = document.getElementById('teamAnswerModal');
         const teamNameElement = document.getElementById('answeringTeamName');
         const questionElement = document.getElementById('teamAnswerQuestion');
