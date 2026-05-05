@@ -1170,6 +1170,16 @@ class QuizApp {
     showTeamAnswerModal() {
         console.log('=== SHOW TEAM ANSWER MODAL ===');
         
+        // Check if we're on index.html
+        const currentPath = window.location.pathname;
+        console.log('Current path:', currentPath);
+        
+        // Only show modal if we're on index.html
+        if (!currentPath.includes('index.html') && currentPath !== '/') {
+            console.log('Not on index.html, modal will not show');
+            return;
+        }
+        
         const modal = document.getElementById('teamAnswerModal');
         const teamNameElement = document.getElementById('answeringTeamName');
         const questionElement = document.getElementById('teamAnswerQuestion');
@@ -3077,9 +3087,19 @@ class QuizApp {
         // Stop timer
         this.stopQuestionTimer();
         
-        // Always show modal when ready to answer is clicked
-        console.log('Ready to answer clicked - showing modal on current page');
-        this.showTeamAnswerModal();
+        // Check if we're on index.html
+        const currentPath = window.location.pathname;
+        console.log('Current path:', currentPath);
+        
+        if (currentPath.includes('index.html') || currentPath === '/') {
+            // Show modal on index.html
+            console.log('On index.html - showing modal');
+            this.showTeamAnswerModal();
+        } else {
+            // Show next question button on other pages
+            console.log('Not on index.html - showing next question button');
+            this.showNextQuestionButton();
+        }
     }
 
     startTimer() {
