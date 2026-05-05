@@ -172,6 +172,21 @@ io.on('connection', (socket) => {
         console.log('Quiz reset - all data cleared');
     });
     
+    // Handle modal trigger for other devices
+    socket.on('triggerModalOnIndex', (data) => {
+        console.log('Modal trigger received:', data);
+        
+        // Update quiz state with modal data
+        quizState.currentQuestion = data.currentQuestion;
+        quizState.currentAnsweringTeam = data.currentAnsweringTeam;
+        quizState.teams = data.teams;
+        quizState.scores = data.scores;
+        
+        // Broadcast modal trigger to all other clients
+        socket.broadcast.emit('showModalOnIndex', data);
+        console.log('Modal trigger broadcasted to other devices');
+    });
+    
     // Handle disconnect
     socket.on('disconnect', () => {
         console.log('Client disconnected:', socket.id);

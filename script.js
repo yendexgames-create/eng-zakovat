@@ -1952,6 +1952,23 @@ class QuizApp {
         // Listen for server state update
         this.socket.on('stateUpdate', handleServerState);
         
+        // Listen for modal trigger from other devices
+        this.socket.on('showModalOnIndex', (data) => {
+            console.log('=== SHOW MODAL ON INDEX EVENT ===');
+            console.log('Received modal trigger data:', data);
+            
+            // Restore data from server
+            this.currentQuestion = data.currentQuestion;
+            this.currentAnsweringTeam = data.currentAnsweringTeam;
+            this.teams = data.teams;
+            this.scores = data.scores;
+            
+            // Show modal after short delay
+            setTimeout(() => {
+                this.showTeamAnswerModal();
+            }, 500);
+        });
+        
         // Request current state from server
         this.socket.emit('getState');
         
@@ -3149,9 +3166,22 @@ class QuizApp {
         const currentPath = window.location.pathname;
         console.log('Current path:', currentPath);
         
-        // Show modal on any page (including questions.html)
-        console.log('Showing modal on current page');
+        // Show modal on current page and trigger on other devices
+        console.log('Showing modal on current page and triggering on other devices');
+        
+        // Show modal on current page
         this.showTeamAnswerModal();
+        
+        // Send modal trigger to server for other devices
+        const modalData = {
+            currentQuestion: this.currentQuestion,
+            currentAnsweringTeam: this.currentAnsweringTeam,
+            teams: this.teams,
+            scores: this.scores
+        };
+        
+        this.socket.emit('triggerModalOnIndex', modalData);
+        console.log('Modal trigger sent to server for other devices');
     }
 
     startTimer() {
