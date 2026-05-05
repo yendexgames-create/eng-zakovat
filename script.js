@@ -3096,9 +3096,9 @@ class QuizApp {
             console.log('On index.html - showing modal');
             this.showTeamAnswerModal();
         } else {
-            // Show next question button on other pages
-            console.log('Not on index.html - showing next question button');
-            this.showNextQuestionButton();
+            // Redirect to index.html to show modal
+            console.log('Not on index.html - redirecting to show modal');
+            window.location.href = '/index.html';
         }
     }
 
