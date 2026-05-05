@@ -1207,17 +1207,12 @@ class QuizApp {
         // Set team name
         teamNameElement.textContent = currentTeam.name;
         
-        // Set question
-        if (this.currentQuestion) {
-            questionElement.innerHTML = `
-                <h3>${this.currentQuestion.question}</h3>
-                <div class="question-options">
-                    ${this.currentQuestion.options.map((option, index) => `
-                        <div class="option">${option}</div>
-                    `).join('')}
-                </div>
-            `;
-        }
+        // Set team answer interface (no question, just team name and buttons)
+        questionElement.innerHTML = `
+            <div class="team-answer-prompt">
+                <p>Team <strong>${currentTeam.name}</strong> is ready to answer!</p>
+            </div>
+        `;
         
         // Show modal
         console.log('About to remove hidden class from modal');
@@ -1970,6 +1965,25 @@ class QuizApp {
             console.log('Random categories button event listener added');
         } else {
             console.log('Random categories button not found');
+        }
+        
+        // Add Team Answer Modal event listeners for questions.html
+        const answerCorrectBtn = document.getElementById('answerCorrect');
+        if (answerCorrectBtn) {
+            answerCorrectBtn.addEventListener('click', () => this.handleTeamAnswer(true));
+            console.log('Answer correct button event listener added');
+        }
+
+        const answerIncorrectBtn = document.getElementById('answerIncorrect');
+        if (answerIncorrectBtn) {
+            answerIncorrectBtn.addEventListener('click', () => this.handleTeamAnswer(false));
+            console.log('Answer incorrect button event listener added');
+        }
+
+        const closeTeamAnswerModalBtn = document.getElementById('closeTeamAnswerModal');
+        if (closeTeamAnswerModalBtn) {
+            closeTeamAnswerModalBtn.addEventListener('click', () => this.closeTeamAnswerModal());
+            console.log('Close modal button event listener added');
         }
         
         console.log('=== INITIALIZE QUESTIONS PAGE END ===');
@@ -3135,23 +3149,9 @@ class QuizApp {
         const currentPath = window.location.pathname;
         console.log('Current path:', currentPath);
         
-        if (currentPath.includes('index.html') || currentPath === '/') {
-            // Show modal on index.html
-            console.log('On index.html - showing modal');
-            this.showTeamAnswerModal();
-        } else {
-            // Redirect to index.html to show modal
-            console.log('Not on index.html - redirecting to show modal');
-            
-            // Store modal trigger flag in sessionStorage
-            sessionStorage.setItem('showModalOnLoad', 'true');
-            sessionStorage.setItem('currentQuestion', JSON.stringify(this.currentQuestion));
-            sessionStorage.setItem('currentAnsweringTeam', this.currentAnsweringTeam);
-            sessionStorage.setItem('teams', JSON.stringify(this.teams));
-            sessionStorage.setItem('scores', JSON.stringify(this.scores));
-            
-            window.location.href = '/index.html';
-        }
+        // Show modal on any page (including questions.html)
+        console.log('Showing modal on current page');
+        this.showTeamAnswerModal();
     }
 
     startTimer() {
