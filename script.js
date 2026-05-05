@@ -1851,6 +1851,36 @@ class QuizApp {
             }
         }
         
+        // Check if we need to show modal after redirect
+        const showModalOnLoad = sessionStorage.getItem('showModalOnLoad');
+        if (showModalOnLoad === 'true') {
+            console.log('Modal trigger flag found - showing modal');
+            
+            // Restore question and team data
+            const storedQuestion = sessionStorage.getItem('currentQuestion');
+            const storedTeam = sessionStorage.getItem('currentAnsweringTeam');
+            
+            if (storedQuestion) {
+                this.currentQuestion = JSON.parse(storedQuestion);
+                console.log('Restored question:', this.currentQuestion);
+            }
+            
+            if (storedTeam) {
+                this.currentAnsweringTeam = parseInt(storedTeam);
+                console.log('Restored answering team:', this.currentAnsweringTeam);
+            }
+            
+            // Clear the flags
+            sessionStorage.removeItem('showModalOnLoad');
+            sessionStorage.removeItem('currentQuestion');
+            sessionStorage.removeItem('currentAnsweringTeam');
+            
+            // Show modal after a short delay to ensure DOM is ready
+            setTimeout(() => {
+                this.showTeamAnswerModal();
+            }, 500);
+        }
+        
         console.log('=== INITIALIZE INDEX PAGE END ===');
     }
 
@@ -3098,6 +3128,12 @@ class QuizApp {
         } else {
             // Redirect to index.html to show modal
             console.log('Not on index.html - redirecting to show modal');
+            
+            // Store modal trigger flag in sessionStorage
+            sessionStorage.setItem('showModalOnLoad', 'true');
+            sessionStorage.setItem('currentQuestion', JSON.stringify(this.currentQuestion));
+            sessionStorage.setItem('currentAnsweringTeam', this.currentAnsweringTeam);
+            
             window.location.href = '/index.html';
         }
     }
