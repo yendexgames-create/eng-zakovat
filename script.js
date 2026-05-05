@@ -1170,6 +1170,16 @@ class QuizApp {
     showTeamAnswerModal() {
         console.log('=== SHOW TEAM ANSWER MODAL ===');
         
+        // Check if we're on index.html
+        const currentPath = window.location.pathname;
+        console.log('Current path:', currentPath);
+        
+        // Only show modal if we're on index.html
+        if (!currentPath.includes('index.html') && currentPath !== '/') {
+            console.log('Not on index.html, skipping modal display');
+            return;
+        }
+        
         const modal = document.getElementById('teamAnswerModal');
         const teamNameElement = document.getElementById('answeringTeamName');
         const questionElement = document.getElementById('teamAnswerQuestion');
@@ -3007,7 +3017,7 @@ class QuizApp {
         // Update question number separately if element exists
         const questionNumberElement = document.querySelector('.question-number');
         if (questionNumberElement) {
-            const currentQuestionNum = this.currentTeamQuestionIndex + 1;
+            const currentQuestionNum = this.currentTeamQuestionIndex;
             const totalQuestions = this.currentTeamQuestions.length;
             const currentTeam = this.teams[this.currentTeamIndex];
             questionNumberElement.textContent = `${currentQuestionNum} of ${totalQuestions} (Team ${currentTeam.name})`;
@@ -3069,8 +3079,18 @@ class QuizApp {
         // Stop timer
         this.stopQuestionTimer();
         
-        // Show team answer modal on index.html
-        this.showTeamAnswerModal();
+        // Check if we're on index.html
+        const currentPath = window.location.pathname;
+        console.log('Current path:', currentPath);
+        
+        if (currentPath.includes('index.html') || currentPath === '/') {
+            // Show team answer modal on index.html
+            this.showTeamAnswerModal();
+        } else {
+            console.log('Not on index.html, showing next question button instead');
+            // Show next question button if not on index.html
+            this.showNextQuestionButton();
+        }
     }
 
     startTimer() {
