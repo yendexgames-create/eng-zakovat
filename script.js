@@ -1173,6 +1173,7 @@ class QuizApp {
         // Check if we're on index.html
         const currentPath = window.location.pathname;
         console.log('Current path:', currentPath);
+        console.log('Window location:', window.location.href);
         
         // Only show modal if we're on index.html
         if (!currentPath.includes('index.html') && currentPath !== '/') {
@@ -1187,9 +1188,13 @@ class QuizApp {
         console.log('Modal element:', modal);
         console.log('Team name element:', teamNameElement);
         console.log('Question element:', questionElement);
+        console.log('Modal classes:', modal ? modal.className : 'not found');
         
         if (!modal || !teamNameElement || !questionElement) {
             console.error('Team answer modal elements not found');
+            console.error('Modal found:', !!modal);
+            console.error('Team name element found:', !!teamNameElement);
+            console.error('Question element found:', !!questionElement);
             return;
         }
         
@@ -1216,7 +1221,11 @@ class QuizApp {
         }
         
         // Show modal
+        console.log('About to remove hidden class from modal');
+        console.log('Modal before:', modal.className);
         modal.classList.remove('hidden');
+        console.log('Modal after:', modal.className);
+        console.log('Modal style display:', window.getComputedStyle(modal).display);
         
         console.log(`Team ${currentTeam.name} answer modal shown`);
     }
@@ -3017,7 +3026,7 @@ class QuizApp {
         // Update question number separately if element exists
         const questionNumberElement = document.querySelector('.question-number');
         if (questionNumberElement) {
-            const currentQuestionNum = this.currentTeamQuestionIndex;
+            const currentQuestionNum = this.currentTeamQuestionIndex + 1;
             const totalQuestions = this.currentTeamQuestions.length;
             const currentTeam = this.teams[this.currentTeamIndex];
             questionNumberElement.textContent = `${currentQuestionNum} of ${totalQuestions} (Team ${currentTeam.name})`;
