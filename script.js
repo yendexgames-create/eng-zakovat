@@ -1170,9 +1170,6 @@ class QuizApp {
     showTeamAnswerModal() {
         console.log('=== SHOW TEAM ANSWER MODAL ===');
         
-        // Modal will show on any page now
-        console.log('Showing modal on current page');
-        
         const modal = document.getElementById('teamAnswerModal');
         const teamNameElement = document.getElementById('answeringTeamName');
         const questionElement = document.getElementById('teamAnswerQuestion');
@@ -3081,6 +3078,7 @@ class QuizApp {
         this.stopQuestionTimer();
         
         // Always show modal when ready to answer is clicked
+        console.log('Ready to answer clicked - showing modal on current page');
         this.showTeamAnswerModal();
     }
 
