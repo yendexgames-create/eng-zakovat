@@ -1856,9 +1856,21 @@ class QuizApp {
         if (showModalOnLoad === 'true') {
             console.log('Modal trigger flag found - showing modal');
             
-            // Restore question and team data
+            // Restore all necessary data
             const storedQuestion = sessionStorage.getItem('currentQuestion');
             const storedTeam = sessionStorage.getItem('currentAnsweringTeam');
+            const storedTeams = sessionStorage.getItem('teams');
+            const storedScores = sessionStorage.getItem('scores');
+            
+            if (storedTeams) {
+                this.teams = JSON.parse(storedTeams);
+                console.log('Restored teams:', this.teams);
+            }
+            
+            if (storedScores) {
+                this.scores = JSON.parse(storedScores);
+                console.log('Restored scores:', this.scores);
+            }
             
             if (storedQuestion) {
                 this.currentQuestion = JSON.parse(storedQuestion);
@@ -1874,6 +1886,8 @@ class QuizApp {
             sessionStorage.removeItem('showModalOnLoad');
             sessionStorage.removeItem('currentQuestion');
             sessionStorage.removeItem('currentAnsweringTeam');
+            sessionStorage.removeItem('teams');
+            sessionStorage.removeItem('scores');
             
             // Show modal after a short delay to ensure DOM is ready
             setTimeout(() => {
@@ -3133,6 +3147,8 @@ class QuizApp {
             sessionStorage.setItem('showModalOnLoad', 'true');
             sessionStorage.setItem('currentQuestion', JSON.stringify(this.currentQuestion));
             sessionStorage.setItem('currentAnsweringTeam', this.currentAnsweringTeam);
+            sessionStorage.setItem('teams', JSON.stringify(this.teams));
+            sessionStorage.setItem('scores', JSON.stringify(this.scores));
             
             window.location.href = '/index.html';
         }
