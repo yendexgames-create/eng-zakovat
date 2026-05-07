@@ -1880,6 +1880,37 @@ class QuizApp {
             }, 500);
         }
         
+        // Auto check for modal trigger every 2 seconds
+        setInterval(() => {
+            const checkModal = sessionStorage.getItem('autoShowModal');
+            if (checkModal === 'true') {
+                console.log('Auto modal trigger detected');
+                
+                // Get modal data
+                const storedQuestion = sessionStorage.getItem('autoModalQuestion');
+                const storedTeam = sessionStorage.getItem('autoModalTeam');
+                const storedTeams = sessionStorage.getItem('autoModalTeams');
+                const storedScores = sessionStorage.getItem('autoModalScores');
+                
+                if (storedQuestion && storedTeam) {
+                    this.currentQuestion = JSON.parse(storedQuestion);
+                    this.currentAnsweringTeam = parseInt(storedTeam);
+                    this.teams = storedTeams ? JSON.parse(storedTeams) : this.teams;
+                    this.scores = storedScores ? JSON.parse(storedScores) : this.scores;
+                    
+                    // Clear auto modal flags
+                    sessionStorage.removeItem('autoShowModal');
+                    sessionStorage.removeItem('autoModalQuestion');
+                    sessionStorage.removeItem('autoModalTeam');
+                    sessionStorage.removeItem('autoModalTeams');
+                    sessionStorage.removeItem('autoModalScores');
+                    
+                    // Show modal
+                    this.showTeamAnswerModal();
+                }
+            }
+        }, 2000);
+        
         // Add Team Answer Modal event listeners for index.html
         const answerCorrectBtn = document.getElementById('answerCorrect');
         if (answerCorrectBtn) {
@@ -3189,6 +3220,14 @@ class QuizApp {
         
         this.socket.emit('triggerModalOnIndex', modalData);
         console.log('Modal trigger sent to server for other devices');
+        
+        // Also set auto modal trigger for same device (index.html)
+        sessionStorage.setItem('autoShowModal', 'true');
+        sessionStorage.setItem('autoModalQuestion', JSON.stringify(this.currentQuestion));
+        sessionStorage.setItem('autoModalTeam', this.currentAnsweringTeam.toString());
+        sessionStorage.setItem('autoModalTeams', JSON.stringify(this.teams));
+        sessionStorage.setItem('autoModalScores', JSON.stringify(this.scores));
+        console.log('Auto modal trigger set for same device');
         
         // Check if we're on index.html
         if (currentPath.includes('index.html') || currentPath === '/') {
