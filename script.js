@@ -1880,6 +1880,25 @@ class QuizApp {
             }, 500);
         }
         
+        // Add Team Answer Modal event listeners for index.html
+        const answerCorrectBtn = document.getElementById('answerCorrect');
+        if (answerCorrectBtn) {
+            answerCorrectBtn.addEventListener('click', () => this.handleTeamAnswer(true));
+            console.log('Answer correct button event listener added');
+        }
+
+        const answerIncorrectBtn = document.getElementById('answerIncorrect');
+        if (answerIncorrectBtn) {
+            answerIncorrectBtn.addEventListener('click', () => this.handleTeamAnswer(false));
+            console.log('Answer incorrect button event listener added');
+        }
+
+        const closeTeamAnswerModalBtn = document.getElementById('closeTeamAnswerModal');
+        if (closeTeamAnswerModalBtn) {
+            closeTeamAnswerModalBtn.addEventListener('click', () => this.closeTeamAnswerModal());
+            console.log('Close modal button event listener added');
+        }
+        
         console.log('=== INITIALIZE INDEX PAGE END ===');
     }
 
