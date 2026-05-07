@@ -1169,14 +1169,15 @@ class QuizApp {
     
     showTeamAnswerModal() {
         console.log('=== SHOW TEAM ANSWER MODAL ===');
+        console.log('Current page:', window.location.pathname);
         
         const modal = document.getElementById('teamAnswerModal');
         const teamNameElement = document.getElementById('answeringTeamName');
         const questionElement = document.getElementById('teamAnswerQuestion');
         
-        console.log('Modal element:', modal);
-        console.log('Team name element:', teamNameElement);
-        console.log('Question element:', questionElement);
+        console.log('Modal element exists:', !!modal);
+        console.log('Team name element exists:', !!teamNameElement);
+        console.log('Question element exists:', !!questionElement);
         console.log('Modal classes:', modal ? modal.className : 'not found');
         
         if (!modal || !teamNameElement || !questionElement) {
@@ -1207,9 +1208,16 @@ class QuizApp {
         // Show modal
         console.log('About to remove hidden class from modal');
         console.log('Modal before:', modal.className);
+        
+        // Force remove hidden class
         modal.classList.remove('hidden');
+        
+        // Force display flex
+        modal.style.display = 'flex';
+        
         console.log('Modal after:', modal.className);
-        console.log('Modal style display:', window.getComputedStyle(modal).display);
+        console.log('Modal style display:', modal.style.display);
+        console.log('Modal computed display:', window.getComputedStyle(modal).display);
         
         console.log(`Team ${currentTeam.name} answer modal shown`);
     }
@@ -1880,36 +1888,51 @@ class QuizApp {
             }, 500);
         }
         
-        // Auto check for modal trigger every 2 seconds
-        setInterval(() => {
+        // Simple modal trigger check
+        const checkAndShowModal = () => {
             const checkModal = sessionStorage.getItem('autoShowModal');
             if (checkModal === 'true') {
-                console.log('Auto modal trigger detected');
+                console.log('=== AUTO MODAL TRIGGER ===');
                 
-                // Get modal data
-                const storedQuestion = sessionStorage.getItem('autoModalQuestion');
-                const storedTeam = sessionStorage.getItem('autoModalTeam');
-                const storedTeams = sessionStorage.getItem('autoModalTeams');
-                const storedScores = sessionStorage.getItem('autoModalScores');
-                
-                if (storedQuestion && storedTeam) {
-                    this.currentQuestion = JSON.parse(storedQuestion);
-                    this.currentAnsweringTeam = parseInt(storedTeam);
-                    this.teams = storedTeams ? JSON.parse(storedTeams) : this.teams;
-                    this.scores = storedScores ? JSON.parse(storedScores) : this.scores;
+                try {
+                    // Get modal data
+                    const storedQuestion = sessionStorage.getItem('autoModalQuestion');
+                    const storedTeam = sessionStorage.getItem('autoModalTeam');
+                    const storedTeams = sessionStorage.getItem('autoModalTeams');
+                    const storedScores = sessionStorage.getItem('autoModalScores');
                     
-                    // Clear auto modal flags
-                    sessionStorage.removeItem('autoShowModal');
-                    sessionStorage.removeItem('autoModalQuestion');
-                    sessionStorage.removeItem('autoModalTeam');
-                    sessionStorage.removeItem('autoModalTeams');
-                    sessionStorage.removeItem('autoModalScores');
+                    console.log('Stored question:', storedQuestion);
+                    console.log('Stored team:', storedTeam);
+                    console.log('Stored teams:', storedTeams);
                     
-                    // Show modal
-                    this.showTeamAnswerModal();
+                    if (storedQuestion && storedTeam) {
+                        this.currentQuestion = JSON.parse(storedQuestion);
+                        this.currentAnsweringTeam = parseInt(storedTeam);
+                        this.teams = storedTeams ? JSON.parse(storedTeams) : this.teams;
+                        this.scores = storedScores ? JSON.parse(storedScores) : this.scores;
+                        
+                        // Clear auto modal flags
+                        sessionStorage.removeItem('autoShowModal');
+                        sessionStorage.removeItem('autoModalQuestion');
+                        sessionStorage.removeItem('autoModalTeam');
+                        sessionStorage.removeItem('autoModalTeams');
+                        sessionStorage.removeItem('autoModalScores');
+                        
+                        console.log('Data restored, calling showTeamAnswerModal');
+                        // Show modal
+                        this.showTeamAnswerModal();
+                    }
+                } catch (error) {
+                    console.error('Error in auto modal trigger:', error);
                 }
             }
-        }, 2000);
+        };
+        
+        // Check immediately
+        checkAndShowModal();
+        
+        // Then check every 1 second
+        setInterval(checkAndShowModal, 1000);
         
         // Add Team Answer Modal event listeners for index.html
         const answerCorrectBtn = document.getElementById('answerCorrect');
