@@ -1965,6 +1965,7 @@ class QuizApp {
         this.socket.on('showModalOnIndex', (data) => {
             console.log('=== SHOW MODAL ON INDEX EVENT ===');
             console.log('Received modal trigger data:', data);
+            console.log('Current path on index.html:', window.location.pathname);
             
             // Restore data from server
             this.currentQuestion = data.currentQuestion;
@@ -1972,8 +1973,11 @@ class QuizApp {
             this.teams = data.teams;
             this.scores = data.scores;
             
+            console.log('Data restored, showing modal in 500ms...');
+            
             // Show modal after short delay
             setTimeout(() => {
+                console.log('About to call showTeamAnswerModal from socket event');
                 this.showTeamAnswerModal();
             }, 500);
         });
