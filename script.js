@@ -1301,40 +1301,8 @@ class QuizApp {
         const currentIndex = this.teamAnswerOrder.indexOf(this.currentAnsweringTeam);
         const nextIndex = (currentIndex + 1) % this.teamAnswerOrder.length;
         
-                    <span class="team-id">Team ${team.id}</span>
-                </div>
-            `).join('');
-            
-            setupStatus.innerHTML = `
-                <div class="status-message">
-                    <h3>Quiz Setup Complete!</h3>
-                    <p>Quiz is activated! Open questions.html on another device to start.</p>
-                    <div class="teams-display">
-                        <h4>Registered Teams:</h4>
-                        <div class="teams-list">
-                            ${teamsList}
-                        </div>
-                    </div>
-                    <div class="quiz-status">
-                        <p class="status-text">Quiz is ready on other devices!</p>
-                        <button id="openQuestionsBtn" class="btn btn-secondary" style="margin-top: 15px;">Open Questions Page</button>
-                    </div>
-                </div>
-            `;
-            
-            // Bind optional open questions button
-            const openQuestionsBtn = document.getElementById('openQuestionsBtn');
-            if (openQuestionsBtn) {
-                openQuestionsBtn.addEventListener('click', () => {
-                    window.open('questions.html', '_blank');
-                });
-            }
-            
-            // Auto-activate the quiz for other devices
-            setTimeout(() => {
-                this.activateQuiz();
-            }, 1000);
-        }
+        this.currentAnsweringTeam = this.teamAnswerOrder[nextIndex];
+        console.log('Next answering team:', this.currentAnsweringTeam);
     }
 
     activateQuiz() {
