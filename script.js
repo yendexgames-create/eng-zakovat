@@ -617,7 +617,13 @@ class QuizApp {
         // Add event listener for generate inputs button
         const generateInputsBtn = document.getElementById('generateInputs');
         if (generateInputsBtn) {
-            generateInputsBtn.addEventListener('click', () => this.generateTeamInputs());
+            console.log('Generate inputs button found!');
+            generateInputsBtn.addEventListener('click', () => {
+                console.log('Generate inputs button clicked!');
+                this.generateTeamInputs();
+            });
+        } else {
+            console.error('Generate inputs button not found!');
         }
 
         const startBtn = document.getElementById('startQuiz');
