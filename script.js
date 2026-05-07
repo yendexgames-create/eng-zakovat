@@ -614,6 +614,12 @@ class QuizApp {
             });
         }
 
+        // Add event listener for generate inputs button
+        const generateInputsBtn = document.getElementById('generateInputs');
+        if (generateInputsBtn) {
+            generateInputsBtn.addEventListener('click', () => this.generateTeamInputs());
+        }
+
         const startBtn = document.getElementById('startQuiz');
         if (startBtn) {
             startBtn.addEventListener('click', (e) => {
