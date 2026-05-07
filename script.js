@@ -3156,13 +3156,7 @@ class QuizApp {
         const currentPath = window.location.pathname;
         console.log('Current path:', currentPath);
         
-        // Show modal on current page and trigger on other devices
-        console.log('Showing modal on current page and triggering on other devices');
-        
-        // Show modal on current page
-        this.showTeamAnswerModal();
-        
-        // Send modal trigger to server for other devices
+        // Send modal trigger to server for other devices first
         const modalData = {
             currentQuestion: this.currentQuestion,
             currentAnsweringTeam: this.currentAnsweringTeam,
@@ -3172,6 +3166,17 @@ class QuizApp {
         
         this.socket.emit('triggerModalOnIndex', modalData);
         console.log('Modal trigger sent to server for other devices');
+        
+        // Check if we're on index.html
+        if (currentPath.includes('index.html') || currentPath === '/') {
+            // Show modal on index.html
+            console.log('On index.html - showing modal');
+            this.showTeamAnswerModal();
+        } else {
+            // Don't show modal on questions.html
+            console.log('On questions.html - modal will not show here');
+            return; // Stop execution here
+        }
     }
 
     startTimer() {
