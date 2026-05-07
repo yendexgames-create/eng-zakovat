@@ -1289,42 +1289,6 @@ class QuizApp {
         const currentIndex = this.teamAnswerOrder.indexOf(this.currentAnsweringTeam);
         const nextIndex = (currentIndex + 1) % this.teamAnswerOrder.length;
         
-        this.currentAnsweringTeam = this.teamAnswerOrder[nextIndex];
-        
-        console.log('Next answering team:', this.currentAnsweringTeam);
-    }
-
-    showSetupStatus() {
-        const setupSection = document.getElementById('setupSection');
-        const setupStatus = document.getElementById('setupStatus');
-        
-        if (setupSection) {
-            setupSection.classList.add('hidden');
-        }
-        
-        if (setupStatus) {
-            setupStatus.classList.remove('hidden');
-        }
-        
-        // Show activate button
-        setTimeout(() => {
-            this.showActivateButton();
-        }, 1500);
-    }
-
-    showActivateButton() {
-        // Show header with reset button
-        const header = document.querySelector('.header');
-        if (header) {
-            header.classList.remove('hidden');
-        }
-        
-        const setupStatus = document.getElementById('setupStatus');
-        if (setupStatus) {
-            // Show teams list and multi-device instructions
-            const teamsList = this.teams.map(team => `
-                <div class="team-display-item">
-                    <span class="team-name">${team.name}</span>
                     <span class="team-id">Team ${team.id}</span>
                 </div>
             `).join('');
