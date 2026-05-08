@@ -848,6 +848,9 @@ class QuizApp {
         
         console.log('Mixed questions ready:', this.mixedQuestions.length);
         
+        // Set first team as answering team
+        this.currentAnsweringTeam = this.teams[0].id;
+        
         // Start with first question
         this.currentQuestionIndex = 0;
         this.showQuestion();
@@ -876,11 +879,29 @@ class QuizApp {
         // Update question display
         this.updateQuestionDisplay();
         
+        // Update category title based on current team's categories
+        this.updateCategoryTitle();
+        
         // Start timer
         this.startQuestionTimer();
         
         // Show ready to answer button
         this.showReadyToAnswerButton();
+    }
+    
+    updateCategoryTitle() {
+        const categoryTitle = document.getElementById('categoryTitle');
+        if (!categoryTitle) return;
+        
+        const currentTeam = this.teams.find(t => t.id === this.currentAnsweringTeam);
+        if (!currentTeam) return;
+        
+        const teamCategories = this.teamCategories[currentTeam.id] || [];
+        if (teamCategories.length > 0) {
+            // Find which category this question belongs to
+            const questionCategory = this.getCategoryFromQuestion(this.currentQuestion);
+            categoryTitle.textContent = `Category: ${questionCategory.charAt(0).toUpperCase() + questionCategory.slice(1)}`;
+        }
     }
     
     updateQuestionDisplay() {
