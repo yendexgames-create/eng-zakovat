@@ -1315,11 +1315,20 @@ class QuizApp {
             });
             
             console.log('Sorted teams for leaderboard:', sortedTeams);
+            console.log('Teams data:', this.teams);
+            console.log('Scores data:', this.scores);
             
             // Generate leaderboard HTML
             const leaderboardHTML = sortedTeams.map((team, index) => {
                 const score = this.scores[team.id] || 0;
                 const isWinner = index === 0 && score > 0;
+                
+                console.log(`Team ${index + 1}:`, {
+                    id: team.id,
+                    name: team.name,
+                    score: score,
+                    isWinner: isWinner
+                });
                 
                 return `
                     <div class="leaderboard-item ${isWinner ? 'winner' : ''}">
