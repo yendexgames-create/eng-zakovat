@@ -892,10 +892,19 @@ class QuizApp {
         console.log('Current question:', this.currentQuestion);
         console.log('Current answering team ID:', this.currentAnsweringTeam);
         
-        // Update question display
-        this.updateQuestionDisplay();
+        // Show question section
+        const questionSection = document.getElementById('questionSection');
+        if (questionSection) {
+            questionSection.classList.remove('hidden');
+        }
         
-        // Update category title based on current team's categories
+        // Hide category section
+        const categorySection = document.getElementById('categorySection');
+        if (categorySection) {
+            categorySection.classList.add('hidden');
+        }
+        
+        this.updateQuestionDisplay();
         this.updateCategoryTitle();
         
         // Update leaderboard
