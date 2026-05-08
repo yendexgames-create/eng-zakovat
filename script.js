@@ -1324,27 +1324,22 @@ class QuizApp {
     updateLeaderboard() {
         console.log('=== UPDATE LEADERBOARD ===');
         
-        // Try to find leaderboard in question section first, then category section
-        let sectionElement = document.querySelector('#questionSection #leaderboardSection');
-        let leaderboardElement = document.querySelector('#questionSection #leaderboard');
+        // Update both category and question leaderboards
+        this.updateLeaderboardInSection('categorySection', 'categoryLeaderboardSection', 'categoryLeaderboard');
+        this.updateLeaderboardInSection('questionSection', 'leaderboardSection', 'leaderboard');
+    }
+    
+    updateLeaderboardInSection(sectionId, sectionElementId, leaderboardElementId) {
+        console.log(`=== UPDATE LEADERBOARD IN ${sectionId.toUpperCase()} ===`);
         
-        // If not found in question section, try category section
-        if (!sectionElement) {
-            sectionElement = document.querySelector('#categorySection #leaderboardSection');
-            leaderboardElement = document.querySelector('#categorySection #leaderboard');
-        }
+        const sectionElement = document.querySelector(`#${sectionId} #${sectionElementId}`);
+        const leaderboardElement = document.querySelector(`#${sectionId} #${leaderboardElementId}`);
         
-        // Fallback to global search
-        if (!sectionElement) {
-            sectionElement = document.getElementById('leaderboardSection');
-            leaderboardElement = document.getElementById('leaderboard');
-        }
-        
-        console.log('Leaderboard section element:', sectionElement);
-        console.log('Leaderboard element:', leaderboardElement);
+        console.log(`${sectionId} leaderboard section element:`, sectionElement);
+        console.log(`${sectionId} leaderboard element:`, leaderboardElement);
         
         if (!sectionElement || !leaderboardElement) {
-            console.log('Leaderboard elements not found');
+            console.log(`${sectionId} leaderboard elements not found`);
             return;
         }
         
@@ -1357,7 +1352,7 @@ class QuizApp {
                 return (this.scores[b.id] || 0) - (this.scores[a.id] || 0);
             });
             
-            console.log('Sorted teams for leaderboard:', sortedTeams);
+            console.log(`Sorted teams for ${sectionId} leaderboard:`, sortedTeams);
             console.log('Teams data:', this.teams);
             console.log('Scores data:', this.scores);
             
@@ -1366,7 +1361,7 @@ class QuizApp {
                 const score = this.scores[team.id] || 0;
                 const isWinner = index === 0 && score > 0;
                 
-                console.log(`Team ${index + 1}:`, {
+                console.log(`${sectionId} Team ${index + 1}:`, {
                     id: team.id,
                     name: team.name,
                     score: score,
@@ -1384,23 +1379,22 @@ class QuizApp {
                 `;
             }).join('');
             
-            console.log('Generated leaderboard HTML:', leaderboardHTML);
+            console.log(`Generated ${sectionId} leaderboard HTML:`, leaderboardHTML);
             leaderboardElement.innerHTML = leaderboardHTML;
-            console.log('Leaderboard updated');
-            console.log('Leaderboard innerHTML after update:', leaderboardElement.innerHTML);
+            console.log(`${sectionId} leaderboard updated`);
+            console.log(`${sectionId} leaderboard innerHTML after update:`, leaderboardElement.innerHTML);
             
             // Check if leaderboard is actually visible
-            const section = document.getElementById('leaderboardSection');
-            if (section) {
+            if (sectionElement) {
                 // Check parent elements
-                const parent = section.parentElement;
+                const parent = sectionElement.parentElement;
                 const grandParent = parent ? parent.parentElement : null;
-                console.log('Leaderboard section parent:', parent);
-                console.log('Leaderboard section grandparent:', grandParent);
+                console.log(`${sectionId} leaderboard section parent:`, parent);
+                console.log(`${sectionId} leaderboard section grandparent:`, grandParent);
                 
                 if (parent) {
                     const parentStyles = window.getComputedStyle(parent);
-                    console.log('Parent computed styles:');
+                    console.log(`${sectionId} parent computed styles:`);
                     console.log('  display:', parentStyles.display);
                     console.log('  visibility:', parentStyles.visibility);
                     console.log('  opacity:', parentStyles.opacity);
@@ -1408,15 +1402,15 @@ class QuizApp {
                     console.log('  width:', parentStyles.width);
                     
                     const parentRect = parent.getBoundingClientRect();
-                    console.log('Parent bounding rect:');
+                    console.log(`${sectionId} parent bounding rect:`);
                     console.log('  top:', parentRect.top);
                     console.log('  left:', parentRect.left);
                     console.log('  width:', parentRect.width);
                     console.log('  height:', parentRect.height);
                 }
                 
-                const styles = window.getComputedStyle(section);
-                console.log('Leaderboard section computed styles:');
+                const styles = window.getComputedStyle(sectionElement);
+                console.log(`${sectionId} leaderboard section computed styles:`);
                 console.log('  display:', styles.display);
                 console.log('  visibility:', styles.visibility);
                 console.log('  opacity:', styles.opacity);
@@ -1428,8 +1422,8 @@ class QuizApp {
                 console.log('  transform:', styles.transform);
                 
                 // Check if element is actually visible in viewport
-                const rect = section.getBoundingClientRect();
-                console.log('Leaderboard section bounding rect:');
+                const rect = sectionElement.getBoundingClientRect();
+                console.log(`${sectionId} leaderboard section bounding rect:`);
                 console.log('  top:', rect.top);
                 console.log('  left:', rect.left);
                 console.log('  width:', rect.width);
