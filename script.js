@@ -773,11 +773,20 @@ class QuizApp {
         this.teamCategories = {};
         const availableCategories = [...this.selectedCategories];
         
+        // Create array to track used categories
+        const usedCategories = [];
+        
         // Assign exactly 2 unique categories per team without duplicates across teams
         this.teams.forEach((team, teamIndex) => {
+            // Get available categories (not used yet)
+            const remainingCategories = availableCategories.filter(cat => !usedCategories.includes(cat));
+            
             // Get 2 random unique categories for this team
-            const shuffled = [...availableCategories].sort(() => 0.5 - Math.random());
+            const shuffled = remainingCategories.sort(() => 0.5 - Math.random());
             const teamCategories = shuffled.slice(0, 2);
+            
+            // Add to used categories
+            usedCategories.push(...teamCategories);
             
             this.teamCategories[team.id] = teamCategories;
             
