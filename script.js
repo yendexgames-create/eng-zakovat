@@ -347,6 +347,13 @@ class QuizApp {
     initializeQuestionsPage() {
         console.log('=== INITIALIZE QUESTIONS PAGE ===');
         
+        // Check if quiz is already activated
+        if (this.teams.length > 0) {
+            console.log('Teams already exist, showing category section');
+            this.showCategorySelection();
+            return;
+        }
+        
         // Request current state from server
         console.log('Requesting current state from server...');
         this.socket.emit('getState');
@@ -1146,16 +1153,25 @@ class QuizApp {
     updateQuestionsPage(state) {
         console.log('=== UPDATE QUESTIONS PAGE ===');
         
-        // Show category section if quiz is activated
+        const setupSection = document.getElementById('setupSection');
+        const teamSetupSection = document.getElementById('teamSetupSection');
+        const categorySection = document.getElementById('categorySection');
+        
         if (state.quizActivated && this.teams.length > 0) {
-            const setupSection = document.getElementById('setupSection');
-            const categorySection = document.getElementById('categorySection');
+            console.log('Quiz activated and teams exist - showing category section');
             
             if (setupSection) setupSection.classList.add('hidden');
+            if (teamSetupSection) teamSetupSection.classList.add('hidden');
             if (categorySection) categorySection.classList.remove('hidden');
             
             // Show category selection
             this.showCategorySelection();
+        } else {
+            console.log('Quiz not activated or no teams - showing setup');
+            
+            if (setupSection) setupSection.classList.remove('hidden');
+            if (teamSetupSection) teamSetupSection.classList.remove('hidden');
+            if (categorySection) categorySection.classList.add('hidden');
         }
     }
     

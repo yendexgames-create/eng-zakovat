@@ -31,6 +31,28 @@
                 </div>
             </section>
             
+            <section id="teamSetupSection" class="setup-section hidden">
+                <div class="card">
+                    <h2>Team Setup</h2>
+                    
+                    <div class="input-group">
+                        <label for="teamCount">Number of Teams:</label>
+                        <input type="number" id="teamCount" min="2" max="10" value="2" class="number-input">
+                        <button id="generateInputs" class="btn btn-secondary">Generate Team Inputs</button>
+                    </div>
+
+                    <div id="teamInputs" class="team-inputs">
+                        <div id="teamInputsContainer">
+                            <!-- Team inputs will be generated here -->
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button id="startQuiz" class="btn btn-primary" disabled>Setup Quiz</button>
+                    </div>
+                </div>
+            </section>
+            
             <section id="categorySection" class="category-section hidden">
                 <div class="card">
                     <h2>Select Categories</h2>
@@ -78,6 +100,16 @@
                 </div>
             </section>
         </main>
+        
+        <!-- Leaderboard Section -->
+        <section id="leaderboardSection" class="leaderboard-section hidden">
+            <div class="card">
+                <h2>🏆 Leaderboard</h2>
+                <div id="leaderboard" class="leaderboard">
+                    <!-- Leaderboard will be generated here -->
+                </div>
+            </div>
+        </section>
     </div>
 
     <!-- Emoji Animation Container -->
