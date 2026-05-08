@@ -682,10 +682,10 @@ class QuizApp {
         if (index > -1) {
             this.selectedCategories.splice(index, 1);
         } else {
-            if (this.selectedCategories.length < this.categoriesToSelect) {
+            if (this.selectedCategories.length < 8) {
                 this.selectedCategories.push(category);
             } else {
-                alert(`Siz faqat ${this.categoriesToSelect} ta tur tanlashingiz mumkin!`);
+                alert(`Siz faqat 8 ta tur tanlashingiz mumkin!`);
                 return;
             }
         }
@@ -695,13 +695,35 @@ class QuizApp {
     }
     
     updateCategoryButtons() {
-        const categoryBtns = document.querySelectorAll('.category-btn');
-        categoryBtns.forEach(btn => {
-            const category = btn.dataset.category;
-            if (this.selectedCategories.includes(category)) {
-                btn.classList.add('selected');
+        const categoryButtons = document.querySelectorAll('.category-btn');
+        
+        categoryButtons.forEach(button => {
+            const category = button.dataset.category;
+            const isSelected = this.selectedCategories.includes(category);
+            
+            if (isSelected) {
+                button.classList.add('selected');
+                
+                // Add team assignment info if available
+                if (this.teamCategories) {
+                    const assignedTeams = this.teams.filter(team => 
+                        this.teamCategories[team.id] && 
+                        this.teamCategories[team.id].includes(category)
+                    );
+                    
+                    if (assignedTeams.length > 0) {
+                        const teamNames = assignedTeams.map(team => team.name).join(', ');
+                        button.setAttribute('title', `Assigned to: ${teamNames}`);
+                        button.innerHTML = `
+                            <div class="category-name">${category.charAt(0).toUpperCase() + category.slice(1)}</div>
+                            <div class="category-teams">${teamNames}</div>
+                        `;
+                    }
+                }
             } else {
-                btn.classList.remove('selected');
+                button.classList.remove('selected');
+                button.innerHTML = category.charAt(0).toUpperCase() + category.slice(1);
+                button.removeAttribute('title');
             }
         });
     }
@@ -709,7 +731,7 @@ class QuizApp {
     updateStartButton() {
         const startBtn = document.getElementById('startQuizBtn');
         if (startBtn) {
-            startBtn.disabled = this.selectedCategories.length !== this.categoriesToSelect;
+            startBtn.disabled = this.selectedCategories.length !== 8;
         }
     }
     
@@ -789,8 +811,8 @@ class QuizApp {
     startQuestionsQuiz() {
         console.log('=== START QUESTIONS QUIZ ===');
         
-        if (this.selectedCategories.length !== this.categoriesToSelect) {
-            alert(`Iltimos, avval ${this.categoriesToSelect} ta tur tanlang!`);
+        if (this.selectedCategories.length !== 8) {
+            alert(`Iltimos, avval 8 ta tur tanlang!`);
             return;
         }
         
