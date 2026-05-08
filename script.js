@@ -1336,6 +1336,19 @@ class QuizApp {
             leaderboard.innerHTML = leaderboardHTML;
             console.log('Leaderboard updated');
             console.log('Leaderboard innerHTML after update:', leaderboard.innerHTML);
+            
+            // Check if leaderboard is actually visible
+            const leaderboardSection = document.getElementById('leaderboardSection');
+            if (leaderboardSection) {
+                const styles = window.getComputedStyle(leaderboardSection);
+                console.log('Leaderboard section computed styles:', {
+                    display: styles.display,
+                    visibility: styles.visibility,
+                    opacity: styles.opacity,
+                    height: styles.height,
+                    width: styles.width
+                });
+            }
         }
     }
     
