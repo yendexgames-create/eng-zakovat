@@ -625,8 +625,13 @@ class QuizApp {
         const currentPath = window.location.pathname;
         const isQuestionsPage = currentPath.includes('questions.html') || currentPath.includes('/questions') || currentPath.endsWith('questions');
         
-        console.log('Current page:', currentPath);
+        console.log('=== PAGE DETECTION DEBUG ===');
+        console.log('Current page path:', currentPath);
+        console.log('Includes questions.html:', currentPath.includes('questions.html'));
+        console.log('Includes /questions:', currentPath.includes('/questions'));
+        console.log('Ends with questions:', currentPath.endsWith('questions'));
         console.log('Is questions page:', isQuestionsPage);
+        console.log('=== END PAGE DETECTION DEBUG ===');
         
         // Hide setup section
         if (setupSection) setupSection.classList.add('hidden');
@@ -1321,15 +1326,20 @@ class QuizApp {
     }
 }
 
-// Initialize the quiz app when DOM is loaded
+// Initialize quiz app when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     console.log('=== DOM CONTENT LOADED ===');
     const quizApp = new QuizApp();
     quizApp.initialize();
     
-    // Auto-generate team inputs after a short delay
-    setTimeout(() => {
-        console.log('=== AUTO GENERATE TEAM INPUTS ===');
-        quizApp.generateTeamInputs();
-    }, 1000);
+    // Auto-generate team inputs only on index.html
+    const currentPath = window.location.pathname;
+    const isIndexPage = !currentPath.includes('questions.html') && !currentPath.includes('/questions') && !currentPath.endsWith('questions');
+    
+    if (isIndexPage) {
+        setTimeout(() => {
+            console.log('=== AUTO GENERATE TEAM INPUTS (INDEX PAGE ONLY) ===');
+            quizApp.generateTeamInputs();
+        }, 1000);
+    }
 });
