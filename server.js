@@ -82,6 +82,21 @@ io.on('connection', (socket) => {
         console.log('Modal trigger broadcasted to other devices');
     });
     
+    // Handle time up modal trigger
+    socket.on('showTimeUpModal', (data) => {
+        console.log('Time up modal trigger received:', data);
+        
+        // Update quiz state with modal data
+        quizState.currentQuestion = data.currentQuestion;
+        quizState.currentAnsweringTeam = data.currentAnsweringTeam;
+        quizState.teams = data.teams;
+        quizState.scores = data.scores;
+        
+        // Broadcast time up modal to all other clients
+        socket.broadcast.emit('showTimeUpModal', data);
+        console.log('Time up modal broadcasted to other devices');
+    });
+    
     // Handle score submission
     socket.on('submitScores', (scores) => {
         console.log('Scores submitted:', scores);

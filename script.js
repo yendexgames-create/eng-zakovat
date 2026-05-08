@@ -294,6 +294,16 @@ class QuizApp {
         this.socket.on('showTimeUpModal', (data) => {
             console.log('=== SHOW TIME UP MODAL SOCKET EVENT ===');
             console.log('Time up modal data received:', data);
+            console.log('Current page:', window.location.pathname);
+            
+            // Only show modal on index.html
+            const isIndexPage = window.location.pathname.includes('index.html') || window.location.pathname === '/';
+            console.log('Is index page:', isIndexPage);
+            
+            if (!isIndexPage) {
+                console.log('Not on index page, ignoring time up modal');
+                return;
+            }
             
             // Store modal data
             this.currentQuestion = data.currentQuestion;
@@ -1299,6 +1309,8 @@ class QuizApp {
     
     sendTimeUpModalToIndex() {
         console.log('=== SEND TIME UP MODAL TO INDEX ===');
+        console.log('Socket connected:', !!this.socket);
+        console.log('Socket id:', this.socket?.id);
         
         // Get current answering team
         const currentTeam = this.teams.find(t => t.id === this.currentAnsweringTeam);
@@ -1319,7 +1331,14 @@ class QuizApp {
         };
         
         console.log('Sending time up modal data:', modalData);
-        this.socket.emit('showTimeUpModal', modalData);
+        console.log('Emitting showTimeUpModal event...');
+        
+        if (this.socket && this.socket.connected) {
+            this.socket.emit('showTimeUpModal', modalData);
+            console.log('Time up modal emitted successfully');
+        } else {
+            console.error('Socket not connected or available');
+        }
     }
     
     showTimeUpModal(data) {
