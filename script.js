@@ -1047,11 +1047,32 @@ class QuizApp {
         // Delay to ensure DOM is ready
         setTimeout(() => {
             if (timerDisplay) {
+                // Check if element is visible
+                const styles = window.getComputedStyle(timerDisplay);
+                const rect = timerDisplay.getBoundingClientRect();
+                
+                console.log('Timer display element found');
+                console.log('Timer display computed styles:', {
+                    display: styles.display,
+                    visibility: styles.visibility,
+                    opacity: styles.opacity,
+                    position: styles.position,
+                    zIndex: styles.zIndex
+                });
+                console.log('Timer display bounding rect:', {
+                    top: rect.top,
+                    left: rect.left,
+                    width: rect.width,
+                    height: rect.height,
+                    isVisible: rect.width > 0 && rect.height > 0
+                });
+                
                 timerDisplay.textContent = timeLeft;
                 timerDisplay.innerText = timeLeft;
                 timerDisplay.innerHTML = timeLeft;
                 console.log('Timer display set to:', timeLeft);
                 console.log('Timer display after set:', timerDisplay.textContent);
+                console.log('Timer display actual content:', document.getElementById('timerDisplay').textContent);
             } else {
                 console.log('Timer display not found');
             }
