@@ -1064,9 +1064,21 @@ class QuizApp {
             console.log(`Timer countdown: ${timeLeft} seconds left`);
             
             if (timerDisplay) {
+                // Force update with multiple methods
                 timerDisplay.textContent = timeLeft;
+                timerDisplay.innerText = timeLeft;
+                timerDisplay.innerHTML = timeLeft;
+                
+                // Force reflow
+                timerDisplay.style.display = 'none';
+                timerDisplay.offsetHeight; // Trigger reflow
+                timerDisplay.style.display = '';
+                
                 console.log(`Timer display updated to: ${timeLeft}`);
-                console.log(`Timer display actual content: "${timerDisplay.textContent}"`);
+                console.log(`Timer display textContent: "${timerDisplay.textContent}"`);
+                console.log(`Timer display innerText: "${timerDisplay.innerText}"`);
+                console.log(`Timer display innerHTML: "${timerDisplay.innerHTML}"`);
+                console.log(`Timer display computed style: ${window.getComputedStyle(timerDisplay).display}`);
             } else {
                 console.log('Timer display element not found during countdown');
             }
