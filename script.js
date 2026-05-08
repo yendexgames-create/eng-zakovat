@@ -830,11 +830,17 @@ class QuizApp {
             return;
         }
         
-        // Mix questions from selected categories
+        // Mix questions from selected categories (1 question per team per category)
         this.mixedQuestions = [];
-        this.selectedCategories.forEach(category => {
-            const categoryQuestions = [...this.questions[category]];
-            this.mixedQuestions.push(...categoryQuestions);
+        this.teams.forEach(team => {
+            const teamCategories = this.teamCategories[team.id] || [];
+            teamCategories.forEach(category => {
+                const categoryQuestions = [...this.questions[category]];
+                // Take 1 random question from this category for this team
+                const randomIndex = Math.floor(Math.random() * categoryQuestions.length);
+                const selectedQuestion = categoryQuestions[randomIndex];
+                this.mixedQuestions.push(selectedQuestion);
+            });
         });
         
         // Shuffle mixed questions
@@ -904,11 +910,20 @@ class QuizApp {
         }
         
         if (currentTeam) {
+            console.log('=== TEAM DEBUG ===');
+            console.log('Current answering team ID:', this.currentAnsweringTeam);
+            console.log('Available teams:', this.teams);
+            console.log('Team categories:', this.teamCategories);
+            
             const team = this.teams.find(t => t.id === this.currentAnsweringTeam);
+            console.log('Found team:', team);
+            
             if (team) {
                 currentTeam.textContent = team.name;
+                console.log('Set team name:', team.name);
             } else {
                 currentTeam.textContent = `Team ${this.currentAnsweringTeam}`;
+                console.log('Team not found, using fallback');
             }
         }
     }
