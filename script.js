@@ -1061,16 +1061,26 @@ class QuizApp {
         this.currentTimerInterval = setInterval(() => {
             timeLeft--;
             
+            console.log(`Timer countdown: ${timeLeft} seconds left`);
+            
             if (timerDisplay) {
                 timerDisplay.textContent = timeLeft;
+                console.log(`Timer display updated to: ${timeLeft}`);
+                console.log(`Timer display actual content: "${timerDisplay.textContent}"`);
+            } else {
+                console.log('Timer display element not found during countdown');
             }
             
             if (timerProgress) {
                 const percentage = (timeLeft / this.questionTimer) * 100;
                 timerProgress.style.width = `${percentage}%`;
+                console.log(`Timer progress updated to: ${percentage}%`);
+            } else {
+                console.log('Timer progress element not found during countdown');
             }
             
             if (timeLeft <= 0) {
+                console.log('Timer reached zero, stopping timer');
                 this.stopQuestionTimer();
                 this.timeUp();
             }
