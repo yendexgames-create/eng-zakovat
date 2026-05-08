@@ -1044,19 +1044,25 @@ class QuizApp {
         console.log('Timer progress element:', timerProgress);
         console.log('Question timer duration:', this.questionTimer);
         
-        if (timerDisplay) {
-            timerDisplay.textContent = timeLeft;
-            console.log('Timer display set to:', timeLeft);
-        } else {
-            console.log('Timer display not found');
-        }
-        
-        if (timerProgress) {
-            timerProgress.style.width = '100%';
-            console.log('Timer progress set to 100%');
-        } else {
-            console.log('Timer progress not found');
-        }
+        // Delay to ensure DOM is ready
+        setTimeout(() => {
+            if (timerDisplay) {
+                timerDisplay.textContent = timeLeft;
+                timerDisplay.innerText = timeLeft;
+                timerDisplay.innerHTML = timeLeft;
+                console.log('Timer display set to:', timeLeft);
+                console.log('Timer display after set:', timerDisplay.textContent);
+            } else {
+                console.log('Timer display not found');
+            }
+            
+            if (timerProgress) {
+                timerProgress.style.width = '100%';
+                console.log('Timer progress set to 100%');
+            } else {
+                console.log('Timer progress not found');
+            }
+        }, 100);
         
         this.currentTimerInterval = setInterval(() => {
             timeLeft--;

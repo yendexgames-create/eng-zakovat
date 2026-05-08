@@ -390,6 +390,9 @@ body {
     color: #e53e3e;
     min-width: 100px;
     text-align: center;
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
 .timer-bar {
