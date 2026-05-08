@@ -1294,20 +1294,20 @@ class QuizApp {
     updateLeaderboard() {
         console.log('=== UPDATE LEADERBOARD ===');
         
-        const leaderboardSection = document.getElementById('leaderboardSection');
-        const leaderboard = document.getElementById('leaderboard');
+        const sectionElement = document.getElementById('leaderboardSection');
+        const leaderboardElement = document.getElementById('leaderboard');
         
-        console.log('Leaderboard section element:', leaderboardSection);
-        console.log('Leaderboard element:', leaderboard);
+        console.log('Leaderboard section element:', sectionElement);
+        console.log('Leaderboard element:', leaderboardElement);
         
-        if (!leaderboardSection || !leaderboard) {
+        if (!sectionElement || !leaderboardElement) {
             console.log('Leaderboard elements not found');
             return;
         }
         
         // Show leaderboard if there are teams
         if (this.teams.length > 0) {
-            leaderboardSection.classList.remove('hidden');
+            sectionElement.classList.remove('hidden');
             
             // Sort teams by score
             const sortedTeams = [...this.teams].sort((a, b) => {
@@ -1333,9 +1333,9 @@ class QuizApp {
             }).join('');
             
             console.log('Generated leaderboard HTML:', leaderboardHTML);
-            leaderboard.innerHTML = leaderboardHTML;
+            leaderboardElement.innerHTML = leaderboardHTML;
             console.log('Leaderboard updated');
-            console.log('Leaderboard innerHTML after update:', leaderboard.innerHTML);
+            console.log('Leaderboard innerHTML after update:', leaderboardElement.innerHTML);
             
             // Check if leaderboard is actually visible
             const section = document.getElementById('leaderboardSection');
