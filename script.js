@@ -613,21 +613,35 @@ class QuizApp {
         const setupSection = document.getElementById('setupSection');
         const quizSection = document.getElementById('quizSection');
         
-        if (setupSection) setupSection.classList.add('hidden');
-        if (quizSection) quizSection.classList.remove('hidden');
+        // Check current page - only show categories on questions.html
+        const currentPath = window.location.pathname;
+        const isQuestionsPage = currentPath.includes('questions.html') || currentPath.includes('/questions');
         
-        const categorySelection = document.getElementById('categorySelection');
-        if (categorySelection) {
-            categorySelection.innerHTML = '';
+        console.log('Current page:', currentPath);
+        console.log('Is questions page:', isQuestionsPage);
+        
+        if (setupSection) setupSection.classList.add('hidden');
+        if (quizSection && isQuestionsPage) {
+            quizSection.classList.remove('hidden');
             
-            this.categories.forEach(category => {
-                const categoryBtn = document.createElement('button');
-                categoryBtn.className = 'category-btn';
-                categoryBtn.textContent = category.charAt(0).toUpperCase() + category.slice(1);
-                categoryBtn.dataset.category = category;
-                categoryBtn.addEventListener('click', () => this.toggleCategory(category));
-                categorySelection.appendChild(categoryBtn);
-            });
+            const categorySelection = document.getElementById('categorySelection');
+            if (categorySelection) {
+                categorySelection.innerHTML = '';
+                
+                this.categories.forEach(category => {
+                    const categoryBtn = document.createElement('button');
+                    categoryBtn.className = 'category-btn';
+                    categoryBtn.textContent = category.charAt(0).toUpperCase() + category.slice(1);
+                    categoryBtn.dataset.category = category;
+                    categoryBtn.addEventListener('click', () => this.toggleCategory(category));
+                    categorySelection.appendChild(categoryBtn);
+                });
+            }
+        } else {
+            console.log('On index.html - hiding category section');
+            if (quizSection) {
+                quizSection.classList.add('hidden');
+            }
         }
     }
     
@@ -1052,6 +1066,52 @@ class QuizApp {
             if (team) {
                 currentTeamDisplay.textContent = team.name;
             }
+        }
+        
+        // Update leaderboard
+        this.updateLeaderboard();
+    }
+    
+    updateLeaderboard() {
+        console.log('=== UPDATE LEADERBOARD ===');
+        
+        const leaderboardSection = document.getElementById('leaderboardSection');
+        const leaderboard = document.getElementById('leaderboard');
+        
+        if (!leaderboardSection || !leaderboard) {
+            console.log('Leaderboard elements not found');
+            return;
+        }
+        
+        // Show leaderboard if there are teams
+        if (this.teams.length > 0) {
+            leaderboardSection.classList.remove('hidden');
+            
+            // Sort teams by score
+            const sortedTeams = [...this.teams].sort((a, b) => {
+                return (this.scores[b.id] || 0) - (this.scores[a.id] || 0);
+            });
+            
+            console.log('Sorted teams for leaderboard:', sortedTeams);
+            
+            // Generate leaderboard HTML
+            const leaderboardHTML = sortedTeams.map((team, index) => {
+                const score = this.scores[team.id] || 0;
+                const isWinner = index === 0 && score > 0;
+                
+                return `
+                    <div class="leaderboard-item ${isWinner ? 'winner' : ''}">
+                        <div class="leaderboard-rank">${index + 1}</div>
+                        <div class="leaderboard-info">
+                            <div class="leaderboard-name">${team.name}</div>
+                            <div class="leaderboard-score">${score} ${score === 1 ? 'point' : 'points'}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            leaderboard.innerHTML = leaderboardHTML;
+            console.log('Leaderboard updated');
         }
     }
     

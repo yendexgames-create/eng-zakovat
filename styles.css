@@ -445,6 +445,80 @@ body {
     justify-content: center;
 }
 
+/* Leaderboard Section */
+.leaderboard-section {
+    max-width: 600px;
+    margin: 0 auto 30px;
+}
+
+.leaderboard {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.leaderboard-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.leaderboard-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.leaderboard-item.winner {
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+    color: #2d3748;
+    font-weight: 700;
+}
+
+.leaderboard-rank {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: #4299e1;
+    color: white;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 1.2rem;
+    margin-right: 20px;
+}
+
+.leaderboard-item.winner .leaderboard-rank {
+    background: #ffd700;
+    color: #2d3748;
+}
+
+.leaderboard-info {
+    flex: 1;
+}
+
+.leaderboard-name {
+    font-weight: 600;
+    color: #2d3748;
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+}
+
+.leaderboard-score {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #4299e1;
+}
+
+.leaderboard-item.winner .leaderboard-score {
+    color: #2d3748;
+}
+
 /* Utility Classes */
 .hidden {
     display: none !important;
