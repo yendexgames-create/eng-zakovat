@@ -32,14 +32,38 @@
             </section>
             
             <section id="categorySection" class="category-section hidden">
-                <div class="card">
-                    <h2>Select Categories</h2>
-                    <div id="categorySelection" class="category-selection">
-                        <!-- Categories will be generated here -->
+                <div class="category-layout">
+                    <div class="category-main">
+                        <div class="card">
+                            <h2>Select Categories</h2>
+                            <div id="categorySelection" class="category-selection">
+                                <!-- Categories will be generated here -->
+                            </div>
+                            <div class="action-buttons">
+                                <button id="randomCategoriesBtn" class="btn btn-secondary">Random Categories</button>
+                                <button id="startQuizBtn" class="btn btn-primary start-quiz-btn" disabled>Start Quiz</button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="action-buttons">
-                        <button id="randomCategoriesBtn" class="btn btn-secondary">Random Categories</button>
-                        <button id="startQuizBtn" class="btn btn-primary start-quiz-btn" disabled>Start Quiz</button>
+                    
+                    <div class="category-sidebar">
+                        <!-- Leaderboard Section -->
+                        <div id="leaderboardSection" class="leaderboard-section">
+                            <div class="card">
+                                <h2>🏆 Leaderboard</h2>
+                                <div id="leaderboard" class="leaderboard">
+                                    <!-- Leaderboard will be generated here -->
+                                </div>
+                            </div>
+                            
+                            <!-- Team Categories Display -->
+                            <div class="card" id="teamCategoriesSection" style="margin-top: 20px; display: none;">
+                                <h3>📋 Team Categories</h3>
+                                <div id="teamCategories" class="team-categories">
+                                    <!-- Team categories will be displayed here -->
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -78,16 +102,6 @@
                 </div>
             </section>
         </main>
-        
-        <!-- Leaderboard Section -->
-        <section id="leaderboardSection" class="leaderboard-section hidden">
-            <div class="card">
-                <h2>🏆 Leaderboard</h2>
-                <div id="leaderboard" class="leaderboard">
-                    <!-- Leaderboard will be generated here -->
-                </div>
-            </div>
-        </section>
     </div>
 
     <!-- Emoji Animation Container -->

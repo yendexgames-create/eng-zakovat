@@ -215,8 +215,24 @@ body {
 
 /* Category Section */
 .category-section {
-    max-width: 800px;
+    max-width: 1200px;
     margin: 0 auto 30px;
+}
+
+.category-layout {
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+}
+
+.category-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.category-sidebar {
+    width: 350px;
+    flex-shrink: 0;
 }
 
 .category-section .card {
@@ -532,6 +548,41 @@ body {
     color: #2d3748;
 }
 
+/* Team Categories Display */
+.team-categories {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.team-category-item {
+    padding: 15px;
+    background: #f7fafc;
+    border-radius: 10px;
+    border-left: 4px solid #4299e1;
+}
+
+.team-category-header {
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 8px;
+}
+
+.team-category-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.team-category-tag {
+    padding: 4px 8px;
+    background: #4299e1;
+    color: white;
+    border-radius: 15px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
 /* Utility Classes */
 .hidden {
     display: none !important;
@@ -613,6 +664,15 @@ body {
     
     .action-buttons {
         flex-direction: column;
+    }
+    
+    .category-layout {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .category-sidebar {
+        width: 100%;
     }
     
     .category-selection {

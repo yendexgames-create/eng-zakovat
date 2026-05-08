@@ -724,8 +724,66 @@ class QuizApp {
         
         console.log('Selected categories:', this.selectedCategories);
         
+        // Assign categories to teams
+        this.assignCategoriesToTeams();
+        
         this.updateCategoryButtons();
         this.updateStartButton();
+    }
+    
+    assignCategoriesToTeams() {
+        console.log('=== ASSIGN CATEGORIES TO TEAMS ===');
+        
+        this.teamCategories = {};
+        
+        // Distribute categories among teams
+        this.teams.forEach((team, teamIndex) => {
+            const categoriesPerTeam = Math.ceil(this.selectedCategories.length / this.teams.length);
+            const startIndex = teamIndex * categoriesPerTeam;
+            const endIndex = Math.min(startIndex + categoriesPerTeam, this.selectedCategories.length);
+            
+            this.teamCategories[team.id] = this.selectedCategories.slice(startIndex, endIndex);
+            
+            console.log(`Team ${team.name} categories:`, this.teamCategories[team.id]);
+        });
+        
+        // Display team categories
+        this.displayTeamCategories();
+    }
+    
+    displayTeamCategories() {
+        console.log('=== DISPLAY TEAM CATEGORIES ===');
+        
+        const teamCategoriesSection = document.getElementById('teamCategoriesSection');
+        const teamCategories = document.getElementById('teamCategories');
+        
+        if (!teamCategoriesSection || !teamCategories) {
+            console.log('Team categories elements not found');
+            return;
+        }
+        
+        // Show team categories section
+        teamCategoriesSection.style.display = 'block';
+        
+        // Generate team categories HTML
+        const teamCategoriesHTML = this.teams.map(team => {
+            const categories = this.teamCategories[team.id] || [];
+            const categoryTags = categories.map(category => 
+                `<span class="team-category-tag">${category.charAt(0).toUpperCase() + category.slice(1)}</span>`
+            ).join('');
+            
+            return `
+                <div class="team-category-item">
+                    <div class="team-category-header">${team.name}</div>
+                    <div class="team-category-list">
+                        ${categoryTags}
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        teamCategories.innerHTML = teamCategoriesHTML;
+        console.log('Team categories displayed');
     }
     
     startQuestionsQuiz() {
