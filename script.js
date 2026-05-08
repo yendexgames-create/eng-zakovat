@@ -834,14 +834,22 @@ class QuizApp {
         this.mixedQuestions = [];
         this.teams.forEach(team => {
             const teamCategories = this.teamCategories[team.id] || [];
+            console.log(`Team ${team.name} categories:`, teamCategories);
+            
             teamCategories.forEach(category => {
                 const categoryQuestions = [...this.questions[category]];
+                console.log(`Questions for category ${category}:`, categoryQuestions.length);
+                
                 // Take 1 random question from this category for this team
                 const randomIndex = Math.floor(Math.random() * categoryQuestions.length);
                 const selectedQuestion = categoryQuestions[randomIndex];
+                
                 // Add team info to question for tracking
                 selectedQuestion.teamId = team.id;
                 selectedQuestion.category = category;
+                
+                console.log(`Selected question for ${team.name} from ${category}:`, selectedQuestion.question);
+                
                 this.mixedQuestions.push(selectedQuestion);
             });
         });
@@ -884,6 +892,9 @@ class QuizApp {
         
         // Update category title based on current team's categories
         this.updateCategoryTitle();
+        
+        // Update leaderboard
+        this.updateLeaderboard();
         
         // Start timer
         this.startQuestionTimer();
@@ -945,7 +956,6 @@ class QuizApp {
         }
         
         if (questionNumber) {
-            const currentTeam = this.teams.find(t => t.id === this.currentAnsweringTeam);
             const teamQuestions = this.mixedQuestions.filter(q => q.teamId === this.currentAnsweringTeam);
             const currentTeamQuestionIndex = teamQuestions.findIndex(q => 
                 q.question === this.currentQuestion.question && 
@@ -955,7 +965,7 @@ class QuizApp {
             if (currentTeamQuestionIndex !== -1) {
                 questionNumber.textContent = `Question ${currentTeamQuestionIndex + 1} of ${teamQuestions.length}`;
             } else {
-                questionNumber.textContent = `Question ${this.currentQuestionIndex + 1} of ${this.mixedQuestions.length}`;
+                questionNumber.textContent = `Question 1 of ${teamQuestions.length}`;
             }
         }
         
