@@ -695,11 +695,18 @@ class QuizApp {
     }
     
     updateCategoryButtons() {
+        console.log('=== UPDATE CATEGORY BUTTONS ===');
+        console.log('Selected categories:', this.selectedCategories);
+        console.log('Team categories:', this.teamCategories);
+        console.log('Teams:', this.teams);
+        
         const categoryButtons = document.querySelectorAll('.category-btn');
         
         categoryButtons.forEach(button => {
             const category = button.dataset.category;
             const isSelected = this.selectedCategories.includes(category);
+            
+            console.log(`Category: ${category}, Selected: ${isSelected}`);
             
             if (isSelected) {
                 button.classList.add('selected');
@@ -711,6 +718,8 @@ class QuizApp {
                         this.teamCategories[team.id].includes(category)
                     );
                     
+                    console.log(`Assigned teams for ${category}:`, assignedTeams);
+                    
                     if (assignedTeams.length > 0) {
                         const teamNames = assignedTeams.map(team => team.name).join(', ');
                         button.setAttribute('title', `Assigned to: ${teamNames}`);
@@ -718,6 +727,7 @@ class QuizApp {
                             <div class="category-name">${category.charAt(0).toUpperCase() + category.slice(1)}</div>
                             <div class="category-teams">${teamNames}</div>
                         `;
+                        console.log(`Updated button for ${category} with teams: ${teamNames}`);
                     }
                 }
             } else {
