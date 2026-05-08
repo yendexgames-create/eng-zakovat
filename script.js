@@ -1052,20 +1052,20 @@ class QuizApp {
                 const rect = timerDisplay.getBoundingClientRect();
                 
                 console.log('Timer display element found');
-                console.log('Timer display computed styles:', {
-                    display: styles.display,
-                    visibility: styles.visibility,
-                    opacity: styles.opacity,
-                    position: styles.position,
-                    zIndex: styles.zIndex
-                });
-                console.log('Timer display bounding rect:', {
-                    top: rect.top,
-                    left: rect.left,
-                    width: rect.width,
-                    height: rect.height,
-                    isVisible: rect.width > 0 && rect.height > 0
-                });
+                console.log('Timer display computed styles:');
+                console.log('  display:', styles.display);
+                console.log('  visibility:', styles.visibility);
+                console.log('  opacity:', styles.opacity);
+                console.log('  position:', styles.position);
+                console.log('  zIndex:', styles.zIndex);
+                console.log('  fontSize:', styles.fontSize);
+                console.log('  color:', styles.color);
+                console.log('Timer display bounding rect:');
+                console.log('  top:', rect.top);
+                console.log('  left:', rect.left);
+                console.log('  width:', rect.width);
+                console.log('  height:', rect.height);
+                console.log('  isVisible:', rect.width > 0 && rect.height > 0);
                 
                 timerDisplay.textContent = timeLeft;
                 timerDisplay.innerText = timeLeft;
@@ -1073,6 +1073,30 @@ class QuizApp {
                 console.log('Timer display set to:', timeLeft);
                 console.log('Timer display after set:', timerDisplay.textContent);
                 console.log('Timer display actual content:', document.getElementById('timerDisplay').textContent);
+                
+                // Check parent elements
+                const timerSection = timerDisplay.parentElement;
+                const questionMain = timerSection ? timerSection.parentElement : null;
+                const questionCard = questionMain ? questionMain.parentElement : null;
+                
+                console.log('Timer section element:', timerSection);
+                console.log('Question main element:', questionMain);
+                console.log('Question card element:', questionCard);
+                
+                if (timerSection) {
+                    const timerSectionStyles = window.getComputedStyle(timerSection);
+                    const timerSectionRect = timerSection.getBoundingClientRect();
+                    console.log('Timer section computed styles:');
+                    console.log('  display:', timerSectionStyles.display);
+                    console.log('  visibility:', timerSectionStyles.visibility);
+                    console.log('  opacity:', timerSectionStyles.opacity);
+                    console.log('Timer section bounding rect:');
+                    console.log('  top:', timerSectionRect.top);
+                    console.log('  left:', timerSectionRect.left);
+                    console.log('  width:', timerSectionRect.width);
+                    console.log('  height:', timerSectionRect.height);
+                    console.log('  isVisible:', timerSectionRect.width > 0 && timerSectionRect.height > 0);
+                }
             } else {
                 console.log('Timer display not found');
             }
