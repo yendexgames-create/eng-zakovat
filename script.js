@@ -854,8 +854,8 @@ class QuizApp {
             });
         });
         
-        // Shuffle mixed questions
-        this.mixedQuestions.sort(() => 0.5 - Math.random());
+        // Don't shuffle questions to maintain team-category association
+        // Questions will be shown in team order
         
         console.log('Mixed questions ready:', this.mixedQuestions.length);
         
@@ -882,10 +882,15 @@ class QuizApp {
             return;
         }
         
+        // Get current question
         this.currentQuestion = this.mixedQuestions[this.currentQuestionIndex];
         this.currentQuestionAnswered = false;
         
+        // Set answering team based on question
+        this.currentAnsweringTeam = this.currentQuestion.teamId;
+        
         console.log('Current question:', this.currentQuestion);
+        console.log('Current answering team ID:', this.currentAnsweringTeam);
         
         // Update question display
         this.updateQuestionDisplay();
