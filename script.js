@@ -619,7 +619,7 @@ class QuizApp {
     
     showCategorySelection() {
         const setupSection = document.getElementById('setupSection');
-        const quizSection = document.getElementById('quizSection');
+        const categorySection = document.getElementById('categorySection');
         
         // Check current page - only show categories on questions.html
         const currentPath = window.location.pathname;
@@ -639,14 +639,14 @@ class QuizApp {
         // Show category section only on questions.html
         if (isQuestionsPage) {
             console.log('Showing category section on questions.html');
-            console.log('Quiz section element:', quizSection);
-            console.log('Quiz section classes:', quizSection ? quizSection.className : 'not found');
-            console.log('Quiz section hidden status:', quizSection ? quizSection.classList.contains('hidden') : 'not found');
+            console.log('Category section element:', categorySection);
+            console.log('Category section classes:', categorySection ? categorySection.className : 'not found');
+            console.log('Category section hidden status:', categorySection ? categorySection.classList.contains('hidden') : 'not found');
             
-            if (quizSection) {
-                quizSection.classList.remove('hidden');
-                console.log('Removed hidden class from quiz section');
-                console.log('Quiz section classes after removal:', quizSection.className);
+            if (categorySection) {
+                categorySection.classList.remove('hidden');
+                console.log('Removed hidden class from category section');
+                console.log('Category section classes after removal:', categorySection.className);
             }
             
             const categorySelection = document.getElementById('categorySelection');
@@ -671,8 +671,8 @@ class QuizApp {
             }
         } else {
             console.log('On index.html - hiding category section');
-            if (quizSection) {
-                quizSection.classList.add('hidden');
+            if (categorySection) {
+                categorySection.classList.add('hidden');
             }
         }
     }
@@ -1182,7 +1182,7 @@ class QuizApp {
         console.log('=== UPDATE QUESTIONS PAGE ===');
         
         const setupSection = document.getElementById('setupSection');
-        const quizSection = document.getElementById('quizSection');
+        const categorySection = document.getElementById('categorySection');
         
         // Check current page
         const currentPath = window.location.pathname;
@@ -1206,7 +1206,7 @@ class QuizApp {
             if (setupSection) setupSection.classList.remove('hidden');
             
             // Hide category section
-            if (quizSection) quizSection.classList.add('hidden');
+            if (categorySection) categorySection.classList.add('hidden');
         }
         
         // Update leaderboard on questions page too
@@ -1220,9 +1220,9 @@ class QuizApp {
         this.displayTeams();
         
         // Hide category section on index.html
-        const quizSection = document.getElementById('quizSection');
-        if (quizSection) {
-            quizSection.classList.add('hidden');
+        const categorySection = document.getElementById('categorySection');
+        if (categorySection) {
+            categorySection.classList.add('hidden');
         }
         
         console.log('Index page updated - categories hidden');
