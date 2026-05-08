@@ -1379,6 +1379,29 @@ class QuizApp {
             // Check if leaderboard is actually visible
             const section = document.getElementById('leaderboardSection');
             if (section) {
+                // Check parent elements
+                const parent = section.parentElement;
+                const grandParent = parent ? parent.parentElement : null;
+                console.log('Leaderboard section parent:', parent);
+                console.log('Leaderboard section grandparent:', grandParent);
+                
+                if (parent) {
+                    const parentStyles = window.getComputedStyle(parent);
+                    console.log('Parent computed styles:');
+                    console.log('  display:', parentStyles.display);
+                    console.log('  visibility:', parentStyles.visibility);
+                    console.log('  opacity:', parentStyles.opacity);
+                    console.log('  height:', parentStyles.height);
+                    console.log('  width:', parentStyles.width);
+                    
+                    const parentRect = parent.getBoundingClientRect();
+                    console.log('Parent bounding rect:');
+                    console.log('  top:', parentRect.top);
+                    console.log('  left:', parentRect.left);
+                    console.log('  width:', parentRect.width);
+                    console.log('  height:', parentRect.height);
+                }
+                
                 const styles = window.getComputedStyle(section);
                 console.log('Leaderboard section computed styles:');
                 console.log('  display:', styles.display);
