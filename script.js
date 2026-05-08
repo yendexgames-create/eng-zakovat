@@ -639,11 +639,19 @@ class QuizApp {
         // Show category section only on questions.html
         if (isQuestionsPage) {
             console.log('Showing category section on questions.html');
+            console.log('Quiz section element:', quizSection);
+            console.log('Quiz section classes:', quizSection ? quizSection.className : 'not found');
+            console.log('Quiz section hidden status:', quizSection ? quizSection.classList.contains('hidden') : 'not found');
+            
             if (quizSection) {
                 quizSection.classList.remove('hidden');
+                console.log('Removed hidden class from quiz section');
+                console.log('Quiz section classes after removal:', quizSection.className);
             }
             
             const categorySelection = document.getElementById('categorySelection');
+            console.log('Category selection element:', categorySelection);
+            
             if (categorySelection) {
                 categorySelection.innerHTML = '';
                 
@@ -656,6 +664,7 @@ class QuizApp {
                     categorySelection.appendChild(categoryBtn);
                 });
                 console.log('Categories generated:', this.categories.length);
+                console.log('Category selection children count:', categorySelection.children.length);
             }
         } else {
             console.log('On index.html - hiding category section');
