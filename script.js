@@ -889,6 +889,21 @@ class QuizApp {
         this.showReadyToAnswerButton();
     }
     
+    getCategoryFromQuestion(question) {
+        // Find which category this question belongs to
+        for (const category in this.questions) {
+            const categoryQuestions = this.questions[category];
+            const found = categoryQuestions.some(q => 
+                q.question === question.question && 
+                JSON.stringify(q.options) === JSON.stringify(question.options)
+            );
+            if (found) {
+                return category;
+            }
+        }
+        return 'Unknown';
+    }
+    
     updateCategoryTitle() {
         const categoryTitle = document.getElementById('categoryTitle');
         if (!categoryTitle) return;
