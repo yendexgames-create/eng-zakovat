@@ -456,6 +456,7 @@ class QuizApp {
     
     generateTeamInputs() {
         console.log('=== GENERATE TEAM INPUTS DEBUG ===');
+        console.log('Function called from:', new Error().stack);
         
         const teamCountInput = document.getElementById('teamCount');
         const teamInputsContainer = document.getElementById('teamInputsContainer');
@@ -1222,4 +1223,10 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('=== DOM CONTENT LOADED ===');
     const quizApp = new QuizApp();
     quizApp.initialize();
+    
+    // Auto-generate team inputs after a short delay
+    setTimeout(() => {
+        console.log('=== AUTO GENERATE TEAM INPUTS ===');
+        quizApp.generateTeamInputs();
+    }, 1000);
 });
