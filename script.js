@@ -1129,7 +1129,6 @@ class QuizApp {
             nextBtn.classList.add('hidden');
         }
     }
-    }
     
     hideReadyToAnswerButton() {
         const readyBtn = document.getElementById('readyToAnswerBtn');
