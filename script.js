@@ -914,6 +914,110 @@ class QuizApp {
         if (categorySection) categorySection.classList.add('hidden');
     }
     
+    showQuestion() {
+        console.log('=== SHOW QUESTION ===');
+        
+        if (this.currentQuestionIndex >= this.mixedQuestions.length) {
+            this.endQuiz();
+            return;
+        }
+        
+        this.currentQuestion = this.mixedQuestions[this.currentQuestionIndex];
+        this.currentQuestionAnswered = false;
+        this.currentAnsweringTeam = this.currentQuestion.teamId;
+        
+        console.log('Current question:', this.currentQuestion);
+        console.log('Current answering team ID:', this.currentAnsweringTeam);
+        
+        // Show question section
+        const questionSection = document.getElementById('questionSection');
+        if (questionSection) {
+            questionSection.classList.remove('hidden');
+            console.log('Question section classes after removing hidden:', questionSection.className);
+            
+            const questionStyles = window.getComputedStyle(questionSection);
+            console.log('Question section computed styles:');
+            console.log('  display:', questionStyles.display);
+            console.log('  visibility:', questionStyles.visibility);
+            console.log('  opacity:', questionStyles.opacity);
+            console.log('  height:', questionStyles.height);
+            console.log('  width:', questionStyles.width);
+            console.log('  position:', questionStyles.position);
+            console.log('  zIndex:', questionStyles.zIndex);
+            console.log('  overflow:', questionStyles.overflow);
+            console.log('  transform:', questionStyles.transform);
+            
+            const questionRect = questionSection.getBoundingClientRect();
+            console.log('Question section bounding rect:');
+            console.log('  top:', questionRect.top);
+            console.log('  left:', questionRect.left);
+            console.log('  width:', questionRect.width);
+            console.log('  height:', questionRect.height);
+            console.log('  isVisible:', questionRect.width > 0 && questionRect.height > 0);
+        }
+        
+        // Hide category section
+        const categorySection = document.getElementById('categorySection');
+        if (categorySection) {
+            categorySection.classList.add('hidden');
+        }
+        
+        // Update leaderboard
+        this.updateLeaderboard();
+        
+        // Show 3 second countdown before question
+        this.showCountdownBeforeQuestion();
+    }
+    
+    showCountdownBeforeQuestion() {
+        console.log('=== SHOW COUNTDOWN BEFORE QUESTION ===');
+        
+        const questionText = document.getElementById('questionText');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const timerProgress = document.getElementById('timerProgress');
+        const readyToAnswerBtn = document.getElementById('readyToAnswerBtn');
+        const nextQuestionBtn = document.getElementById('nextQuestionBtn');
+        
+        // Hide question elements
+        if (questionText) questionText.innerHTML = '';
+        if (optionsContainer) optionsContainer.innerHTML = '';
+        if (readyToAnswerBtn) readyToAnswerBtn.classList.add('hidden');
+        if (nextQuestionBtn) nextQuestionBtn.classList.add('hidden');
+        
+        // Show countdown
+        let countdown = 3;
+        if (questionText) {
+            questionText.innerHTML = `<div class="countdown">${countdown}</div>`;
+        }
+        
+        // Play countdown sound
+        this.playSound('countdown');
+        
+        const countdownInterval = setInterval(() => {
+            countdown--;
+            
+            if (countdown > 0) {
+                if (questionText) {
+                    questionText.innerHTML = `<div class="countdown">${countdown}</div>`;
+                }
+                this.playSound('countdown');
+            } else {
+                clearInterval(countdownInterval);
+                this.showActualQuestion();
+            }
+        }, 1000);
+    }
+    
+    showActualQuestion() {
+        console.log('=== SHOW ACTUAL QUESTION ===');
+        
+        this.updateQuestionDisplay();
+        this.updateCategoryTitle();
+        this.startQuestionTimer();
+        this.showReadyToAnswerButton();
+    }
+    
     getCategoryFromQuestion(question) {
         // Find which category this question belongs to
         for (const category in this.questions) {
