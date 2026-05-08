@@ -736,13 +736,13 @@ class QuizApp {
         
         this.teamCategories = {};
         
-        // Distribute categories among teams
+        // Assign exactly 2 categories per team
         this.teams.forEach((team, teamIndex) => {
-            const categoriesPerTeam = Math.ceil(this.selectedCategories.length / this.teams.length);
-            const startIndex = teamIndex * categoriesPerTeam;
-            const endIndex = Math.min(startIndex + categoriesPerTeam, this.selectedCategories.length);
+            // Get 2 random categories for this team
+            const shuffled = [...this.selectedCategories].sort(() => 0.5 - Math.random());
+            const teamCategories = shuffled.slice(0, 2);
             
-            this.teamCategories[team.id] = this.selectedCategories.slice(startIndex, endIndex);
+            this.teamCategories[team.id] = teamCategories;
             
             console.log(`Team ${team.name} categories:`, this.teamCategories[team.id]);
         });
