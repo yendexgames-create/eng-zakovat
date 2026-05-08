@@ -1338,9 +1338,9 @@ class QuizApp {
             console.log('Leaderboard innerHTML after update:', leaderboard.innerHTML);
             
             // Check if leaderboard is actually visible
-            const leaderboardSection = document.getElementById('leaderboardSection');
-            if (leaderboardSection) {
-                const styles = window.getComputedStyle(leaderboardSection);
+            const section = document.getElementById('leaderboardSection');
+            if (section) {
+                const styles = window.getComputedStyle(section);
                 console.log('Leaderboard section computed styles:', {
                     display: styles.display,
                     visibility: styles.visibility,
