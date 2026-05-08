@@ -701,12 +701,13 @@ class QuizApp {
         console.log('Teams:', this.teams);
         
         const categoryButtons = document.querySelectorAll('.category-btn');
+        console.log('Category buttons found:', categoryButtons.length);
         
-        categoryButtons.forEach(button => {
+        categoryButtons.forEach((button, index) => {
             const category = button.dataset.category;
             const isSelected = this.selectedCategories.includes(category);
             
-            console.log(`Category: ${category}, Selected: ${isSelected}`);
+            console.log(`Button ${index}: Category: ${category}, Selected: ${isSelected}`);
             
             if (isSelected) {
                 button.classList.add('selected');
