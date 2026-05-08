@@ -618,6 +618,7 @@ class QuizApp {
     
     showCategorySelection() {
         const setupSection = document.getElementById('setupSection');
+        const teamSetupSection = document.getElementById('teamSetupSection');
         const quizSection = document.getElementById('quizSection');
         
         // Check current page - only show categories on questions.html
@@ -627,8 +628,13 @@ class QuizApp {
         console.log('Current page:', currentPath);
         console.log('Is questions page:', isQuestionsPage);
         
+        // Hide setup sections
         if (setupSection) setupSection.classList.add('hidden');
+        if (teamSetupSection) teamSetupSection.classList.add('hidden');
+        
+        // Show category section only on questions.html
         if (quizSection && isQuestionsPage) {
+            console.log('Showing category section on questions.html');
             quizSection.classList.remove('hidden');
             
             const categorySelection = document.getElementById('categorySelection');
@@ -643,6 +649,7 @@ class QuizApp {
                     categoryBtn.addEventListener('click', () => this.toggleCategory(category));
                     categorySelection.appendChild(categoryBtn);
                 });
+                console.log('Categories generated:', this.categories.length);
             }
         } else {
             console.log('On index.html - hiding category section');
@@ -1155,24 +1162,30 @@ class QuizApp {
         
         const setupSection = document.getElementById('setupSection');
         const teamSetupSection = document.getElementById('teamSetupSection');
-        const categorySection = document.getElementById('categorySection');
+        const quizSection = document.getElementById('quizSection');
         
         if (state.quizActivated && this.teams.length > 0) {
             console.log('Quiz activated and teams exist - showing category section');
             
+            // Hide setup sections
             if (setupSection) setupSection.classList.add('hidden');
             if (teamSetupSection) teamSetupSection.classList.add('hidden');
-            if (categorySection) categorySection.classList.remove('hidden');
             
             // Show category selection
             this.showCategorySelection();
         } else {
             console.log('Quiz not activated or no teams - showing setup');
             
+            // Show setup sections
             if (setupSection) setupSection.classList.remove('hidden');
             if (teamSetupSection) teamSetupSection.classList.remove('hidden');
-            if (categorySection) categorySection.classList.add('hidden');
+            
+            // Hide category section
+            if (quizSection) quizSection.classList.add('hidden');
         }
+        
+        // Update leaderboard on questions page too
+        this.updateLeaderboard();
     }
     
     updateIndexPage(state) {
