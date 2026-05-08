@@ -839,6 +839,9 @@ class QuizApp {
                 // Take 1 random question from this category for this team
                 const randomIndex = Math.floor(Math.random() * categoryQuestions.length);
                 const selectedQuestion = categoryQuestions[randomIndex];
+                // Add team info to question for tracking
+                selectedQuestion.teamId = team.id;
+                selectedQuestion.category = category;
                 this.mixedQuestions.push(selectedQuestion);
             });
         });
