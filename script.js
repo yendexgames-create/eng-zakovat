@@ -906,7 +906,9 @@ class QuizApp {
         if (currentTeam) {
             const team = this.teams.find(t => t.id === this.currentAnsweringTeam);
             if (team) {
-                currentTeam.textContent = `Team ${team.name}`;
+                currentTeam.textContent = team.name;
+            } else {
+                currentTeam.textContent = `Team ${this.currentAnsweringTeam}`;
             }
         }
     }
