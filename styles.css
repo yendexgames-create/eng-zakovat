@@ -214,6 +214,19 @@ body {
 }
 
 /* Category Section */
+.category-section {
+    max-width: 800px;
+    margin: 0 auto 30px;
+}
+
+.category-section .card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
 .category-selection {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));

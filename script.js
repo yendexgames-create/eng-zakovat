@@ -655,16 +655,19 @@ class QuizApp {
             if (categorySelection) {
                 categorySelection.innerHTML = '';
                 
-                this.categories.forEach(category => {
+                this.categories.forEach((category, index) => {
+                    console.log(`Creating category button ${index + 1}: ${category}`);
                     const categoryBtn = document.createElement('button');
                     categoryBtn.className = 'category-btn';
                     categoryBtn.textContent = category.charAt(0).toUpperCase() + category.slice(1);
                     categoryBtn.dataset.category = category;
                     categoryBtn.addEventListener('click', () => this.toggleCategory(category));
                     categorySelection.appendChild(categoryBtn);
+                    console.log(`Category button ${index + 1} added:`, categoryBtn);
                 });
                 console.log('Categories generated:', this.categories.length);
                 console.log('Category selection children count:', categorySelection.children.length);
+                console.log('Category selection innerHTML:', categorySelection.innerHTML.substring(0, 200) + '...');
             }
         } else {
             console.log('On index.html - hiding category section');
