@@ -896,6 +896,25 @@ class QuizApp {
         const questionSection = document.getElementById('questionSection');
         if (questionSection) {
             questionSection.classList.remove('hidden');
+            console.log('Question section classes after removing hidden:', questionSection.className);
+            
+            const questionStyles = window.getComputedStyle(questionSection);
+            console.log('Question section computed styles:', {
+                display: questionStyles.display,
+                visibility: questionStyles.visibility,
+                opacity: questionStyles.opacity,
+                height: questionStyles.height,
+                width: questionStyles.width
+            });
+            
+            const questionRect = questionSection.getBoundingClientRect();
+            console.log('Question section bounding rect:', {
+                top: questionRect.top,
+                left: questionRect.left,
+                width: questionRect.width,
+                height: questionRect.height,
+                isVisible: questionRect.width > 0 && questionRect.height > 0
+            });
         }
         
         // Hide category section
