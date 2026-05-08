@@ -623,7 +623,7 @@ class QuizApp {
         
         // Check current page - only show categories on questions.html
         const currentPath = window.location.pathname;
-        const isQuestionsPage = currentPath.includes('questions.html') || currentPath.includes('/questions');
+        const isQuestionsPage = currentPath.includes('questions.html') || currentPath.includes('/questions') || currentPath.endsWith('questions');
         
         console.log('Current page:', currentPath);
         console.log('Is questions page:', isQuestionsPage);
@@ -1144,9 +1144,12 @@ class QuizApp {
         
         // Update UI based on current page
         const currentPath = window.location.pathname;
-        console.log('Current page:', currentPath);
+        const isQuestionsPage = currentPath.includes('questions.html') || currentPath.includes('/questions') || currentPath.endsWith('questions');
         
-        if (currentPath.includes('questions.html') || currentPath.includes('/questions')) {
+        console.log('Current page:', currentPath);
+        console.log('Is questions page:', isQuestionsPage);
+        
+        if (isQuestionsPage) {
             console.log('Updating questions page');
             this.updateQuestionsPage(state);
         } else {
@@ -1163,6 +1166,13 @@ class QuizApp {
         const setupSection = document.getElementById('setupSection');
         const teamSetupSection = document.getElementById('teamSetupSection');
         const quizSection = document.getElementById('quizSection');
+        
+        // Check current page
+        const currentPath = window.location.pathname;
+        const isQuestionsPage = currentPath.includes('questions.html') || currentPath.includes('/questions') || currentPath.endsWith('questions');
+        
+        console.log('UpdateQuestionsPage - Current page:', currentPath);
+        console.log('UpdateQuestionsPage - Is questions page:', isQuestionsPage);
         
         if (state.quizActivated && this.teams.length > 0) {
             console.log('Quiz activated and teams exist - showing category section');
