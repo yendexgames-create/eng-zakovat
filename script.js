@@ -465,6 +465,33 @@ class QuizApp {
         console.log('=== GENERATE TEAM INPUTS DEBUG ===');
         console.log('Function called from:', new Error().stack);
         
+        // Check if we're on index page
+        const isIndexPage = window.location.pathname.includes('index.html') || window.location.pathname === '/';
+        console.log('Is index page:', isIndexPage);
+        
+        // Check setup section visibility
+        const setupSection = document.getElementById('setupSection');
+        if (setupSection) {
+            const setupStyles = window.getComputedStyle(setupSection);
+            const setupRect = setupSection.getBoundingClientRect();
+            console.log('Setup section element:', setupSection);
+            console.log('Setup section classes:', setupSection.className);
+            console.log('Setup section computed styles:', {
+                display: setupStyles.display,
+                visibility: setupStyles.visibility,
+                opacity: setupStyles.opacity
+            });
+            console.log('Setup section bounding rect:', {
+                top: setupRect.top,
+                left: setupRect.left,
+                width: setupRect.width,
+                height: setupRect.height,
+                isVisible: setupRect.width > 0 && setupRect.height > 0
+            });
+        } else {
+            console.log('Setup section not found');
+        }
+        
         const teamCountInput = document.getElementById('teamCount');
         const teamInputsContainer = document.getElementById('teamInputsContainer');
         
