@@ -507,6 +507,8 @@ body {
     opacity: 1 !important;
     height: auto !important;
     overflow: visible !important;
+    position: relative !important;
+    z-index: 1 !important;
 }
 
 .leaderboard {
@@ -517,10 +519,16 @@ body {
     gap: 15px;
     height: auto !important;
     overflow: visible !important;
+    position: relative !important;
+    z-index: 1 !important;
 }
 
 .leaderboard-item {
-    display: flex;
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    z-index: 1 !important;
     justify-content: space-between;
     align-items: center;
     padding: 20px;
