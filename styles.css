@@ -303,6 +303,7 @@ body {
     display: flex;
     gap: 30px;
     align-items: flex-start;
+    width: 100%;
 }
 
 .question-main {
@@ -500,11 +501,9 @@ body {
 
 /* Leaderboard Section */
 .leaderboard-section {
-    margin-top: 20px;
+    margin-top: 0;
     display: block !important;
     visibility: visible !important;
-    max-width: 600px;
-    margin: 0 auto 30px;
 }
 
 .leaderboard {
