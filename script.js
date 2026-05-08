@@ -871,71 +871,6 @@ class QuizApp {
         const questionSection = document.getElementById('questionSection');
         
         if (categorySection) categorySection.classList.add('hidden');
-        if (questionSection) questionSection.classList.remove('hidden');
-    }
-    
-    showQuestion() {
-        console.log('=== SHOW QUESTION ===');
-        
-        if (this.currentQuestionIndex >= this.mixedQuestions.length) {
-            this.endQuiz();
-            return;
-        }
-        
-        // Get current question
-        this.currentQuestion = this.mixedQuestions[this.currentQuestionIndex];
-        this.currentQuestionAnswered = false;
-        
-        // Set answering team based on question
-        this.currentAnsweringTeam = this.currentQuestion.teamId;
-        
-        console.log('Current question:', this.currentQuestion);
-        console.log('Current answering team ID:', this.currentAnsweringTeam);
-        
-        // Show question section
-        const questionSection = document.getElementById('questionSection');
-        if (questionSection) {
-            questionSection.classList.remove('hidden');
-            console.log('Question section classes after removing hidden:', questionSection.className);
-            
-            const questionStyles = window.getComputedStyle(questionSection);
-            console.log('Question section computed styles:');
-            console.log('  display:', questionStyles.display);
-            console.log('  visibility:', questionStyles.visibility);
-            console.log('  opacity:', questionStyles.opacity);
-            console.log('  height:', questionStyles.height);
-            console.log('  width:', questionStyles.width);
-            console.log('  position:', questionStyles.position);
-            console.log('  zIndex:', questionStyles.zIndex);
-            console.log('  overflow:', questionStyles.overflow);
-            console.log('  transform:', questionStyles.transform);
-            
-            const questionRect = questionSection.getBoundingClientRect();
-            console.log('Question section bounding rect:');
-            console.log('  top:', questionRect.top);
-            console.log('  left:', questionRect.left);
-            console.log('  width:', questionRect.width);
-            console.log('  height:', questionRect.height);
-            console.log('  isVisible:', questionRect.width > 0 && questionRect.height > 0);
-        }
-        
-        // Hide category section
-        const categorySection = document.getElementById('categorySection');
-        if (categorySection) {
-            categorySection.classList.add('hidden');
-        }
-        
-        this.updateQuestionDisplay();
-        this.updateCategoryTitle();
-        
-        // Update leaderboard
-        this.updateLeaderboard();
-        
-        // Start timer
-        this.startQuestionTimer();
-        
-        // Show ready to answer button
-        this.showReadyToAnswerButton();
     }
     
     getCategoryFromQuestion(question) {
@@ -1155,22 +1090,7 @@ class QuizApp {
             clearInterval(this.currentTimerInterval);
             this.currentTimerInterval = null;
         }
-    }
-    
-    timeUp() {
-        console.log('=== TIME UP ===');
-        this.timeUpCalled = true;
         
-        // Hide ready to answer button
-        this.hideReadyToAnswerButton();
-        
-        // Auto move to next question after delay
-        setTimeout(() => {
-            this.nextQuestion();
-        }, 2000);
-    }
-    
-    showReadyToAnswerButton() {
         const readyBtn = document.getElementById('readyToAnswerBtn');
         const nextBtn = document.getElementById('nextQuestionBtn');
         
@@ -1181,6 +1101,7 @@ class QuizApp {
         if (nextBtn) {
             nextBtn.classList.add('hidden');
         }
+    }
     }
     
     hideReadyToAnswerButton() {
