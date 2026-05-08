@@ -1003,18 +1003,29 @@ class QuizApp {
     }
     
     startQuestionTimer() {
+        console.log('=== START TIMER ===');
         this.stopQuestionTimer();
         
         let timeLeft = this.questionTimer;
         const timerDisplay = document.getElementById('timerDisplay');
         const timerProgress = document.getElementById('timerProgress');
         
+        console.log('Timer display element:', timerDisplay);
+        console.log('Timer progress element:', timerProgress);
+        console.log('Question timer duration:', this.questionTimer);
+        
         if (timerDisplay) {
             timerDisplay.textContent = timeLeft;
+            console.log('Timer display set to:', timeLeft);
+        } else {
+            console.log('Timer display not found');
         }
         
         if (timerProgress) {
             timerProgress.style.width = '100%';
+            console.log('Timer progress set to 100%');
+        } else {
+            console.log('Timer progress not found');
         }
         
         this.currentTimerInterval = setInterval(() => {
@@ -1285,6 +1296,9 @@ class QuizApp {
         
         const leaderboardSection = document.getElementById('leaderboardSection');
         const leaderboard = document.getElementById('leaderboard');
+        
+        console.log('Leaderboard section element:', leaderboardSection);
+        console.log('Leaderboard element:', leaderboard);
         
         if (!leaderboardSection || !leaderboard) {
             console.log('Leaderboard elements not found');
