@@ -1341,27 +1341,25 @@ class QuizApp {
             const section = document.getElementById('leaderboardSection');
             if (section) {
                 const styles = window.getComputedStyle(section);
-                console.log('Leaderboard section computed styles:', {
-                    display: styles.display,
-                    visibility: styles.visibility,
-                    opacity: styles.opacity,
-                    height: styles.height,
-                    width: styles.width,
-                    position: styles.position,
-                    zIndex: styles.zIndex,
-                    overflow: styles.overflow,
-                    transform: styles.transform
-                });
+                console.log('Leaderboard section computed styles:');
+                console.log('  display:', styles.display);
+                console.log('  visibility:', styles.visibility);
+                console.log('  opacity:', styles.opacity);
+                console.log('  height:', styles.height);
+                console.log('  width:', styles.width);
+                console.log('  position:', styles.position);
+                console.log('  zIndex:', styles.zIndex);
+                console.log('  overflow:', styles.overflow);
+                console.log('  transform:', styles.transform);
                 
                 // Check if element is actually visible in viewport
                 const rect = section.getBoundingClientRect();
-                console.log('Leaderboard section bounding rect:', {
-                    top: rect.top,
-                    left: rect.left,
-                    width: rect.width,
-                    height: rect.height,
-                    isVisible: rect.width > 0 && rect.height > 0
-                });
+                console.log('Leaderboard section bounding rect:');
+                console.log('  top:', rect.top);
+                console.log('  left:', rect.left);
+                console.log('  width:', rect.width);
+                console.log('  height:', rect.height);
+                console.log('  isVisible:', rect.width > 0 && rect.height > 0);
             }
         }
     }
