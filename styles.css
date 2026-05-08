@@ -261,6 +261,10 @@ body {
     cursor: default;
     transition: all 0.3s ease;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 80px;
 }
 
 .category-btn:hover {
@@ -273,9 +277,9 @@ body {
     background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
     color: white;
     border-color: #4299e1;
-    flex-direction: column;
     align-items: flex-start;
     padding: 15px;
+    text-align: left;
 }
 
 .category-name {
@@ -285,9 +289,13 @@ body {
 }
 
 .category-teams {
-    font-size: 0.8rem;
-    opacity: 0.9;
-    font-weight: 500;
+    font-size: 0.75rem;
+    opacity: 1;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 3px 6px;
+    border-radius: 10px;
+    margin-top: 3px;
 }
 
 /* Question Section */
