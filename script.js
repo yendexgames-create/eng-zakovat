@@ -1346,7 +1346,21 @@ class QuizApp {
                     visibility: styles.visibility,
                     opacity: styles.opacity,
                     height: styles.height,
-                    width: styles.width
+                    width: styles.width,
+                    position: styles.position,
+                    zIndex: styles.zIndex,
+                    overflow: styles.overflow,
+                    transform: styles.transform
+                });
+                
+                // Check if element is actually visible in viewport
+                const rect = section.getBoundingClientRect();
+                console.log('Leaderboard section bounding rect:', {
+                    top: rect.top,
+                    left: rect.left,
+                    width: rect.width,
+                    height: rect.height,
+                    isVisible: rect.width > 0 && rect.height > 0
                 });
             }
         }
