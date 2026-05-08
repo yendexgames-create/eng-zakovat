@@ -399,6 +399,38 @@ opacity: 0.9;
 75% { transform: translateX(10px); }
 }
 
+.time-up-modal {
+    text-align: center;
+    padding: 30px;
+}
+
+.time-up-modal h3 {
+    font-size: 2.5rem;
+    color: #e53e3e;
+    margin-bottom: 20px;
+    animation: shake 0.5s ease-in-out;
+}
+
+.time-up-modal p {
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+    color: #4a5568;
+}
+
+.time-up-modal strong {
+    color: #2d3748;
+    font-weight: 700;
+}
+
+.modal-actions {
+    margin-top: 30px;
+}
+
+.modal-actions .btn {
+    padding: 12px 30px;
+    font-size: 1.1rem;
+}
+
 .question-text {
 font-size: 2rem;
 font-weight: 700;

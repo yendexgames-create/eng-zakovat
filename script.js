@@ -290,6 +290,21 @@ class QuizApp {
             }, 500);
         });
         
+        // Listen for time up modal
+        this.socket.on('showTimeUpModal', (data) => {
+            console.log('=== SHOW TIME UP MODAL SOCKET EVENT ===');
+            console.log('Time up modal data received:', data);
+            
+            // Store modal data
+            this.currentQuestion = data.currentQuestion;
+            this.currentAnsweringTeam = data.currentAnsweringTeam;
+            this.teams = data.teams;
+            this.scores = data.scores;
+            
+            // Show time up modal
+            this.showTimeUpModal(data);
+        });
+        
         console.log('=== SOCKET INITIALIZATION COMPLETE ===');
     }
     
@@ -1255,10 +1270,12 @@ class QuizApp {
         // Play time up sound
         this.playSound('timeup');
         
-        // Show "Time's Up!" message
+        // Send time up modal to index.html
+        this.sendTimeUpModalToIndex();
+        
+        // Show "Time's Up!" message on questions.html
         const questionText = document.getElementById('questionText');
         if (questionText) {
-            const originalContent = questionText.innerHTML;
             questionText.innerHTML = `
                 <div class="time-up-message">
                     <h2>⏰ Time's Up!</h2>
@@ -1278,6 +1295,81 @@ class QuizApp {
         setTimeout(() => {
             this.nextQuestion();
         }, 3000);
+    }
+    
+    sendTimeUpModalToIndex() {
+        console.log('=== SEND TIME UP MODAL TO INDEX ===');
+        
+        // Get current answering team
+        const currentTeam = this.teams.find(t => t.id === this.currentAnsweringTeam);
+        if (!currentTeam) {
+            console.error('Current answering team not found');
+            return;
+        }
+        
+        // Send time up modal data to server
+        const modalData = {
+            type: 'timeUp',
+            currentQuestion: this.currentQuestion,
+            currentAnsweringTeam: this.currentAnsweringTeam,
+            teams: this.teams,
+            scores: this.scores,
+            teamName: currentTeam.name,
+            correctAnswer: this.currentQuestion.options[this.currentQuestion.correctAnswer]
+        };
+        
+        console.log('Sending time up modal data:', modalData);
+        this.socket.emit('showTimeUpModal', modalData);
+    }
+    
+    showTimeUpModal(data) {
+        console.log('=== SHOW TIME UP MODAL ===');
+        console.log('Modal data:', data);
+        
+        const modal = document.getElementById('teamAnswerModal');
+        const teamNameElement = document.getElementById('answeringTeamName');
+        const questionElement = document.getElementById('teamAnswerQuestion');
+        
+        console.log('Modal element exists:', !!modal);
+        console.log('Team name element exists:', !!teamNameElement);
+        console.log('Question element exists:', !!questionElement);
+        
+        if (!modal || !teamNameElement || !questionElement) {
+            console.error('Time up modal elements not found');
+            return;
+        }
+        
+        // Set team name
+        teamNameElement.textContent = data.teamName;
+        
+        // Set time up message
+        questionElement.innerHTML = `
+            <div class="time-up-modal">
+                <h3>⏰ Time's Up!</h3>
+                <p>Team <strong>${data.teamName}</strong> ran out of time!</p>
+                <p>The correct answer was: <strong>${data.correctAnswer}</strong></p>
+                <div class="modal-actions">
+                    <button class="btn btn-primary" onclick="quizApp.closeTimeUpModal()">OK</button>
+                </div>
+            </div>
+        `;
+        
+        // Show modal
+        console.log('About to remove hidden class from time up modal');
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+        
+        console.log(`Time up modal for ${data.teamName} shown`);
+    }
+    
+    closeTimeUpModal() {
+        console.log('=== CLOSE TIME UP MODAL ===');
+        
+        const modal = document.getElementById('teamAnswerModal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        }
     }
     
     hideReadyToAnswerButton() {
