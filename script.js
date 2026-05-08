@@ -1324,8 +1324,21 @@ class QuizApp {
     updateLeaderboard() {
         console.log('=== UPDATE LEADERBOARD ===');
         
-        const sectionElement = document.getElementById('leaderboardSection');
-        const leaderboardElement = document.getElementById('leaderboard');
+        // Try to find leaderboard in question section first, then category section
+        let sectionElement = document.querySelector('#questionSection #leaderboardSection');
+        let leaderboardElement = document.querySelector('#questionSection #leaderboard');
+        
+        // If not found in question section, try category section
+        if (!sectionElement) {
+            sectionElement = document.querySelector('#categorySection #leaderboardSection');
+            leaderboardElement = document.querySelector('#categorySection #leaderboard');
+        }
+        
+        // Fallback to global search
+        if (!sectionElement) {
+            sectionElement = document.getElementById('leaderboardSection');
+            leaderboardElement = document.getElementById('leaderboard');
+        }
         
         console.log('Leaderboard section element:', sectionElement);
         console.log('Leaderboard element:', leaderboardElement);
