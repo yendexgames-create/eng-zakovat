@@ -899,22 +899,24 @@ class QuizApp {
             console.log('Question section classes after removing hidden:', questionSection.className);
             
             const questionStyles = window.getComputedStyle(questionSection);
-            console.log('Question section computed styles:', {
-                display: questionStyles.display,
-                visibility: questionStyles.visibility,
-                opacity: questionStyles.opacity,
-                height: questionStyles.height,
-                width: questionStyles.width
-            });
+            console.log('Question section computed styles:');
+            console.log('  display:', questionStyles.display);
+            console.log('  visibility:', questionStyles.visibility);
+            console.log('  opacity:', questionStyles.opacity);
+            console.log('  height:', questionStyles.height);
+            console.log('  width:', questionStyles.width);
+            console.log('  position:', questionStyles.position);
+            console.log('  zIndex:', questionStyles.zIndex);
+            console.log('  overflow:', questionStyles.overflow);
+            console.log('  transform:', questionStyles.transform);
             
             const questionRect = questionSection.getBoundingClientRect();
-            console.log('Question section bounding rect:', {
-                top: questionRect.top,
-                left: questionRect.left,
-                width: questionRect.width,
-                height: questionRect.height,
-                isVisible: questionRect.width > 0 && questionRect.height > 0
-            });
+            console.log('Question section bounding rect:');
+            console.log('  top:', questionRect.top);
+            console.log('  left:', questionRect.left);
+            console.log('  width:', questionRect.width);
+            console.log('  height:', questionRect.height);
+            console.log('  isVisible:', questionRect.width > 0 && questionRect.height > 0);
         }
         
         // Hide category section
