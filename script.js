@@ -945,7 +945,18 @@ class QuizApp {
         }
         
         if (questionNumber) {
-            questionNumber.textContent = `Question ${this.currentQuestionIndex + 1} of ${this.mixedQuestions.length}`;
+            const currentTeam = this.teams.find(t => t.id === this.currentAnsweringTeam);
+            const teamQuestions = this.mixedQuestions.filter(q => q.teamId === this.currentAnsweringTeam);
+            const currentTeamQuestionIndex = teamQuestions.findIndex(q => 
+                q.question === this.currentQuestion.question && 
+                JSON.stringify(q.options) === JSON.stringify(this.currentQuestion.options)
+            );
+            
+            if (currentTeamQuestionIndex !== -1) {
+                questionNumber.textContent = `Question ${currentTeamQuestionIndex + 1} of ${teamQuestions.length}`;
+            } else {
+                questionNumber.textContent = `Question ${this.currentQuestionIndex + 1} of ${this.mixedQuestions.length}`;
+            }
         }
         
         if (currentTeam) {

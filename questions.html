@@ -69,35 +69,51 @@
             </section>
             
             <section id="questionSection" class="question-section hidden">
-                <div class="card">
-                    <div class="question-header">
-                        <h2 id="categoryTitle">Category: History</h2>
-                        <div class="question-info">
-                            <span id="questionNumber">Question 1 of 8</span>
-                            <span id="currentTeam">Team 1</span>
+                <div class="question-layout">
+                    <div class="question-main">
+                        <div class="card">
+                            <div class="question-header">
+                                <h2 id="categoryTitle">Category: History</h2>
+                                <div class="question-info">
+                                    <span id="questionNumber">Question 1 of 8</span>
+                                    <span id="currentTeam">Team 1</span>
+                                </div>
+                            </div>
+                            
+                            <div class="question-content">
+                                <div id="questionText" class="question-text">
+                                    <!-- Question will be displayed here -->
+                                </div>
+                                
+                                <div id="optionsContainer" class="options-container">
+                                    <!-- Options will be generated here -->
+                                </div>
+                            </div>
+                            
+                            <div class="timer-section">
+                                <div class="timer-display" id="timerDisplay">30</div>
+                                <div class="timer-bar" id="timerBar">
+                                    <div class="timer-progress" id="timerProgress"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="question-actions">
+                                <button id="readyToAnswerBtn" class="btn btn-primary btn-large">Ready to Answer</button>
+                                <button id="nextQuestionBtn" class="btn btn-secondary hidden">Next Question</button>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="question-content">
-                        <div id="questionText" class="question-text">
-                            <!-- Question will be displayed here -->
+                    <div class="question-sidebar">
+                        <!-- Leaderboard Section -->
+                        <div id="leaderboardSection" class="leaderboard-section">
+                            <div class="card">
+                                <h2>🏆 Leaderboard</h2>
+                                <div id="leaderboard" class="leaderboard">
+                                    <!-- Leaderboard will be generated here -->
+                                </div>
+                            </div>
                         </div>
-                        
-                        <div id="optionsContainer" class="options-container">
-                            <!-- Options will be generated here -->
-                        </div>
-                    </div>
-                    
-                    <div class="timer-section">
-                        <div class="timer-display" id="timerDisplay">30</div>
-                        <div class="timer-bar" id="timerBar">
-                            <div class="timer-progress" id="timerProgress"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="question-actions">
-                        <button id="readyToAnswerBtn" class="btn btn-primary btn-large">Ready to Answer</button>
-                        <button id="nextQuestionBtn" class="btn btn-secondary hidden">Next Question</button>
                     </div>
                 </div>
             </section>

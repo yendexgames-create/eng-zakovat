@@ -299,6 +299,22 @@ body {
 }
 
 /* Question Section */
+.question-layout {
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+}
+
+.question-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.question-sidebar {
+    width: 350px;
+    flex-shrink: 0;
+}
+
 .question-header {
     display: flex;
     justify-content: space-between;
@@ -760,6 +776,15 @@ body {
     }
     
     .category-sidebar {
+        width: 100%;
+    }
+    
+    .question-layout {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .question-sidebar {
         width: 100%;
     }
     
