@@ -426,12 +426,17 @@ class QuizApp {
         // Add event listener for start quiz button
         const startBtn = document.getElementById('startQuiz');
         if (startBtn) {
+            console.log('Start button found:', startBtn);
+            console.log('Start button disabled status:', startBtn.disabled);
+            console.log('Start button classes:', startBtn.className);
+            
             startBtn.addEventListener('click', (e) => {
                 console.log('=== START QUIZ BUTTON CLICKED ===');
-                console.log('Button disabled:', startBtn.disabled);
+                console.log('Event target:', e.target);
+                console.log('Button disabled status at click:', startBtn.disabled);
                 
                 if (startBtn.disabled) {
-                    console.log('Button is disabled - click ignored');
+                    console.log('Button is disabled - ignoring click');
                     return;
                 }
                 
@@ -545,8 +550,17 @@ class QuizApp {
     startQuiz() {
         console.log('=== START QUIZ DEBUG ===');
         console.log('startQuiz method called');
+        console.log('Current page:', window.location.pathname);
         
-        const teamCount = parseInt(document.getElementById('teamCount').value);
+        const teamCountInput = document.getElementById('teamCount');
+        console.log('Team count input element:', teamCountInput);
+        
+        if (!teamCountInput) {
+            console.error('Team count input not found!');
+            return;
+        }
+        
+        const teamCount = parseInt(teamCountInput.value);
         console.log('Team count:', teamCount);
         
         const teams = [];
