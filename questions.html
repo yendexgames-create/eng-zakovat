@@ -3,159 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Questions</title>
+    <title>English Quiz - Questions</title>
     <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="questions-page">
+<body>
     <div class="container">
-        <header class="header">
-            <h1>Quiz Questions</h1>
-            <p class="subtitle">Select a category to begin</p>
-        </header>
-
-        <main class="main-content">
-            <div class="content-area">
-                <section class="category-section">
-                    <div class="card">
-                        <h2>Select Categories</h2>
-                        <button id="randomCategoriesBtn" class="random-categories-btn">Random Categories for Teams</button>
-                        <button class="start-quiz-btn hidden">Start Quiz</button>
-                        <div class="selection-counter">0/8 selected</div>
-                        <div class="categories-grid">
-                            <button class="category-btn" data-category="music">
-                                <div class="category-icon">Music</div>
-                                <span>Music</span>
-                                <div class="selection-count"></div>
-                            </button>
-                            <button class="category-btn" data-category="sports">
-                                <div class="category-icon">Sports</div>
-                                <span>Sports</span>
-                                <div class="selection-count"></div>
-                            </button>
-                            <button class="category-btn" data-category="science">
-                                <div class="category-icon">Science</div>
-                                <span>Science</span>
-                                <div class="selection-count"></div>
-                            </button>
-                            <button class="category-btn" data-category="history">
-                                <div class="category-icon">History</div>
-                                <span>History</span>
-                                <div class="selection-count"></div>
-                            </button>
-                            <button class="category-btn" data-category="geography">
-                                <div class="category-icon">Geography</div>
-                                <span>Geography</span>
-                                <div class="selection-count"></div>
-                            </button>
-                            <button class="category-btn" data-category="literature">
-                                <div class="category-icon">Literature</div>
-                                <span>Literature</span>
-                                <div class="selection-count"></div>
-                            </button>
-                            <button class="category-btn" data-category="movies">
-                                <div class="category-icon">Movies</div>
-                                <span>Movies</span>
-                                <div class="selection-count"></div>
-                            </button>
-                            <button class="category-btn" data-category="technology">
-                                <div class="category-icon">Technology</div>
-                                <span>Technology</span>
-                                <div class="selection-count"></div>
-                            </button>
-                            <button class="category-btn" data-category="art">
-                                <div class="category-icon">Art</div>
-                                <span>Art</span>
-                                <div class="selection-count"></div>
-                            </button>
-                            <button class="category-btn" data-category="food">
-                                <div class="category-icon">Food</div>
-                                <span>Food</span>
-                                <div class="selection-count"></div>
-                            </button>
-                            <button class="category-btn" data-category="nature">
-                                <div class="category-icon">Nature</div>
-                                <span>Nature</span>
-                                <div class="selection-count"></div>
-                            </button>
-                            <button class="category-btn" data-category="games">
-                                <div class="category-icon">Games</div>
-                                <span>Games</span>
-                                <div class="selection-count"></div>
-                            </button>
-                        </div>
-                        <button class="start-quiz-btn hidden">Start Quiz</button>
-                    </div>
-                </section>
-
-                <section class="start-countdown hidden">
-                    <div class="card">
-                        <div class="countdown-display">
-                            <div class="countdown-number">3</div>
-                            <div class="countdown-text">Get Ready!</div>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="question-section hidden">
-                    <div class="card">
-                        <div class="question-header">
-                            <div class="question-number">1 of 8</div>
-                            <div class="category-indicator">Music</div>
-                        </div>
-                        <div class="question-content">
-                            <h3 class="question-text">Question text will appear here</h3>
-                            <div class="answer-options" style="display: none;">
-                                <!-- Answer options will be generated dynamically -->
-                            </div>
-                        </div>
-                        <div class="question-timer-container">
-                            <div class="question-timer" id="questionTimer">30</div>
-                        </div>
-                        <div class="ready-to-answer-container">
-                            <button id="readyToAnswerBtn" class="ready-to-answer-btn" style="display: none;">
-                                Ready to Answer
-                            </button>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="scoring-section hidden">
-                    <div class="card">
-                        <!-- Scoring content will be generated dynamically -->
-                    </div>
-                </section>
-            </div>
-
-            <div class="teams-sidebar">
-                <h3>Teams</h3>
-                <div id="teamsList">
-                    <!-- Teams will be displayed here -->
+        <header class="header hidden">
+            <div class="header-content">
+                <h1>English Quiz</h1>
+                <div class="quiz-info">
+                    <span id="currentTeamDisplay">Team 1</span>
+                    <span id="timerDisplay">30s</span>
                 </div>
+                <button id="resetQuiz" class="btn btn-danger">Reset Quiz</button>
             </div>
+        </header>
+        
+        <main>
+            <section id="setupSection" class="setup-section">
+                <div class="card">
+                    <h2>Quiz Setup</h2>
+                    <div class="setup-status">
+                        <p>Waiting for quiz to be activated from index.html...</p>
+                        <div class="loading-spinner"></div>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="categorySection" class="category-section hidden">
+                <div class="card">
+                    <h2>Select Categories</h2>
+                    <div id="categorySelection" class="category-selection">
+                        <!-- Categories will be generated here -->
+                    </div>
+                    <div class="action-buttons">
+                        <button id="randomCategoriesBtn" class="btn btn-secondary">Random Categories</button>
+                        <button id="startQuizBtn" class="btn btn-primary start-quiz-btn" disabled>Start Quiz</button>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="questionSection" class="question-section hidden">
+                <div class="card">
+                    <div class="question-header">
+                        <h2 id="categoryTitle">Category: History</h2>
+                        <div class="question-info">
+                            <span id="questionNumber">Question 1 of 8</span>
+                            <span id="currentTeam">Team 1</span>
+                        </div>
+                    </div>
+                    
+                    <div class="question-content">
+                        <div id="questionText" class="question-text">
+                            <!-- Question will be displayed here -->
+                        </div>
+                        
+                        <div id="optionsContainer" class="options-container">
+                            <!-- Options will be generated here -->
+                        </div>
+                    </div>
+                    
+                    <div class="timer-section">
+                        <div class="timer-display" id="timerDisplay">30</div>
+                        <div class="timer-bar" id="timerBar">
+                            <div class="timer-progress" id="timerProgress"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="question-actions">
+                        <button id="readyToAnswerBtn" class="btn btn-primary btn-large">Ready to Answer</button>
+                        <button id="nextQuestionBtn" class="btn btn-secondary hidden">Next Question</button>
+                    </div>
+                </div>
+            </section>
         </main>
     </div>
 
     <!-- Emoji Animation Container -->
     <div id="emojiContainer" class="emoji-container"></div>
-
-    <!-- Team Answer Modal -->
-    <div id="teamAnswerModal" class="modal hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Team <span id="answeringTeamName"></span> Answer</h2>
-                <button class="modal-close" id="closeTeamAnswerModal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div id="teamAnswerQuestion" class="scoring-question">
-                    <!-- Team answer prompt will be shown here -->
-                </div>
-                <div class="team-answer-actions">
-                    <button id="answerCorrect" class="btn btn-success">Correct</button>
-                    <button id="answerIncorrect" class="btn btn-danger">Incorrect</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="script.js"></script>

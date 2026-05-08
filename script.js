@@ -33,363 +33,18 @@ class QuizApp {
         this.currentAnsweringTeam = 1; // hozirgi javob beruvchi jamoa
         this.currentQuestionAnswered = false; // hozirgi savolga javob berilganmi
         this.questionTimer = 30; // 30 soniyalik timer
-        this.startTimer = 3; // 3 sekundlik start timer
-        this.currentTimeLeft = 0; // joriy timer qiymati
-        this.currentTimerInterval = null; // timer interval ID
-        this.lastAnswerCorrect = false; // oxirgi javob to'g'ri yoki noto'g'ri
-        this.teamsScoredForQuestion = []; // qaysi jamoalar ushbu savol uchun baholandi
-        this.categoryListenersAdded = false; // category event listeners qo'shilganmi
         
-        // Socket.io connection
-        this.socket = null;
-        
+        // Initialize questions
         this.initializeQuestions();
-        this.bindEvents();
-        
-        // Initialize socket connection
-        this.initializeSocket();
-        
-        // Add beforeunload event listener to prevent accidental refresh
-        window.addEventListener('beforeunload', (event) => {
-            const quizStarted = localStorage.getItem('quizStarted');
-            const currentPhase = localStorage.getItem('currentPhase');
-            
-            if (quizStarted === 'true' && (currentPhase === 'question' || currentPhase === 'scoring')) {
-                // User is trying to refresh during active quiz
-                event.preventDefault();
-                event.returnValue = 'Quiz davom etayotgan. Sahifani yangilasangiz, progress yo\'qoladi. Davom etish uchun "Stay" tugmasini bosing.';
-                return 'Quiz davom etayotgan. Sahifani yangilasangiz, progress yo\'qoladi. Davom etish uchun "Stay" tugmasini bosing.';
-            }
-        });
-        
-        // Check which page we're on
-        if (window.location.pathname.includes('questions.html') || window.location.pathname.endsWith('/questions')) {
-            this.initializeQuestionsPage();
-        } else {
-            this.initializeIndexPage();
-        }
     }
     
-    initializeSocket() {
-        console.log('=== INITIALIZING SOCKET ===');
-        
-        // Determine server URL
-        const serverUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-            ? 'http://localhost:3000' 
-            : window.location.origin;
-        
-        console.log('Connecting to server:', serverUrl);
-        
-        // Connect to Socket.io server with better configuration
-        this.socket = io(serverUrl, {
-            transports: ['websocket', 'polling'], // Try websocket first, fallback to polling
-            timeout: 20000, // 20 second timeout
-            forceNew: true, // Force new connection
-            reconnection: true, // Enable reconnection
-            reconnectionAttempts: 5, // Max reconnection attempts
-            reconnectionDelay: 1000, // Delay between reconnections
-            reconnectionDelayMax: 5000 // Max delay
-        });
-        
-        // Handle connection
-        this.socket.on('connect', () => {
-            console.log('✅ Connected to server successfully');
-            console.log('Socket ID:', this.socket.id);
-            console.log('Transport:', this.socket.io.engine.transport.name);
-        });
-        
-        // Handle connection error
-        this.socket.on('connect_error', (error) => {
-            console.error('❌ Socket connection error:', error);
-            console.error('Error details:', error.message, error.description, error.context, error.type);
-            
-            // Show user-friendly error message
-            const errorDiv = document.createElement('div');
-            errorDiv.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: #ff4757;
-                color: white;
-                padding: 15px 20px;
-                border-radius: 8px;
-                z-index: 9999;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-                font-weight: 600;
-                max-width: 300px;
-            `;
-            errorDiv.innerHTML = `
-                <strong>Serverga ulanishda xatolik!</strong><br>
-                Xatolik: ${error.message || 'Noma\'lum'}<br>
-                <small>Iltimos, server ishlayotganini tekshiring yoki qayta urining</small>
-            `;
-            
-            document.body.appendChild(errorDiv);
-            
-            // Auto-remove after 10 seconds
-            setTimeout(() => {
-                if (errorDiv.parentNode) {
-                    errorDiv.parentNode.removeChild(errorDiv);
-                }
-            }, 10000);
-        });
-        
-        // Handle disconnection
-        this.socket.on('disconnect', (reason) => {
-            console.warn('⚠️ Disconnected from server:', reason);
-            
-            if (reason === 'io server disconnect') {
-                // Server was stopped
-                console.log('Server was stopped');
-            }
-        });
-        
-        // Handle reconnection attempts
-        this.socket.on('reconnect_attempt', (attemptNumber) => {
-            console.log(`🔄 Reconnection attempt ${attemptNumber}`);
-        });
-        
-        this.socket.on('reconnect', (attemptNumber) => {
-            console.log(`✅ Reconnected after ${attemptNumber} attempts`);
-        });
-        
-        this.socket.on('reconnect_failed', () => {
-            console.error('❌ Failed to reconnect to server');
-        });
-        
-        console.log('=== SOCKET INITIALIZATION COMPLETE ===');
-        
-        // Handle state updates
-        this.socket.on('stateUpdate', (state) => {
-            console.log('State update received:', state);
-            this.updateState(state);
-        });
-        
-        // Handle auto next question
-        this.socket.on('autoNextQuestion', () => {
-            console.log('Auto next question received');
-            this.goToNextQuestion();
-        });
-        
-        // Handle score animation
-        this.socket.on('scoreAnimation', (scores) => {
-            console.log('Score animation received:', scores);
-            this.animateScoreUpdates(scores);
-        });
-        
-        // Handle category completion
-        this.socket.on('categoryCompleted', (category) => {
-            if (!this.completedCategories.includes(category)) {
-                this.completedCategories.push(category);
-                console.log('Category completed on server:', category);
-                console.log('All completed categories:', this.completedCategories);
-                
-                // Broadcast updated state
-                this.socket.emit('stateUpdate', this);
-            }
-        });
-        
-        // Handle quiz reset
-        this.socket.on('resetQuiz', () => {
-            console.log('Quiz reset received');
-        });
-        
-        // Handle disconnect
-        this.socket.on('disconnect', () => {
-            console.log('Disconnected from server');
-        });
-    }
-    
-    updateState(state) {
-        console.log('=== UPDATE STATE START ===');
-        console.log('State received:', state);
-        
-        // Store old scores for animation comparison
-        const oldScores = { ...this.scores };
-        
-        // Update local state
-        this.teams = state.teams || [];
-        this.scores = state.scores || {};
-        this.currentCategory = state.currentCategory;
-        // Don't update currentQuestionIndex from server - it should be maintained locally
-        // this.currentQuestionIndex = state.currentQuestionIndex || 0;
-        this.completedCategories = state.completedCategories || [];
-        
-        console.log('updateState called, current page:', window.location.pathname);
-        console.log('State received:', state);
-        
-        // Animate score changes on questions.html
-        if (window.location.pathname.includes('questions.html') || 
-            window.location.pathname.endsWith('/questions') ||
-            window.location.href.includes('questions.html')) {
-            
-            Object.keys(this.scores).forEach(teamId => {
-                const oldScore = oldScores[teamId] || 0;
-                const newScore = this.scores[teamId] || 0;
-                
-                if (oldScore !== newScore) {
-                    console.log(`Score changed for team ${teamId}: ${oldScore} -> ${newScore}`);
-                    setTimeout(() => {
-                        this.animateTeamScoreUpdate(parseInt(teamId), oldScore, newScore);
-                    }, 100); // Small delay for visual effect
-                }
-            });
-        }
-        
-        // Update UI based on current page
-        if (window.location.pathname.includes('questions.html') || 
-            window.location.pathname.endsWith('/questions') ||
-            window.location.href.includes('questions.html')) {
-            console.log('Updating questions page');
-            this.updateQuestionsPage(state);
-        } else {
-            console.log('Updating index page');
-            // Index page - handle scoring phase
-            this.updateIndexPage(state);
-        }
-        
-        // Only update teams display if not in animation, not in scoring phase, and not in question phase
-        if (!this.isAnimating && !state.scoringPhase && !state.currentCategory) {
-            this.displayTeams();
-        }
-    }
-    
-    updateIndexPage(state) {
-        if (state.scoringPhase) {
-            // Show scoring modal on index.html
-            this.showScoringModal();
-        }
-    }
-    
-    showScoringSection() {
-        const setupSection = document.getElementById('setupSection');
-        const setupStatus = document.getElementById('setupStatus');
-        const scoringSection = document.getElementById('scoringSection');
-        const scoringQuestion = document.getElementById('scoringQuestion');
-        const teamScores = document.getElementById('teamScores');
-        
-        // Hide entire setup section including card
-        if (setupSection) {
-            setupSection.classList.add('hidden');
-        }
-        
-        // Hide setup status as well
-        if (setupStatus) {
-            setupStatus.classList.add('hidden');
-        }
-        
-        // Show scoring section
-        if (scoringSection) {
-            scoringSection.classList.remove('hidden');
-        }
-        
-        if (scoringQuestion) {
-            scoringQuestion.innerHTML = `
-                <h3>Time's Up!</h3>
-                <p>Mark each team as Correct or Incorrect for this question</p>
-            `;
-        }
-        
-        if (teamScores) {
-            teamScores.innerHTML = '';
-            this.teams.forEach(team => {
-                const teamScoreDiv = document.createElement('div');
-                teamScoreDiv.className = 'team-score-input';
-                teamScoreDiv.innerHTML = `
-                    <h4>${team.name}</h4>
-                    <div class="team-scoring-buttons">
-                        <button class="btn btn-success" onclick="app.scoreTeam(${team.id}, true)">
-                            Correct (1 point)
-                        </button>
-                        <button class="btn btn-danger" onclick="app.scoreTeam(${team.id}, false)">
-                            Incorrect (0 points)
-                        </button>
-                    </div>
-                `;
-                teamScores.appendChild(teamScoreDiv);
-            });
-        }
-    }
-    
-    scoreTeam(teamId, isCorrect) {
-        console.log(`Team ${teamId} scored as ${isCorrect ? 'Correct' : 'Incorrect'}`);
-        
-        // Check if team already scored for this question
-        if (this.teamsScoredForQuestion && this.teamsScoredForQuestion.includes(teamId)) {
-            console.log(`Team ${teamId} already scored for this question`);
-            return;
-        }
-        
-        // Initialize teamsScoredForQuestion array if not exists
-        if (!this.teamsScoredForQuestion) {
-            this.teamsScoredForQuestion = [];
-        }
-        
-        // Mark team as scored for this question
-        this.teamsScoredForQuestion.push(teamId);
-        
-        // Update score if correct
-        if (isCorrect) {
-            this.scores[teamId] = (this.scores[teamId] || 0) + 1;
-            console.log(`Updated score for team ${teamId}: ${this.scores[teamId]}`);
-        }
-        
-        // Disable buttons for this team
-        const teamButtons = document.querySelectorAll(`button[onclick*="scoreTeam(${teamId},"]`);
-        teamButtons.forEach(button => {
-            button.disabled = true;
-            button.style.opacity = '0.5';
-            button.style.cursor = 'not-allowed';
-        });
-        
-        // Send score to server
-        this.socket.emit('teamScore', {
-            teamId: teamId,
-            isCorrect: isCorrect,
-            newScore: this.scores[teamId]
-        });
-        
-        // Update display
-        this.displayTeams();
-    }
-    
-    updateQuestionsPage(state) {
-        console.log('=== UPDATE QUESTIONS PAGE START ===');
-        console.log('State received:', state);
-        console.log('quizActivated:', state.quizActivated);
-        console.log('currentCategory:', state.currentCategory);
-        console.log('scoringPhase:', state.scoringPhase);
-        
-        // Check if currentCategory is actually empty (not just truthy)
-        const hasValidCategory = state.currentCategory && typeof state.currentCategory === 'string' && state.currentCategory.trim() !== '';
-        
-        if (state.quizActivated && !hasValidCategory) {
-            // Show category selection
-            console.log('Condition met: quizActivated=true, no valid currentCategory');
-            console.log('Calling showCategorySelection...');
-            this.showCategorySelection();
-        } else if (hasValidCategory && !state.scoringPhase) {
-            // Show question
-            console.log('Showing question for category:', state.currentCategory);
-            if (this.currentCategory !== state.currentCategory || this.currentQuestionIndex !== state.currentQuestionIndex) {
-                this.selectCategory(state.currentCategory);
-            }
-        } else if (state.scoringPhase) {
-            // Show time up screen
-            console.log('Showing time up screen');
-            this.timeUp();
-        }
-        
-        console.log('=== UPDATE QUESTIONS PAGE END ===');
-    }
-
     initializeQuestions() {
         this.questions = {
             music: [
                 {
-                    question: "Who composed the 'Moonlight Sonata'?",
-                    options: ["Mozart", "Beethoven", "Bach", "Chopin"],
-                    correct: 1
+                    question: "Who is known as the 'King of Pop'?",
+                    options: ["Michael Jackson", "Elvis Presley", "Madonna", "Prince"],
+                    correct: 0
                 },
                 {
                     question: "Which instrument has 88 keys?",
@@ -397,8 +52,8 @@ class QuizApp {
                     correct: 2
                 },
                 {
-                    question: "Who is known as the 'King of Pop'?",
-                    options: ["Elvis Presley", "Michael Jackson", "Madonna", "Prince"],
+                    question: "What does 'MP3' stand for?",
+                    options: ["Music Player 3", "MPEG Audio Layer 3", "Multi-Player 3", "Music Playback 3"],
                     correct: 1
                 }
             ],
@@ -414,70 +69,36 @@ class QuizApp {
                     correct: 1
                 },
                 {
-                    question: "How often are the Olympic Games held?",
+                    question: "How often are Olympic Games held?",
                     options: ["Every 2 years", "Every 3 years", "Every 4 years", "Every 5 years"],
-                    correct: 2
-                }
-            ],
-            art: [
-                {
-                    question: "Who painted the Mona Lisa?",
-                    options: ["Van Gogh", "Picasso", "Leonardo da Vinci", "Michelangelo"],
-                    correct: 2
-                },
-                {
-                    question: "What art movement is Pablo Picasso associated with?",
-                    options: ["Impressionism", "Cubism", "Surrealism", "Realism"],
-                    correct: 1
-                },
-                {
-                    question: "Where is the Louvre Museum located?",
-                    options: ["London", "Rome", "Paris", "New York"],
-                    correct: 2
-                }
-            ],
-            mathematics: [
-                {
-                    question: "What is the value of Pi (approximately)?",
-                    options: ["3.14", "2.71", "1.61", "4.66"],
-                    correct: 0
-                },
-                {
-                    question: "What is 15% of 200?",
-                    options: ["25", "30", "35", "40"],
-                    correct: 1
-                },
-                {
-                    question: "What is the square root of 144?",
-                    options: ["10", "11", "12", "13"],
                     correct: 2
                 }
             ],
             science: [
                 {
-                    question: "What is the chemical symbol for gold?",
+                    question: "What is chemical symbol for gold?",
                     options: ["Go", "Gd", "Au", "Ag"],
                     correct: 2
                 },
                 {
-                    question: "Which planet is known as the 'Red Planet'?",
+                    question: "Which planet is known as 'Red Planet'?",
                     options: ["Venus", "Mars", "Jupiter", "Saturn"],
                     correct: 1
                 },
                 {
-                    question: "What is the largest organ in the human body?",
+                    question: "What is largest organ in human body?",
                     options: ["Heart", "Liver", "Brain", "Skin"],
                     correct: 3
                 }
             ],
             geography: [
                 {
-                    question: "What is the capital of Japan?",
+                    question: "What is capital of Japan?",
                     options: ["Beijing", "Seoul", "Tokyo", "Bangkok"],
                     correct: 2
                 },
                 {
-                    question: "Which is the longest river in the world?",
+                    question: "Which is longest river in the world?",
                     options: ["Amazon", "Nile", "Mississippi", "Yangtze"],
                     correct: 1
                 },
@@ -494,12 +115,12 @@ class QuizApp {
                     correct: 2
                 },
                 {
-                    question: "Who was the first President of the United States?",
+                    question: "Who was first President of United States?",
                     options: ["Thomas Jefferson", "George Washington", "Abraham Lincoln", "John Adams"],
                     correct: 1
                 },
                 {
-                    question: "Which ancient wonder of the world still stands today?",
+                    question: "Which ancient wonder of world still stands today?",
                     options: ["Colossus of Rhodes", "Hanging Gardens", "Great Pyramid of Giza", "Lighthouse of Alexandria"],
                     correct: 2
                 }
@@ -511,7 +132,7 @@ class QuizApp {
                     correct: 1
                 },
                 {
-                    question: "What is the first book in the Harry Potter series?",
+                    question: "What is first book in Harry Potter series?",
                     options: ["Chamber of Secrets", "Prisoner of Azkaban", "Philosopher's Stone", "Goblet of Fire"],
                     correct: 2
                 },
@@ -533,58 +154,92 @@ class QuizApp {
                     correct: 0
                 },
                 {
-                    question: "Which programming language is known as the 'language of the web'?",
+                    question: "Which programming language is known as 'language of the web'?",
                     options: ["Python", "Java", "JavaScript", "C++"],
                     correct: 2
                 }
             ],
             movies: [
                 {
-                    question: "Who directed the movie 'Titanic'?",
+                    question: "Who directed movie 'Titanic'?",
                     options: ["Steven Spielberg", "James Cameron", "Christopher Nolan", "Martin Scorsese"],
                     correct: 1
                 },
                 {
-                    question: "Which movie won the Academy Award for Best Picture in 2020?",
+                    question: "Which movie won Academy Award for Best Picture in 2020?",
                     options: ["1917", "Joker", "Parasite", "Once Upon a Time in Hollywood"],
                     correct: 2
                 },
                 {
-                    question: "What is the highest-grossing movie of all time?",
+                    question: "What is highest-grossing movie of all time?",
                     options: ["Avatar", "Avengers: Endgame", "Titanic", "Star Wars: The Force Awakens"],
                     correct: 1
                 }
             ],
             games: [
                 {
-                    question: "What is the best-selling video game of all time?",
+                    question: "What is best-selling video game of all time?",
                     options: ["Minecraft", "Grand Theft Auto V", "Tetris", "Wii Sports"],
                     correct: 0
                 },
                 {
-                    question: "Which company created the PlayStation?",
+                    question: "Which company created PlayStation?",
                     options: ["Nintendo", "Microsoft", "Sony", "Sega"],
                     correct: 2
                 },
                 {
-                    question: "In which year was the first Nintendo Entertainment System (NES) released?",
+                    question: "In which year was first Nintendo Entertainment System (NES) released?",
                     options: ["1983", "1985", "1987", "1989"],
                     correct: 1
                 }
             ],
+            art: [
+                {
+                    question: "Who painted the Mona Lisa?",
+                    options: ["Van Gogh", "Picasso", "Leonardo da Vinci", "Michelangelo"],
+                    correct: 2
+                },
+                {
+                    question: "What art movement is Pablo Picasso associated with?",
+                    options: ["Impressionism", "Cubism", "Surrealism", "Realism"],
+                    correct: 1
+                },
+                {
+                    question: "Where is the Louvre Museum located?",
+                    options: ["London", "Rome", "Paris", "New York"],
+                    correct: 2
+                }
+            ],
+            food: [
+                {
+                    question: "Which country is famous for sushi?",
+                    options: ["China", "Japan", "Korea", "Thailand"],
+                    correct: 1
+                },
+                {
+                    question: "What is main ingredient in guacamole?",
+                    options: ["Tomato", "Avocado", "Onion", "Lime"],
+                    correct: 1
+                },
+                {
+                    question: "Which spice is known as 'red gold'?",
+                    options: ["Paprika", "Cayenne", "Saffron", "Chili powder"],
+                    correct: 2
+                }
+            ],
             nature: [
                 {
-                    question: "What is the largest ocean on Earth?",
+                    question: "What is largest ocean on Earth?",
                     options: ["Atlantic Ocean", "Indian Ocean", "Arctic Ocean", "Pacific Ocean"],
                     correct: 3
                 },
                 {
-                    question: "Which animal is known as the 'King of the Jungle'?",
+                    question: "Which animal is known as 'King of the Jungle'?",
                     options: ["Tiger", "Lion", "Elephant", "Leopard"],
                     correct: 1
                 },
                 {
-                    question: "What is the fastest land animal?",
+                    question: "What is fastest land animal?",
                     options: ["Lion", "Cheetah", "Leopard", "Gazelle"],
                     correct: 1
                 }
@@ -592,6 +247,152 @@ class QuizApp {
         };
     }
 
+    initializeSocket() {
+        console.log('=== INITIALIZING SOCKET ===');
+        this.socket = io();
+        
+        this.socket.on('connect', () => {
+            console.log('✅ Connected to server successfully');
+            console.log('Socket ID:', this.socket.id);
+            console.log('Transport:', this.socket.io.engine.transport.name);
+        });
+        
+        this.socket.on('connect_error', (error) => {
+            console.error('❌ Socket connection error:', error);
+        });
+        
+        this.socket.on('disconnect', () => {
+            console.log('❌ Disconnected from server');
+        });
+        
+        this.socket.on('stateUpdate', (state) => {
+            console.log('=== STATE UPDATE ===');
+            this.updateState(state);
+        });
+        
+        // Listen for modal trigger from other devices
+        this.socket.on('showModalOnIndex', (data) => {
+            console.log('=== SHOW MODAL ON INDEX EVENT ===');
+            console.log('Received modal trigger data:', data);
+            
+            // Restore data from server
+            this.currentQuestion = data.currentQuestion;
+            this.currentAnsweringTeam = data.currentAnsweringTeam;
+            this.teams = data.teams;
+            this.scores = data.scores;
+            
+            console.log('Data restored, showing modal in 500ms...');
+            
+            // Show modal after short delay
+            setTimeout(() => {
+                console.log('About to call showTeamAnswerModal from socket event');
+                this.showTeamAnswerModal();
+            }, 500);
+        });
+        
+        console.log('=== SOCKET INITIALIZATION COMPLETE ===');
+    }
+    
+    initialize() {
+        console.log('=== INITIALIZING QUIZ APP ===');
+        
+        // Initialize socket connection
+        this.initializeSocket();
+        
+        // Check current page
+        const currentPath = window.location.pathname;
+        
+        if (currentPath.includes('questions.html') || currentPath.includes('/questions')) {
+            console.log('On questions page - initializing questions');
+            this.initializeQuestionsPage();
+        } else {
+            console.log('On index page - initializing setup');
+            this.initializeIndexPage();
+        }
+        
+        // Bind events
+        this.bindEvents();
+        
+        console.log('=== QUIZ APP INITIALIZATION COMPLETE ===');
+    }
+    
+    initializeIndexPage() {
+        console.log('=== INITIALIZE INDEX PAGE START ===');
+        
+        // Generate initial team inputs
+        this.generateTeamInputs();
+        
+        // Add Team Answer Modal event listeners for index.html
+        const answerCorrectBtn = document.getElementById('answerCorrect');
+        if (answerCorrectBtn) {
+            answerCorrectBtn.addEventListener('click', () => this.handleTeamAnswer(true));
+            console.log('Answer correct button event listener added');
+        }
+
+        const answerIncorrectBtn = document.getElementById('answerIncorrect');
+        if (answerIncorrectBtn) {
+            answerIncorrectBtn.addEventListener('click', () => this.handleTeamAnswer(false));
+            console.log('Answer incorrect button event listener added');
+        }
+
+        const closeTeamAnswerModalBtn = document.getElementById('closeTeamAnswerModal');
+        if (closeTeamAnswerModalBtn) {
+            closeTeamAnswerModalBtn.addEventListener('click', () => this.closeTeamAnswerModal());
+            console.log('Close modal button event listener added');
+        }
+        
+        console.log('=== INITIALIZE INDEX PAGE END ===');
+    }
+    
+    initializeQuestionsPage() {
+        console.log('=== INITIALIZE QUESTIONS PAGE ===');
+        
+        // Request current state from server
+        console.log('Requesting current state from server...');
+        this.socket.emit('getState');
+        
+        // Add event listener for random categories button
+        const randomCategoriesBtn = document.getElementById('randomCategoriesBtn');
+        if (randomCategoriesBtn) {
+            randomCategoriesBtn.addEventListener('click', () => {
+                console.log('=== RANDOM CATEGORIES BUTTON CLICKED ===');
+                this.selectRandomCategoriesForTeams();
+            });
+        } else {
+            console.log('Random categories button not found yet - will be created later');
+        }
+        
+        // Add event listener for start quiz button
+        const startQuizBtn = document.querySelector('.start-quiz-btn');
+        if (startQuizBtn) {
+            startQuizBtn.addEventListener('click', () => {
+                console.log('=== START QUIZ BUTTON CLICKED ===');
+                this.startQuestionsQuiz();
+            });
+        }
+        
+        // Add event listener for ready to answer button
+        const readyToAnswerBtn = document.getElementById('readyToAnswerBtn');
+        if (readyToAnswerBtn) {
+            readyToAnswerBtn.addEventListener('click', () => {
+                console.log('Ready to answer button clicked');
+                this.handleReadyToAnswer();
+            });
+        }
+        
+        // Add event listener for next question button
+        const nextQuestionBtn = document.getElementById('nextQuestionBtn');
+        if (nextQuestionBtn) {
+            nextQuestionBtn.addEventListener('click', () => {
+                console.log('Next question button clicked');
+                this.hideNextQuestionButton();
+                this.nextQuestion();
+            });
+        }
+        
+        console.log('=== INITIALIZE QUESTIONS PAGE END ===');
+    }
+    
     bindEvents() {
         console.log('=== BIND EVENTS START ===');
         
@@ -599,18 +400,7 @@ class QuizApp {
         const teamCountInput = document.getElementById('teamCount');
         if (teamCountInput) {
             teamCountInput.addEventListener('change', () => {
-                // Don't reset all data, just regenerate inputs
                 this.generateTeamInputs();
-            });
-        }
-
-        const generateBtn = document.getElementById('generateInputs');
-        if (generateBtn) {
-            generateBtn.addEventListener('click', () => {
-                console.log('Generate button clicked');
-                console.log('Team count input value before generate:', document.getElementById('teamCount').value);
-                this.generateTeamInputs();
-                console.log('Team count input value after generate:', document.getElementById('teamCount').value);
             });
         }
 
@@ -626,14 +416,12 @@ class QuizApp {
             console.error('Generate inputs button not found!');
         }
 
+        // Add event listener for start quiz button
         const startBtn = document.getElementById('startQuiz');
         if (startBtn) {
             startBtn.addEventListener('click', (e) => {
                 console.log('=== START QUIZ BUTTON CLICKED ===');
-                console.log('Event:', e);
-                console.log('Button element:', startBtn);
                 console.log('Button disabled:', startBtn.disabled);
-                console.log('Button classList:', startBtn.classList);
                 
                 if (startBtn.disabled) {
                     console.log('Button is disabled - click ignored');
@@ -645,47 +433,6 @@ class QuizApp {
             });
         } else {
             console.error('Start button not found!');
-        }
-
-        // Add event listener for start-quiz-btn
-        const startQuizBtn = document.querySelector('.start-quiz-btn');
-        if (startQuizBtn) {
-            console.log('Start quiz button found, adding event listener');
-            startQuizBtn.addEventListener('click', (e) => {
-                console.log('=== START QUIZ BUTTON CLICKED ===');
-                console.log('Event:', e);
-                console.log('Button element:', startQuizBtn);
-                console.log('Button classes:', startQuizBtn.classList);
-                console.log('Button disabled:', startQuizBtn.disabled);
-                
-                if (startQuizBtn.disabled) {
-                    console.log('Button is disabled - click ignored');
-                    return;
-                }
-                
-                console.log('Button is enabled - calling startQuestionsQuiz()');
-                
-                // Check if quiz already started
-                if (this.quizStarted) {
-                    console.log('Quiz already started - ignoring click');
-                    return;
-                }
-                
-                this.startQuestionsQuiz();
-            });
-        } else {
-            console.error('Start quiz button not found!');
-        }
-
-        // Add event listener for random category selection button
-        const randomCategoriesBtn = document.getElementById('randomCategoriesBtn');
-        if (randomCategoriesBtn) {
-            randomCategoriesBtn.addEventListener('click', () => {
-                console.log('=== RANDOM CATEGORIES BUTTON CLICKED ===');
-                this.selectRandomCategoriesForTeams();
-            });
-        } else {
-            console.log('Random categories button not found yet - will be created later');
         }
 
         // Add event listener for reset button
@@ -703,81 +450,12 @@ class QuizApp {
         } else {
             console.error('Reset button not found!');
         }
-
-        // Scoring events
-        const submitScoresBtn = document.getElementById('submitScores');
-        if (submitScoresBtn) {
-            submitScoresBtn.addEventListener('click', () => this.submitScores());
-        }
-
-        const skipScoringBtn = document.getElementById('skipScoring');
-        if (skipScoringBtn) {
-            skipScoringBtn.addEventListener('click', () => this.skipScoring());
-        }
-
-        // Modal event listeners
-        const modalCloseBtn = document.getElementById('closeModal');
-        if (modalCloseBtn) {
-            modalCloseBtn.addEventListener('click', () => this.closeScoringModal());
-        }
-
-        const modalSubmitBtn = document.getElementById('modalSubmitScores');
-        if (modalSubmitBtn) {
-            modalSubmitBtn.addEventListener('click', () => this.submitModalScores());
-        }
-
-        const modalSkipBtn = document.getElementById('modalSkipScoring');
-        if (modalSkipBtn) {
-            modalSkipBtn.addEventListener('click', () => this.skipModalScoring());
-        }
-
-        // Team Answer Modal event listeners
-        const answerCorrectBtn = document.getElementById('answerCorrect');
-        if (answerCorrectBtn) {
-            answerCorrectBtn.addEventListener('click', () => this.handleTeamAnswer(true));
-        }
-
-        const answerIncorrectBtn = document.getElementById('answerIncorrect');
-        if (answerIncorrectBtn) {
-            answerIncorrectBtn.addEventListener('click', () => this.handleTeamAnswer(false));
-        }
-
-        const closeTeamAnswerModalBtn = document.getElementById('closeTeamAnswerModal');
-        if (closeTeamAnswerModalBtn) {
-            closeTeamAnswerModalBtn.addEventListener('click', () => this.closeTeamAnswerModal());
-        }
-
-        // Next question button
-        const nextBtn = document.getElementById('nextQuestion');
-        if (nextBtn) {
-            nextBtn.addEventListener('click', () => this.nextQuestion());
-        }
-
-        // Next question button (new)
-        const nextQuestionBtn = document.getElementById('nextQuestionBtn');
-        if (nextQuestionBtn) {
-            nextQuestionBtn.addEventListener('click', () => {
-                console.log('Next question button clicked');
-                this.hideNextQuestionButton();
-                this.nextQuestion();
-            });
-        }
-
-        // Ready to answer button
-        const readyToAnswerBtn = document.getElementById('readyToAnswerBtn');
-        if (readyToAnswerBtn) {
-            readyToAnswerBtn.addEventListener('click', () => {
-                console.log('Ready to answer button clicked');
-                this.handleReadyToAnswer();
-            });
-        }
+        
+        console.log('=== BIND EVENTS END ===');
     }
-
+    
     generateTeamInputs() {
         console.log('=== GENERATE TEAM INPUTS DEBUG ===');
-        
-        // Don't reset everything, just generate inputs
-        // this.resetAllData(); // This was causing the issue
         
         const teamCountInput = document.getElementById('teamCount');
         const teamInputsContainer = document.getElementById('teamInputsContainer');
@@ -786,13 +464,13 @@ class QuizApp {
         console.log('Team count value:', teamCountInput ? teamCountInput.value : 'not found');
         console.log('Team inputs container:', teamInputsContainer);
         
-        const teamCount = parseInt(teamCountInput.value);
-        console.log('Parsed team count:', teamCount);
-        
-        if (!teamInputsContainer) {
-            console.error('Team inputs container not found!');
+        if (!teamCountInput || !teamInputsContainer) {
+            console.error('Required elements not found!');
             return;
         }
+        
+        const teamCount = parseInt(teamCountInput.value);
+        console.log('Parsed team count:', teamCount);
         
         if (isNaN(teamCount) || teamCount < 2 || teamCount > 10) {
             console.error('Invalid team count:', teamCount);
@@ -829,73 +507,9 @@ class QuizApp {
         console.log('=== GENERATE TEAM INPUTS END ===');
     }
     
-    resetAllData() {
-        // Reset local data
-        this.teams = [];
-        this.scores = {};
-        this.currentCategory = null;
-        this.currentQuestionIndex = 0;
-        this.currentQuestions = [];
-        this.currentQuestion = null;
-        this.completedCategories = [];
-        this.timeUpCalled = false;
-        
-        // Clear timers
-        if (this.currentTimerInterval) {
-            clearInterval(this.currentTimerInterval);
-            this.currentTimerInterval = null;
-        }
-        
-        // Hide all sections
-        this.hideAllSections();
-        
-        // Reset UI elements (but don't reset teamCount input)
-        const teamCountInput = document.getElementById('teamCount');
-        // Don't reset teamCount input value - let user keep their selection
-        // if (teamCountInput) {
-        //     teamCountInput.value = '2';
-        // }
-        
-        // Send reset signal to server
-        if (this.socket) {
-            this.socket.emit('resetQuiz');
-            console.log('Reset signal sent to server');
-        }
-    }
-    
-    hideAllSections() {
-        // Hide all sections
-        const sections = [
-            'setupStatus',
-            'scoringSection',
-            'welcomeSection',
-            'categorySection',
-            'questionSection'
-        ];
-        
-        sections.forEach(sectionId => {
-            const section = document.getElementById(sectionId);
-            if (section) {
-                section.classList.add('hidden');
-            }
-        });
-        
-        // Show setup section
-        const setupSection = document.getElementById('setupSection');
-        if (setupSection) {
-            setupSection.classList.remove('hidden');
-        }
-    }
-
     startQuiz() {
         console.log('=== START QUIZ DEBUG ===');
         console.log('startQuiz method called');
-        
-        // Show header with reset button
-        const header = document.querySelector('.header');
-        if (header) {
-            header.classList.remove('hidden');
-        }
         
         const teamCount = parseInt(document.getElementById('teamCount').value);
         console.log('Team count:', teamCount);
@@ -914,269 +528,390 @@ class QuizApp {
                 });
             }
         }
-
+        
+        if (teams.length < 2) {
+            alert('Iltimos, kamida 2 ta jamoa nomini kiriting!');
+            return;
+        }
+        
         console.log('Teams collected:', teams);
-
-        if (teams.length === 0) {
-            alert('Iltimos, kamida bitta jamoa nomini kiriting!');
-            return;
-        }
-
-        // Check socket connection
-        if (!this.socket) {
-            console.error('Socket is not connected!');
-            alert('Serverga ulanishda xatolik! Iltimos, sahifani qayta yuklang.');
-            return;
-        }
-
-        console.log('Socket connected, emitting setupTeams...');
+        
+        // Store teams
+        this.teams = teams;
+        this.scores = {};
+        
+        teams.forEach(team => {
+            this.scores[team.id] = 0;
+        });
         
         // Send teams to server
-        this.socket.emit('setupTeams', teams);
-        console.log('Teams setup sent to server:', teams);
-
-        // Store teams locally
-        this.teams = teams;
-    }
-    
-    selectRandomCategoriesForTeams() {
-        console.log('=== SELECT RANDOM CATEGORIES FOR TEAMS ===');
-        
-        if (!this.teams || this.teams.length === 0) {
-            console.error('No teams found!');
-            alert('Avval jamoalarni sozlang!');
-            return;
+        if (this.socket && this.socket.connected) {
+            console.log('Socket connected, emitting setupTeams...');
+            this.socket.emit('setupTeams', teams);
+        } else {
+            console.log('Socket not connected, teams will be sent when connected');
         }
         
-        // Reset previous selections
-        this.selectedCategories = [];
-        this.teamCategories = {}; // Store categories for each team
+        // Show setup status
+        this.showSetupStatus(teams);
         
-        // All available categories
-        const allCategories = [...this.categories];
-        console.log('Available categories:', allCategories);
+        // Show category selection
+        this.showCategorySelection();
         
-        // Create a pool of categories and distribute to teams
-        const categoryPool = this.shuffleArray([...allCategories]);
-        let categoryIndex = 0;
-        
-        // Select 2 random categories for each team (ensuring no duplicates)
-        this.teams.forEach(team => {
-            const teamSelectedCategories = [];
-            
-            // Take 2 unique categories from the pool
-            for (let i = 0; i < 2; i++) {
-                if (categoryIndex < categoryPool.length) {
-                    const category = categoryPool[categoryIndex];
-                    teamSelectedCategories.push(category);
-                    
-                    // Add to global selected categories
-                    if (!this.selectedCategories.includes(category)) {
-                        this.selectedCategories.push(category);
-                    }
-                    
-                    categoryIndex++;
-                }
-            }
-            
-            // Store for this team
-            this.teamCategories[team.id] = teamSelectedCategories;
-            
-            console.log(`Team ${team.name} (${team.id}) selected:`, teamSelectedCategories);
-        });
-        
-        console.log('All selected categories:', this.selectedCategories);
-        console.log('Team categories mapping:', this.teamCategories);
-        
-        // Update UI to show team categories
-        this.displayTeamCategories();
-        
-        // Update category cards with team names
-        this.updateCategoryCardsWithTeams();
-        
-        // Enable start quiz button
-        const startQuizBtn = document.querySelector('.start-quiz-btn');
-        if (startQuizBtn) {
-            startQuizBtn.disabled = false;
-            console.log('Start quiz button enabled');
-        }
-        
-        // Send to server
-        this.socket.emit('selectCategories', {
-            selectedCategories: this.selectedCategories,
-            teamCategories: this.teamCategories
-        });
-        
-        console.log('Team categories sent to server');
-        
-        // Initialize team-specific question system
-        this.initializeTeamQuestionSystem();
+        // Initialize teams display
+        this.displayTeams();
     }
     
-    initializeTeamQuestionSystem() {
-        console.log('=== INITIALIZE TEAM QUESTION SYSTEM ===');
+    showSetupStatus(teams) {
+        const setupSection = document.getElementById('setupSection');
+        const setupStatus = document.getElementById('setupStatus');
         
-        // Set first team as current answering team
-        this.currentTeamIndex = 0;
-        this.currentAnsweringTeam = this.teams[0].id;
-        
-        // Load questions for first team
-        this.loadQuestionsForCurrentTeam();
-        
-        console.log('Current answering team:', this.currentAnsweringTeam);
-        console.log('Team categories:', this.teamCategories);
-    }
-    
-    loadQuestionsForCurrentTeam() {
-        console.log('=== LOAD QUESTIONS FOR CURRENT TEAM ===');
-        
-        const currentTeam = this.teams[this.currentTeamIndex];
-        const teamCategories = this.teamCategories[currentTeam.id] || [];
-        
-        console.log('Loading questions for team:', currentTeam.name);
-        console.log('Team categories:', teamCategories);
-        
-        // Mix questions from this team's categories
-        this.currentTeamQuestions = this.mixQuestionsForTeam(teamCategories);
-        this.currentTeamQuestionIndex = 0;
-        
-        console.log('Team questions loaded:', this.currentTeamQuestions.length);
-        console.log('Total questions for this team:', this.currentTeamQuestions.length);
-    }
-    
-    mixQuestionsForTeam(categories) {
-        console.log('=== MIX QUESTIONS FOR TEAM ===');
-        console.log('Team categories:', categories);
-        
-        const allQuestions = [];
-        
-        categories.forEach(category => {
-            console.log(`Processing category: ${category}`);
-            const categoryQuestions = this.questions[category] || [];
-            console.log(`Questions in ${category}:`, categoryQuestions.length);
+        if (setupStatus) {
+            setupStatus.classList.remove('hidden');
             
-            // Take first question from each category
-            const limitedQuestions = categoryQuestions.slice(0, this.questionsPerCategory);
-            console.log(`Limited questions for ${category}:`, limitedQuestions.length);
+            const teamsList = teams.map(team => `
+                <div class="team-item">
+                    <span class="team-name">${team.name}</span>
+                    <span class="team-id">Team ${team.id}</span>
+                </div>
+            `).join('');
             
-            // Add category info to each question
-            limitedQuestions.forEach(question => {
-                allQuestions.push({
-                    ...question,
-                    category: category
-                });
-            });
-        });
-        
-        // Shuffle the mixed questions
-        const shuffledQuestions = this.shuffleArray(allQuestions);
-        
-        console.log('Mixed questions for team:', shuffledQuestions);
-        console.log('Total questions for team:', shuffledQuestions.length);
-        
-        return shuffledQuestions;
-    }
-    
-    displayTeamCategories() {
-        console.log('=== DISPLAY TEAM CATEGORIES ===');
-        
-        const categorySection = document.querySelector('.category-section');
-        if (!categorySection) {
-            console.error('Category section not found!');
-            return;
-        }
-        
-        // Create team categories display
-        let teamCategoriesHTML = '<div class="team-categories-display">';
-        
-        // Display each team's categories
-        this.teams.forEach(team => {
-            const teamCats = this.teamCategories[team.id] || [];
-            teamCategoriesHTML += `
-                <div class="team-category-item">
-                    <h4>Team ${team.name}</h4>
-                    <div class="team-categories">
-                        ${teamCats.map(cat => `
-                            <span class="team-category-badge ${cat}">
-                                ${cat.charAt(0).toUpperCase() + cat.slice(1)}
-                            </span>
-                        `).join('')}
+            setupStatus.innerHTML = `
+                <div class="status-message">
+                    <h3>Quiz Setup Complete!</h3>
+                    <p>Quiz is activated! Open questions.html on another device to start.</p>
+                    <div class="teams-display">
+                        <h4>Registered Teams:</h4>
+                        <div class="teams-list">
+                            ${teamsList}
+                        </div>
+                    </div>
+                    <div class="quiz-status">
+                        <p class="status-text">Quiz is ready on other devices!</p>
+                        <button id="openQuestionsBtn" class="btn btn-secondary" style="margin-top: 15px;">Open Questions Page</button>
                     </div>
                 </div>
             `;
-        });
-        
-        teamCategoriesHTML += '</div>';
-        
-        // Add to category section
-        const existingDisplay = categorySection.querySelector('.team-categories-display');
-        if (existingDisplay) {
-            existingDisplay.remove();
-        }
-        
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = teamCategoriesHTML;
-        categorySection.insertBefore(tempDiv.firstElementChild, categorySection.firstChild);
-        
-        console.log('Team categories displayed');
-    }
-    
-    updateCategoryCardsWithTeams() {
-        console.log('=== UPDATE CATEGORY CARDS WITH TEAMS ===');
-        
-        // Clear all existing team labels first
-        const categoryButtons = document.querySelectorAll('.category-btn');
-        categoryButtons.forEach(button => {
-            // Remove existing team labels
-            const existingLabel = button.querySelector('.team-label');
-            if (existingLabel) {
-                existingLabel.remove();
+            
+            // Bind optional open questions button
+            const openQuestionsBtn = document.getElementById('openQuestionsBtn');
+            if (openQuestionsBtn) {
+                openQuestionsBtn.addEventListener('click', () => {
+                    window.open('questions.html', '_blank');
+                });
             }
             
-            // Remove team-specific classes
-            button.classList.remove('team-1', 'team-2', 'team-3', 'team-4', 'team-5', 'team-6', 'team-7', 'team-8');
-        });
-        
-        // Add team labels to selected categories
-        Object.entries(this.teamCategories).forEach(([teamId, categories]) => {
-            const team = this.teams.find(t => t.id === parseInt(teamId));
-            if (!team) return;
-            
-            categories.forEach(category => {
-                const button = document.querySelector(`[data-category="${category}"]`);
-                if (button) {
-                    // Create team label
-                    const teamLabel = document.createElement('div');
-                    teamLabel.className = 'team-label';
-                    teamLabel.textContent = team.name;
-                    teamLabel.style.backgroundColor = this.getTeamColor(team.id);
-                    
-                    // Add team class for styling
-                    button.classList.add(`team-${team.id}`);
-                    
-                    // Add label to button
-                    button.appendChild(teamLabel);
-                    
-                    console.log(`Added team label "${team.name}" to category "${category}"`);
-                }
-            });
-        });
-        
-        console.log('Category cards updated with team names');
+            // Auto-activate the quiz for other devices
+            setTimeout(() => {
+                this.activateQuiz();
+            }, 1000);
+        }
     }
     
-    getTeamColor(teamId) {
-        const teamColors = {
-            1: '#e74c3c', // Red
-            2: '#3498db', // Blue
-            3: '#2ecc71', // Green
-            4: '#f39c12', // Orange
-            5: '#9b59b6', // Purple
-            6: '#1abc9c', // Teal
-            7: '#34495e', // Dark gray
-            8: '#e67e22'  // Dark orange
+    showCategorySelection() {
+        const setupSection = document.getElementById('setupSection');
+        const quizSection = document.getElementById('quizSection');
+        
+        if (setupSection) setupSection.classList.add('hidden');
+        if (quizSection) quizSection.classList.remove('hidden');
+        
+        const categorySelection = document.getElementById('categorySelection');
+        if (categorySelection) {
+            categorySelection.innerHTML = '';
+            
+            this.categories.forEach(category => {
+                const categoryBtn = document.createElement('button');
+                categoryBtn.className = 'category-btn';
+                categoryBtn.textContent = category.charAt(0).toUpperCase() + category.slice(1);
+                categoryBtn.dataset.category = category;
+                categoryBtn.addEventListener('click', () => this.toggleCategory(category));
+                categorySelection.appendChild(categoryBtn);
+            });
+        }
+    }
+    
+    toggleCategory(category) {
+        const index = this.selectedCategories.indexOf(category);
+        if (index > -1) {
+            this.selectedCategories.splice(index, 1);
+        } else {
+            if (this.selectedCategories.length < this.categoriesToSelect) {
+                this.selectedCategories.push(category);
+            } else {
+                alert(`Siz faqat ${this.categoriesToSelect} ta tur tanlashingiz mumkin!`);
+                return;
+            }
+        }
+        
+        this.updateCategoryButtons();
+        this.updateStartButton();
+    }
+    
+    updateCategoryButtons() {
+        const categoryBtns = document.querySelectorAll('.category-btn');
+        categoryBtns.forEach(btn => {
+            const category = btn.dataset.category;
+            if (this.selectedCategories.includes(category)) {
+                btn.classList.add('selected');
+            } else {
+                btn.classList.remove('selected');
+            }
+        });
+    }
+    
+    updateStartButton() {
+        const startBtn = document.getElementById('startQuizBtn');
+        if (startBtn) {
+            startBtn.disabled = this.selectedCategories.length !== this.categoriesToSelect;
+        }
+    }
+    
+    selectRandomCategoriesForTeams() {
+        console.log('=== SELECT RANDOM CATEGORIES ===');
+        
+        // Shuffle all categories
+        const shuffled = [...this.categories].sort(() => 0.5 - Math.random());
+        
+        // Select required number
+        this.selectedCategories = shuffled.slice(0, this.categoriesToSelect);
+        
+        console.log('Selected categories:', this.selectedCategories);
+        
+        this.updateCategoryButtons();
+        this.updateStartButton();
+    }
+    
+    startQuestionsQuiz() {
+        console.log('=== START QUESTIONS QUIZ ===');
+        
+        if (this.selectedCategories.length !== this.categoriesToSelect) {
+            alert(`Iltimos, avval ${this.categoriesToSelect} ta tur tanlang!`);
+            return;
+        }
+        
+        // Mix questions from selected categories
+        this.mixedQuestions = [];
+        this.selectedCategories.forEach(category => {
+            const categoryQuestions = [...this.questions[category]];
+            this.mixedQuestions.push(...categoryQuestions);
+        });
+        
+        // Shuffle mixed questions
+        this.mixedQuestions.sort(() => 0.5 - Math.random());
+        
+        console.log('Mixed questions ready:', this.mixedQuestions.length);
+        
+        // Start with first question
+        this.currentQuestionIndex = 0;
+        this.showQuestion();
+        
+        // Show question section
+        const categorySection = document.getElementById('categorySection');
+        const questionSection = document.getElementById('questionSection');
+        
+        if (categorySection) categorySection.classList.add('hidden');
+        if (questionSection) questionSection.classList.remove('hidden');
+    }
+    
+    showQuestion() {
+        console.log('=== SHOW QUESTION ===');
+        
+        if (this.currentQuestionIndex >= this.mixedQuestions.length) {
+            this.endQuiz();
+            return;
+        }
+        
+        this.currentQuestion = this.mixedQuestions[this.currentQuestionIndex];
+        this.currentQuestionAnswered = false;
+        
+        console.log('Current question:', this.currentQuestion);
+        
+        // Update question display
+        this.updateQuestionDisplay();
+        
+        // Start timer
+        this.startQuestionTimer();
+        
+        // Show ready to answer button
+        this.showReadyToAnswerButton();
+    }
+    
+    updateQuestionDisplay() {
+        const questionText = document.getElementById('questionText');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const questionNumber = document.getElementById('questionNumber');
+        const currentTeam = document.getElementById('currentTeam');
+        
+        if (questionText) {
+            questionText.textContent = this.currentQuestion.question;
+        }
+        
+        if (optionsContainer) {
+            optionsContainer.innerHTML = '';
+            
+            this.currentQuestion.options.forEach((option, index) => {
+                const optionBtn = document.createElement('button');
+                optionBtn.className = 'option-btn';
+                optionBtn.textContent = option;
+                optionBtn.addEventListener('click', () => this.selectOption(index));
+                optionsContainer.appendChild(optionBtn);
+            });
+        }
+        
+        if (questionNumber) {
+            questionNumber.textContent = `Question ${this.currentQuestionIndex + 1} of ${this.mixedQuestions.length}`;
+        }
+        
+        if (currentTeam) {
+            const team = this.teams.find(t => t.id === this.currentAnsweringTeam);
+            if (team) {
+                currentTeam.textContent = `Team ${team.name}`;
+            }
+        }
+    }
+    
+    selectOption(index) {
+        console.log('Option selected:', index);
+        
+        const optionBtns = document.querySelectorAll('.option-btn');
+        optionBtns.forEach(btn => btn.classList.remove('selected'));
+        
+        optionBtns[index].classList.add('selected');
+    }
+    
+    startQuestionTimer() {
+        this.stopQuestionTimer();
+        
+        let timeLeft = this.questionTimer;
+        const timerDisplay = document.getElementById('timerDisplay');
+        const timerProgress = document.getElementById('timerProgress');
+        
+        if (timerDisplay) {
+            timerDisplay.textContent = timeLeft;
+        }
+        
+        if (timerProgress) {
+            timerProgress.style.width = '100%';
+        }
+        
+        this.currentTimerInterval = setInterval(() => {
+            timeLeft--;
+            
+            if (timerDisplay) {
+                timerDisplay.textContent = timeLeft;
+            }
+            
+            if (timerProgress) {
+                const percentage = (timeLeft / this.questionTimer) * 100;
+                timerProgress.style.width = `${percentage}%`;
+            }
+            
+            if (timeLeft <= 0) {
+                this.stopQuestionTimer();
+                this.timeUp();
+            }
+        }, 1000);
+    }
+    
+    stopQuestionTimer() {
+        if (this.currentTimerInterval) {
+            clearInterval(this.currentTimerInterval);
+            this.currentTimerInterval = null;
+        }
+    }
+    
+    timeUp() {
+        console.log('=== TIME UP ===');
+        this.timeUpCalled = true;
+        
+        // Hide ready to answer button
+        this.hideReadyToAnswerButton();
+        
+        // Auto move to next question after delay
+        setTimeout(() => {
+            this.nextQuestion();
+        }, 2000);
+    }
+    
+    showReadyToAnswerButton() {
+        const readyBtn = document.getElementById('readyToAnswerBtn');
+        const nextBtn = document.getElementById('nextQuestionBtn');
+        
+        if (readyBtn) {
+            readyBtn.classList.remove('hidden');
+        }
+        
+        if (nextBtn) {
+            nextBtn.classList.add('hidden');
+        }
+    }
+    
+    hideReadyToAnswerButton() {
+        const readyBtn = document.getElementById('readyToAnswerBtn');
+        if (readyBtn) {
+            readyBtn.classList.add('hidden');
+        }
+    }
+    
+    showNextQuestionButton() {
+        const readyBtn = document.getElementById('readyToAnswerBtn');
+        const nextBtn = document.getElementById('nextQuestionBtn');
+        
+        if (readyBtn) {
+            readyBtn.classList.add('hidden');
+        }
+        
+        if (nextBtn) {
+            nextBtn.classList.remove('hidden');
+        }
+    }
+    
+    hideNextQuestionButton() {
+        const nextBtn = document.getElementById('nextQuestionBtn');
+        if (nextBtn) {
+            nextBtn.classList.add('hidden');
+        }
+    }
+    
+    handleReadyToAnswer() {
+        console.log('=== HANDLE READY TO ANSWER ===');
+        
+        // Stop timer
+        this.stopQuestionTimer();
+        
+        // Hide ready to answer button
+        this.hideReadyToAnswerButton();
+        
+        // Store modal data in sessionStorage for same device
+        sessionStorage.setItem('autoShowModal', 'true');
+        sessionStorage.setItem('autoModalQuestion', JSON.stringify(this.currentQuestion));
+        sessionStorage.setItem('autoModalTeam', this.currentAnsweringTeam.toString());
+        sessionStorage.setItem('autoModalTeams', JSON.stringify(this.teams));
+        sessionStorage.setItem('autoModalScores', JSON.stringify(this.scores));
+        console.log('Auto modal trigger set for same device');
+        
+        // Send modal trigger to server for other devices
+        const modalData = {
+            currentQuestion: this.currentQuestion,
+            currentAnsweringTeam: this.currentAnsweringTeam,
+            teams: this.teams,
+            scores: this.scores
         };
-        return teamColors[teamId] || '#95a5a6';
+        
+        this.socket.emit('triggerModalOnIndex', modalData);
+        console.log('Modal trigger sent to server for other devices');
+        
+        // Check if we're on index.html
+        const currentPath = window.location.pathname;
+        if (currentPath.includes('index.html') || currentPath === '/') {
+            // Show modal on index.html
+            console.log('On index.html - showing modal');
+            this.showTeamAnswerModal();
+        } else {
+            // Don't show modal on questions.html
+            console.log('On questions.html - modal will not show here');
+            return; // Stop execution here
+        }
     }
     
     showTeamAnswerModal() {
@@ -1190,13 +925,9 @@ class QuizApp {
         console.log('Modal element exists:', !!modal);
         console.log('Team name element exists:', !!teamNameElement);
         console.log('Question element exists:', !!questionElement);
-        console.log('Modal classes:', modal ? modal.className : 'not found');
         
         if (!modal || !teamNameElement || !questionElement) {
             console.error('Team answer modal elements not found');
-            console.error('Modal found:', !!modal);
-            console.error('Team name element found:', !!teamNameElement);
-            console.error('Question element found:', !!questionElement);
             return;
         }
         
@@ -1219,17 +950,8 @@ class QuizApp {
         
         // Show modal
         console.log('About to remove hidden class from modal');
-        console.log('Modal before:', modal.className);
-        
-        // Force remove hidden class
         modal.classList.remove('hidden');
-        
-        // Force display flex
         modal.style.display = 'flex';
-        
-        console.log('Modal after:', modal.className);
-        console.log('Modal style display:', modal.style.display);
-        console.log('Modal computed display:', window.getComputedStyle(modal).display);
         
         console.log(`Team ${currentTeam.name} answer modal shown`);
     }
@@ -1240,6 +962,7 @@ class QuizApp {
         const modal = document.getElementById('teamAnswerModal');
         if (modal) {
             modal.classList.add('hidden');
+            modal.style.display = 'none';
         }
         
         // Show next question button when modal is closed
@@ -1267,6 +990,9 @@ class QuizApp {
                 [this.currentAnsweringTeam]: this.scores[this.currentAnsweringTeam]
             });
             
+            // Show success emoji
+            this.showEmoji('✅');
+            
             // Close modal
             this.closeTeamAnswerModal();
             
@@ -1282,6 +1008,9 @@ class QuizApp {
             // Incorrect answer - move to next question for same team
             console.log(`Team ${currentTeam.name} answered incorrectly`);
             
+            // Show failure emoji
+            this.showEmoji('❌');
+            
             // Close modal
             this.closeTeamAnswerModal();
             
@@ -1295,26 +1024,93 @@ class QuizApp {
         this.displayTeams();
     }
     
-    nextAnsweringTeam() {
-        console.log('=== NEXT ANSWERING TEAM ===');
-        
-        const currentIndex = this.teamAnswerOrder.indexOf(this.currentAnsweringTeam);
-        const nextIndex = (currentIndex + 1) % this.teamAnswerOrder.length;
-        
-        this.currentAnsweringTeam = this.teamAnswerOrder[nextIndex];
-        console.log('Next answering team:', this.currentAnsweringTeam);
+    showEmoji(emoji) {
+        const container = document.getElementById('emojiContainer');
+        if (container) {
+            container.textContent = emoji;
+            container.style.display = 'block';
+            
+            setTimeout(() => {
+                container.style.display = 'none';
+            }, 1000);
+        }
     }
-
+    
+    nextQuestion() {
+        console.log('=== NEXT QUESTION ===');
+        
+        this.currentQuestionIndex++;
+        this.showQuestion();
+    }
+    
+    displayTeams() {
+        // Update team displays if they exist
+        const currentTeamDisplay = document.getElementById('currentTeamDisplay');
+        if (currentTeamDisplay) {
+            const team = this.teams.find(t => t.id === this.currentAnsweringTeam);
+            if (team) {
+                currentTeamDisplay.textContent = team.name;
+            }
+        }
+    }
+    
+    updateState(state) {
+        console.log('=== UPDATE STATE START ===');
+        console.log('State received:', state);
+        
+        // Update local state
+        this.teams = state.teams || [];
+        this.scores = state.scores || {};
+        this.currentCategory = state.currentCategory;
+        this.currentQuestion = state.currentQuestion;
+        this.currentAnsweringTeam = state.currentAnsweringTeam;
+        this.quizStarted = state.quizStarted;
+        this.quizActivated = state.quizActivated;
+        
+        // Update UI based on current page
+        const currentPath = window.location.pathname;
+        console.log('Current page:', currentPath);
+        
+        if (currentPath.includes('questions.html') || currentPath.includes('/questions')) {
+            console.log('Updating questions page');
+            this.updateQuestionsPage(state);
+        } else {
+            console.log('Updating index page');
+            this.updateIndexPage(state);
+        }
+        
+        console.log('=== UPDATE STATE END ===');
+    }
+    
+    updateQuestionsPage(state) {
+        console.log('=== UPDATE QUESTIONS PAGE ===');
+        
+        // Show category section if quiz is activated
+        if (state.quizActivated && this.teams.length > 0) {
+            const setupSection = document.getElementById('setupSection');
+            const categorySection = document.getElementById('categorySection');
+            
+            if (setupSection) setupSection.classList.add('hidden');
+            if (categorySection) categorySection.classList.remove('hidden');
+            
+            // Show category selection
+            this.showCategorySelection();
+        }
+    }
+    
+    updateIndexPage(state) {
+        console.log('=== UPDATE INDEX PAGE ===');
+        
+        // Update teams display if it exists
+        this.displayTeams();
+    }
+    
     activateQuiz() {
         // Send activation signal to server
         this.socket.emit('activateQuiz');
         console.log('Quiz activation sent to server');
-        
-        // Don't open questions page automatically
-        // Let other devices handle the questions page
-        console.log('Quiz activated - waiting for other devices to open questions page');
     }
-
+    
     resetQuiz() {
         console.log('=== RESET QUIZ START ===');
         
@@ -1331,14 +1127,7 @@ class QuizApp {
         this.mixedQuestions = [];
         this.quizStarted = false;
         this.quizActivated = false;
-        this.scoringPhase = false;
-        this.completedCategories = [];
-        this.teamsScoredForQuestion = [];
-        
-        // Clear localStorage
-        localStorage.removeItem('quizState');
-        localStorage.removeItem('currentPhase');
-        localStorage.removeItem('quizStarted');
+        this.currentQuestionAnswered = false;
         
         // Send reset signal to server
         this.socket.emit('resetQuiz');
@@ -1362,10 +1151,12 @@ class QuizApp {
             const setupStatus = document.getElementById('setupStatus');
             const scoringSection = document.getElementById('scoringSection');
             const setupSection = document.getElementById('setupSection');
+            const quizSection = document.getElementById('quizSection');
             
             if (header) header.classList.add('hidden');
             if (setupStatus) setupStatus.classList.add('hidden');
             if (scoringSection) scoringSection.classList.add('hidden');
+            if (quizSection) quizSection.classList.add('hidden');
             if (setupSection) setupSection.classList.remove('hidden');
             
             // Reset team inputs
@@ -1382,2177 +1173,53 @@ class QuizApp {
         
         console.log('=== RESET QUIZ END ===');
     }
-
-    skipScoring() {
-        // Send empty scores to server
-        this.socket.emit('submitScores', {});
-        console.log('Scoring skipped - signal sent to server');
-
-        // Show loading state in scoring section
-        const scoringQuestion = document.getElementById('scoringQuestion');
-        const teamScores = document.getElementById('teamScores');
-        const scoringActions = document.querySelector('.scoring-actions');
-        
-        if (scoringQuestion) {
-            scoringQuestion.innerHTML = `
-                <h3>Scoring Skipped!</h3>
-                <p>Waiting for next question...</p>
-            `;
-        }
-        
-        if (teamScores) {
-            teamScores.innerHTML = '<div style="text-align: center; padding: 20px;">Loading next question...</div>';
-        }
-        
-        if (scoringActions) {
-            scoringActions.innerHTML = '';
-        }
-
-        console.log('Scoring skipped - waiting for next question');
-    }
-
-    submitScores() {
-        console.log('=== SUBMIT SCORES ===');
-        
-        // Check if any team was marked as correct
-        let hasCorrectScore = false;
-        const scores = {};
-        
-        // Collect scores from correct/incorrect buttons
-        this.teams.forEach(team => {
-            const teamScore = this.scores[team.id] || 0;
-            scores[team.id] = teamScore;
-            if (teamScore > 0) hasCorrectScore = true;
-        });
-        
-        console.log('Scores to submit:', scores);
-        console.log('Has correct score:', hasCorrectScore);
-        
-        if (!hasCorrectScore) {
-            alert('Iltimos, kamida bitta jamoa uchun "Correct" belgilang!');
-            return;
-        }
-
-        // Send scores to server
-        this.socket.emit('submitScores', scores);
-        console.log('Scores submitted to server:', scores);
-
-        // Auto proceed to next question after 2 seconds
-        setTimeout(() => {
-            console.log('Auto proceeding to next question...');
-            
-            // Reset scored teams for next question
-            this.teamsScoredForQuestion = [];
-            
-            // Show next question directly instead of going to category selection
-            this.nextQuestion();
-        }, 2000);
-
-        // Show loading state in scoring section
-        const scoringQuestion = document.getElementById('scoringQuestion');
-        const teamScores = document.getElementById('teamScores');
-        const scoringActions = document.querySelector('.scoring-actions');
-        
-        if (scoringQuestion) {
-            scoringQuestion.innerHTML = `
-                <h3>Scores Submitted!</h3>
-                <p>Waiting for next question...</p>
-            `;
-        }
-        
-        if (teamScores) {
-            teamScores.innerHTML = '<div style="text-align: center; padding: 20px;">Loading next question...</div>';
-        }
-        
-        if (scoringActions) {
-            scoringActions.innerHTML = '';
-        }
-        
-        console.log('=== SUBMIT SCORES END ===');
-    }
-
-    restoreSetupSection() {
-        const scoringSection = document.getElementById('scoringSection');
-        const setupSection = document.getElementById('setupSection');
-        
-        if (scoringSection) {
-            scoringSection.classList.add('hidden');
-        }
-        
-        if (setupSection) {
-            setupSection.classList.remove('hidden');
-        }
-    }
-
-    showScoringSection() {
-        const scoringSection = document.getElementById('scoringSection');
-        if (scoringSection) {
-            scoringSection.classList.remove('hidden');
-        }
-        
-        const setupSection = document.getElementById('setupSection');
-        if (setupSection) {
-            setupSection.classList.add('hidden');
-        }
-    }
-
-    showScoringModal() {
-        console.log('=== SHOW SCORING MODAL ===');
-        
-        const modal = document.getElementById('scoringModal');
-        if (modal) {
-            modal.classList.remove('hidden');
-            
-            // Populate modal with question and team scoring
-            this.populateScoringModal();
-            
-            console.log('Scoring modal displayed');
-        } else {
-            console.error('Scoring modal not found');
-        }
-    }
-
-    closeScoringModal() {
-        console.log('=== CLOSE SCORING MODAL ===');
-        
-        const modal = document.getElementById('scoringModal');
-        if (modal) {
-            modal.classList.add('hidden');
-            console.log('Scoring modal closed');
-        }
-    }
-
-    populateScoringModal() {
-        console.log('=== POPULATE SCORING MODAL ===');
-        
-        const modalQuestion = document.getElementById('modalScoringQuestion');
-        const modalTeamScores = document.getElementById('modalTeamScores');
-        
-        if (modalQuestion && this.currentQuestion) {
-            modalQuestion.innerHTML = `
-                <h3>${this.currentQuestion.question}</h3>
-                <p><strong>Category:</strong> ${this.currentCategory}</p>
-                <p><strong>Correct Answer:</strong> ${this.currentQuestion.answer}</p>
-            `;
-        }
-        
-        if (modalTeamScores) {
-            modalTeamScores.innerHTML = '';
-            
-            this.teams.forEach(team => {
-                const teamScoreDiv = document.createElement('div');
-                teamScoreDiv.className = 'team-score-item';
-                teamScoreDiv.innerHTML = `
-                    <div class="team-info">
-                        <span class="team-name">${team.name}</span>
-                    </div>
-                    <div class="score-buttons">
-                        <button class="btn btn-success score-btn" data-team-id="${team.id}" data-score="1">Correct</button>
-                        <button class="btn btn-danger score-btn" data-team-id="${team.id}" data-score="0">Incorrect</button>
-                    </div>
-                `;
-                modalTeamScores.appendChild(teamScoreDiv);
-            });
-            
-            // Add event listeners to score buttons
-            const scoreButtons = modalTeamScores.querySelectorAll('.score-btn');
-            scoreButtons.forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const teamId = parseInt(e.target.dataset.teamId);
-                    const score = parseInt(e.target.dataset.score);
-                    this.markTeamScore(teamId, score, e.target);
-                });
-            });
-        }
-        
-        console.log('Scoring modal populated');
-    }
-
-    markTeamScore(teamId, score, button) {
-        console.log('=== MARK TEAM SCORE ===');
-        console.log('Team ID:', teamId);
-        console.log('Score:', score);
-        
-        // Update score
-        this.scores[teamId] = score;
-        
-        // Disable buttons for this team
-        const teamScoreItem = button.closest('.team-score-item');
-        const teamButtons = teamScoreItem.querySelectorAll('.score-btn');
-        teamButtons.forEach(btn => btn.disabled = true);
-        
-        // Highlight selected button
-        if (score === 1) {
-            button.classList.add('selected-correct');
-        } else {
-            button.classList.add('selected-incorrect');
-        }
-        
-        // Show leaderboard team item glow animation
-        this.showLeaderboardTeamGlow(teamId, score === 1);
-        
-        console.log('Team score marked:', { teamId, score });
-    }
-
-    submitModalScores() {
-        console.log('=== SUBMIT MODAL SCORES ===');
-        
-        // Check if any team was marked as correct
-        let hasCorrectScore = false;
-        const scores = {};
-        
-        this.teams.forEach(team => {
-            const teamScore = this.scores[team.id] || 0;
-            scores[team.id] = teamScore;
-            if (teamScore > 0) hasCorrectScore = true;
-        });
-        
-        if (!hasCorrectScore) {
-            alert('Iltimos, kamida bitta jamoa uchun "Correct" belgilang!');
-            return;
-        }
-        
-        // Send scores to server
-        this.socket.emit('submitScores', scores);
-        console.log('Modal scores submitted to server:', scores);
-        
-        // Close modal
-        this.closeScoringModal();
-        
-        // Reset scores for next question
-        this.teamsScoredForQuestion = [];
-        
-        // Auto proceed to next question after 2 seconds
-        setTimeout(() => {
-            console.log('Auto proceeding to next question...');
-            this.nextQuestion();
-        }, 2000);
-        
-        console.log('=== SUBMIT MODAL SCORES END ===');
-    }
-
-    skipModalScoring() {
-        console.log('=== SKIP MODAL SCORING ===');
-        
-        // Send empty scores to server
-        this.socket.emit('submitScores', {});
-        console.log('Modal scoring skipped - signal sent to server');
-        
-        // Close modal
-        this.closeScoringModal();
-        
-        // Auto proceed to next question after 2 seconds
-        setTimeout(() => {
-            console.log('Auto proceeding to next question after skip...');
-            this.nextQuestion();
-        }, 2000);
-        
-        console.log('Modal scoring skipped');
-    }
-
-    // Leaderboard Team Glow Animation Function
-    showLeaderboardTeamGlow(teamId, isCorrect) {
-        console.log('=== SHOW LEADERBOARD TEAM GLOW ===');
-        console.log('Team ID:', teamId);
-        console.log('Is Correct:', isCorrect);
-        
-        // Find the team item in the questions.html leaderboard
-        const teamItem = document.querySelector(`[data-team-id="${teamId}"]`);
-        if (!teamItem) {
-            console.error('Team item not found in leaderboard');
-            return;
-        }
-        
-        // Add glow animation class to the entire team item
-        const glowClass = isCorrect ? 'leaderboard-correct-glow' : 'leaderboard-incorrect-glow';
-        teamItem.classList.add(glowClass);
-        
-        // Remove animation class after animation completes
-        setTimeout(() => {
-            teamItem.classList.remove(glowClass);
-        }, 1500);
-        
-        console.log('Leaderboard team glow animation shown');
-    }
-
-    // Emoji Animation Functions (kept for compatibility)
-    showEmojiAnimation(teamId, isCorrect, targetElement) {
-        console.log('=== SHOW EMOJI ANIMATION ===');
-        console.log('Team ID:', teamId);
-        console.log('Is Correct:', isCorrect);
-        
-        const container = document.getElementById('emojiContainer');
-        if (!container) {
-            console.error('Emoji container not found');
-            return;
-        }
-        
-        // Create emoji element
-        const emoji = document.createElement('div');
-        emoji.className = `emoji ${isCorrect ? 'correct' : 'incorrect'}`;
-        emoji.textContent = isCorrect ? '??' : '??';
-        
-        // Position emoji near the target element
-        if (targetElement) {
-            const rect = targetElement.getBoundingClientRect();
-            emoji.style.left = `${rect.left + rect.width / 2}px`;
-            emoji.style.top = `${rect.top}px`;
-        } else {
-            // Center of screen if no target
-            emoji.style.left = '50%';
-            emoji.style.top = '50%';
-            emoji.style.transform = 'translate(-50%, -50%)';
-        }
-        
-        // Add to container
-        container.appendChild(emoji);
-        
-        // Remove after animation
-        setTimeout(() => {
-            if (emoji.parentNode) {
-                emoji.parentNode.removeChild(emoji);
-            }
-        }, 2000);
-        
-        console.log('Emoji animation shown');
-    }
-
-    animateTeamScoreUpdate(teamId, oldScore, newScore) {
-        console.log('=== ANIMATE TEAM SCORE UPDATE ===');
-        console.log('Team ID:', teamId);
-        console.log('Old Score:', oldScore);
-        console.log('New Score:', newScore);
-        
-        // Find team element in leaderboard
-        const teamElement = document.querySelector(`[data-team-id="${teamId}"]`);
-        if (!teamElement) {
-            console.error('Team element not found for animation');
-            return;
-        }
-        
-        // Add animation class based on score change
-        if (newScore > oldScore) {
-            teamElement.classList.add('score-updated');
-            
-            // Show emoji animation
-            this.showEmojiAnimation(teamId, true, teamElement);
-            
-            // Remove animation class after animation
-            setTimeout(() => {
-                teamElement.classList.remove('score-updated');
-            }, 1000);
-            
-        } else if (newScore < oldScore) {
-            teamElement.classList.add('score-decreased');
-            
-            // Show emoji animation
-            this.showEmojiAnimation(teamId, false, teamElement);
-            
-            // Remove animation class after animation
-            setTimeout(() => {
-                teamElement.classList.remove('score-decreased');
-            }, 500);
-        }
-        
-        console.log('Team score animation completed');
-    }
-
-    initializeIndexPage() {
-        console.log('=== INITIALIZE INDEX PAGE START ===');
-        
-        // Generate initial team inputs
-        this.generateTeamInputs();
-        
-        // Check if setup button should be enabled
-        const teamCountInput = document.getElementById('teamCount');
-        const startBtn = document.getElementById('startQuiz');
-        
-        console.log('Team count input found:', teamCountInput);
-        console.log('Start button found:', startBtn);
-        console.log('Team count value:', teamCountInput ? teamCountInput.value : 'not found');
-        
-        if (startBtn && teamCountInput) {
-            const teamCount = parseInt(teamCountInput.value);
-            const hasTeamInputs = document.querySelectorAll('.team-input input').length > 0;
-            
-            console.log('Team count:', teamCount);
-            console.log('Has team inputs:', hasTeamInputs);
-            
-            // Enable button if we have valid team count and inputs
-            if (!isNaN(teamCount) && teamCount >= 2 && teamCount <= 10 && hasTeamInputs) {
-                startBtn.disabled = false;
-                console.log('Setup button enabled on init');
-            } else {
-                startBtn.disabled = true;
-                console.log('Setup button disabled on init - missing inputs');
-            }
-        }
-        
-        // Check if we need to show modal after redirect
-        const showModalOnLoad = sessionStorage.getItem('showModalOnLoad');
-        if (showModalOnLoad === 'true') {
-            console.log('Modal trigger flag found - showing modal');
-            
-            // Restore all necessary data
-            const storedQuestion = sessionStorage.getItem('currentQuestion');
-            const storedTeam = sessionStorage.getItem('currentAnsweringTeam');
-            const storedTeams = sessionStorage.getItem('teams');
-            const storedScores = sessionStorage.getItem('scores');
-            
-            if (storedTeams) {
-                this.teams = JSON.parse(storedTeams);
-                console.log('Restored teams:', this.teams);
-            }
-            
-            if (storedScores) {
-                this.scores = JSON.parse(storedScores);
-                console.log('Restored scores:', this.scores);
-            }
-            
-            if (storedQuestion) {
-                this.currentQuestion = JSON.parse(storedQuestion);
-                console.log('Restored question:', this.currentQuestion);
-            }
-            
-            if (storedTeam) {
-                this.currentAnsweringTeam = parseInt(storedTeam);
-                console.log('Restored answering team:', this.currentAnsweringTeam);
-            }
-            
-            // Clear the flags
-            sessionStorage.removeItem('showModalOnLoad');
-            sessionStorage.removeItem('currentQuestion');
-            sessionStorage.removeItem('currentAnsweringTeam');
-            sessionStorage.removeItem('teams');
-            sessionStorage.removeItem('scores');
-            
-            // Show modal after a short delay to ensure DOM is ready
-            setTimeout(() => {
-                this.showTeamAnswerModal();
-            }, 500);
-        }
-        
-        // Simple modal trigger check
-        const checkAndShowModal = () => {
-            const checkModal = sessionStorage.getItem('autoShowModal');
-            if (checkModal === 'true') {
-                console.log('=== AUTO MODAL TRIGGER ===');
-                
-                try {
-                    // Get modal data
-                    const storedQuestion = sessionStorage.getItem('autoModalQuestion');
-                    const storedTeam = sessionStorage.getItem('autoModalTeam');
-                    const storedTeams = sessionStorage.getItem('autoModalTeams');
-                    const storedScores = sessionStorage.getItem('autoModalScores');
-                    
-                    console.log('Stored question:', storedQuestion);
-                    console.log('Stored team:', storedTeam);
-                    console.log('Stored teams:', storedTeams);
-                    
-                    if (storedQuestion && storedTeam) {
-                        this.currentQuestion = JSON.parse(storedQuestion);
-                        this.currentAnsweringTeam = parseInt(storedTeam);
-                        this.teams = storedTeams ? JSON.parse(storedTeams) : this.teams;
-                        this.scores = storedScores ? JSON.parse(storedScores) : this.scores;
-                        
-                        // Clear auto modal flags
-                        sessionStorage.removeItem('autoShowModal');
-                        sessionStorage.removeItem('autoModalQuestion');
-                        sessionStorage.removeItem('autoModalTeam');
-                        sessionStorage.removeItem('autoModalTeams');
-                        sessionStorage.removeItem('autoModalScores');
-                        
-                        console.log('Data restored, calling showTeamAnswerModal');
-                        // Show modal
-                        this.showTeamAnswerModal();
-                    }
-                } catch (error) {
-                    console.error('Error in auto modal trigger:', error);
-                }
-            }
-        };
-        
-        // Check immediately
-        checkAndShowModal();
-        
-        // Then check every 1 second
-        setInterval(checkAndShowModal, 1000);
-        
-        // Add Team Answer Modal event listeners for index.html
-        const answerCorrectBtn = document.getElementById('answerCorrect');
-        if (answerCorrectBtn) {
-            answerCorrectBtn.addEventListener('click', () => this.handleTeamAnswer(true));
-            console.log('Answer correct button event listener added');
-        }
-
-        const answerIncorrectBtn = document.getElementById('answerIncorrect');
-        if (answerIncorrectBtn) {
-            answerIncorrectBtn.addEventListener('click', () => this.handleTeamAnswer(false));
-            console.log('Answer incorrect button event listener added');
-        }
-
-        const closeTeamAnswerModalBtn = document.getElementById('closeTeamAnswerModal');
-        if (closeTeamAnswerModalBtn) {
-            closeTeamAnswerModalBtn.addEventListener('click', () => this.closeTeamAnswerModal());
-            console.log('Close modal button event listener added');
-        }
-        
-        console.log('=== INITIALIZE INDEX PAGE END ===');
-    }
-
-    initializeQuestionsPage() {
-        console.log('=== INITIALIZE QUESTIONS PAGE ===');
-        
-        // Request current state from server
-        console.log('Requesting current state from server...');
-        
-        // Set up one-time listener for server state
-        const handleServerState = (state) => {
-            console.log('Received state from server:', state);
-            
-            // Remove this listener after first use
-            this.socket.off('stateUpdate', handleServerState);
-            
-            // Store old scores for animation comparison
-            const oldScores = { ...this.scores };
-            
-            // Restore all state from server
-            this.teams = state.teams || [];
-            this.scores = state.scores || {};
-            this.currentCategory = state.currentCategory;
-            this.currentQuestion = state.currentQuestion;
-            // Don't update currentQuestionIndex from server - it should be maintained locally
-            // this.currentQuestionIndex = state.currentQuestionIndex || 0;
-            this.quizActivated = state.quizActivated || false;
-            this.scoringPhase = state.scoringPhase || false;
-            this.completedCategories = state.completedCategories || [];
-            this.selectedCategories = state.selectedCategories || [];
-            
-            console.log('Server state restored successfully');
-            
-            // Animate score changes
-            Object.keys(this.scores).forEach(teamId => {
-                const oldScore = oldScores[teamId] || 0;
-                const newScore = this.scores[teamId] || 0;
-                
-                if (oldScore !== newScore) {
-                    console.log(`Score changed for team ${teamId}: ${oldScore} -> ${newScore}`);
-                    this.animateTeamScoreUpdate(parseInt(teamId), oldScore, newScore);
-                }
-            });
-            
-            // Show appropriate section based on server state
-            if (state.scoringPhase) {
-                console.log('Restoring scoring phase from server');
-                this.showScoringInterface();
-            } else if (state.currentCategory && !state.scoringPhase) {
-                console.log('Restoring question phase from server');
-                this.displayQuestion(state.currentQuestion);
-                // Start timer for restored question
-                this.startQuestionTimer();
-            } else if (state.quizActivated && !state.currentCategory) {
-                console.log('Restoring category selection from server');
-                this.showCategorySelection();
-            }
-        };
-        
-        // Listen for server state update
-        this.socket.on('stateUpdate', handleServerState);
-        
-        // Listen for modal trigger from other devices
-        this.socket.on('showModalOnIndex', (data) => {
-            console.log('=== SHOW MODAL ON INDEX EVENT ===');
-            console.log('Received modal trigger data:', data);
-            console.log('Current path on index.html:', window.location.pathname);
-            
-            // Restore data from server
-            this.currentQuestion = data.currentQuestion;
-            this.currentAnsweringTeam = data.currentAnsweringTeam;
-            this.teams = data.teams;
-            this.scores = data.scores;
-            
-            console.log('Data restored, showing modal in 500ms...');
-            
-            // Show modal after short delay
-            setTimeout(() => {
-                console.log('About to call showTeamAnswerModal from socket event');
-                this.showTeamAnswerModal();
-            }, 500);
-        });
-        
-        // Request current state from server
-        this.socket.emit('getState');
-        
-        // Add event listener for random categories button
-        const randomCategoriesBtn = document.getElementById('randomCategoriesBtn');
-        if (randomCategoriesBtn) {
-            randomCategoriesBtn.addEventListener('click', () => {
-                console.log('=== RANDOM CATEGORIES BUTTON CLICKED ===');
-                this.selectRandomCategoriesForTeams();
-            });
-            console.log('Random categories button event listener added');
-        } else {
-            console.log('Random categories button not found');
-        }
-        
-        // Add Team Answer Modal event listeners for questions.html
-        const answerCorrectBtn = document.getElementById('answerCorrect');
-        if (answerCorrectBtn) {
-            answerCorrectBtn.addEventListener('click', () => this.handleTeamAnswer(true));
-            console.log('Answer correct button event listener added');
-        }
-
-        const answerIncorrectBtn = document.getElementById('answerIncorrect');
-        if (answerIncorrectBtn) {
-            answerIncorrectBtn.addEventListener('click', () => this.handleTeamAnswer(false));
-            console.log('Answer incorrect button event listener added');
-        }
-
-        const closeTeamAnswerModalBtn = document.getElementById('closeTeamAnswerModal');
-        if (closeTeamAnswerModalBtn) {
-            closeTeamAnswerModalBtn.addEventListener('click', () => this.closeTeamAnswerModal());
-            console.log('Close modal button event listener added');
-        }
-        
-        console.log('=== INITIALIZE QUESTIONS PAGE END ===');
-    }
-
-    displayTeams() {
-        console.log('=== DISPLAY TEAMS DEBUG ===');
-        console.log('Current teams:', this.teams);
-        console.log('Current scores:', this.scores);
-        console.log('Current page:', window.location.pathname);
-        
-        // Check if we're on welcome page and need to display welcomeTeamsList
-        const welcomeTeamsList = document.getElementById('welcomeTeamsList');
-        const teamsList = document.getElementById('teamsList');
-        
-        console.log('Welcome teams list found:', welcomeTeamsList);
-        console.log('Teams list found:', teamsList);
-        
-        // Handle welcome teams list (4-column grid)
-        if (welcomeTeamsList) {
-            console.log('Updating welcome teams list');
-            welcomeTeamsList.innerHTML = '';
-            
-            this.teams.forEach((team, index) => {
-                console.log(`Creating welcome team item for ${team.name} with ID ${team.id}`);
-                const teamItem = document.createElement('div');
-                teamItem.className = 'welcome-team-item';
-                teamItem.textContent = team.name;
-                welcomeTeamsList.appendChild(teamItem);
-                console.log(`Welcome team item appended for ${team.name}`);
-            });
-        }
-        
-        // Handle regular teams list (leaderboard)
-        if (!teamsList) {
-            console.log('Teams list element not found');
-            return;
-        }
-        
-        console.log('Teams list element found:', teamsList);
-        teamsList.innerHTML = '';
-        
-        // Sort teams by score for display (leaderboard style)
-        const sortedTeams = [...this.teams].sort((a, b) => {
-            const scoreA = this.scores[a.id] || 0;
-            const scoreB = this.scores[b.id] || 0;
-            return scoreB - scoreA; // Highest score first
-        });
-        
-        console.log('Sorted teams:', sortedTeams);
-        
-        sortedTeams.forEach((team, index) => {
-            console.log(`Creating team item for ${team.name} with ID ${team.id}`);
-            const teamItem = document.createElement('div');
-            teamItem.className = 'team-item';
-            teamItem.dataset.teamId = team.id; // Make sure this is set correctly
-            
-            const score = this.scores[team.id] || 0;
-            const rank = index + 1;
-            
-            console.log(`Team ${team.name} - Score: ${score}, Rank: ${rank}`);
-            
-            // Add rank styling based on position
-            let rankClass = '';
-            let rankIcon = '';
-            
-            if (rank === 1) {
-                rankClass = 'rank-first';
-                rankIcon = '1st';
-            } else if (rank === 2) {
-                rankClass = 'rank-second';
-                rankIcon = '2nd';
-            } else if (rank === 3) {
-                rankClass = 'rank-third';
-                rankIcon = '3rd';
-            } else {
-                rankIcon = `${rank}th`;
-            }
-            
-            teamItem.innerHTML = `
-                <div class="team-rank ${rankClass}">
-                    <span class="rank-number">${rankIcon}</span>
-                </div>
-                <div class="team-info">
-                    <span class="team-name">${team.name}</span>
-                    <span class="team-score">${score}</span>
-                </div>
-            `;
-            
-            teamsList.appendChild(teamItem);
-            console.log(`Team item appended for ${team.name}`);
-        });
-        
-        console.log('=== DISPLAY TEAMS END ===');
-    }
-
-    showCategorySelection() {
-        console.log('=== SHOW CATEGORY SELECTION START ===');
-        console.log('Current selectedCategories:', this.selectedCategories);
-        console.log('Current categoryListenersAdded:', this.categoryListenersAdded);
-        console.log('Current window width:', window.innerWidth);
-        console.log('Current window height:', window.innerHeight);
-        
-        // Reset selectedCategories when showing category selection fresh
-        if (this.selectedCategories.length > 0 && !this.quizStarted) {
-            console.log('Resetting selectedCategories because quiz not started');
-            this.selectedCategories = [];
-        }
-        
-        // Save state to server (multi-device sync)
-        console.log('Category selection phase - syncing with server');
-        
-        // Server will broadcast state to all devices
-        // No need for localStorage anymore
-        
-        // Check if event listeners already added
-        if (this.categoryListenersAdded) {
-            console.log('Category listeners already added, but checking if they work...');
-            // Test if listeners actually work by trying to add a test click
-            const testBtn = document.querySelector('.category-btn');
-            if (testBtn && !testBtn.hasAttribute('data-listener-test')) {
-                console.log('Listeners exist but may not work, resetting...');
-                this.categoryListenersAdded = false;
-            }
-        }
-        
-        if (!this.categoryListenersAdded) {
-            // Add category button event listeners (only once when showing category selection)
-            const categoryBtns = document.querySelectorAll('.category-btn');
-            console.log('Adding event listeners to category buttons:', categoryBtns.length);
-            
-            // Remove existing listeners first
-            categoryBtns.forEach(btn => {
-                const newBtn = btn.cloneNode(true);
-                btn.parentNode.replaceChild(newBtn, btn);
-            });
-            
-            // Add fresh listeners
-            const freshCategoryBtns = document.querySelectorAll('.category-btn');
-            freshCategoryBtns.forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const category = e.currentTarget.dataset.category;
-                    console.log('Category button clicked:', category);
-                    this.selectCategory(category);
-                });
-                // Mark button as having listener
-                btn.setAttribute('data-listener-test', 'true');
-            });
-            
-            this.categoryListenersAdded = true;
-            console.log('Category listeners added and flagged');
-        }
-        
-        // IMMEDIATE CSS INJECTION TO FORCE FIX
-        const style = document.createElement('style');
-        style.textContent = `
-            .questions-page .categories-grid {
-                display: grid !important;
-                grid-template-columns: repeat(4, 1fr) !important;
-                gap: 12px !important;
-                width: 100% !important;
-                max-width: 1400px !important;
-                margin: 0 auto 30px auto !important;
-                padding: 25px !important;
-                background: rgba(255, 255, 255, 0.05) !important;
-                border-radius: 15px !important;
-                box-sizing: border-box !important;
-            }
-            
-            .questions-page .category-btn {
-                padding: 15px 10px !important;
-                font-size: 0.85rem !important;
-                min-height: 100px !important;
-                border-radius: 12px !important;
-                gap: 6px !important;
-                display: flex !important;
-                flex-direction: column !important;
-                align-items: center !important;
-                justify-content: center !important;
-            }
-            
-            .questions-page .category-section {
-                max-width: 1500px !important;
-                margin: 0 auto !important;
-            }
-            
-            .questions-page .card {
-                max-width: 1500px !important;
-                margin: 0 auto !important;
-            }
-        `;
-        document.head.appendChild(style);
-        console.log('CSS INJECTED FORCIBLY!');
-        
-        // Debug container hierarchy
-        const container = document.querySelector('.container');
-        const mainContent = document.querySelector('.main-content');
-        const categorySection = document.querySelector('.category-section');
-        const categoriesGrid = document.querySelector('.categories-grid'); // PLURAL!
-        const categoryGrid = document.querySelector('.category-grid'); // SINGULAR!
-        
-        console.log('=== CONTAINER DEBUG ===');
-        console.log('Container found:', container);
-        console.log('Main content found:', mainContent);
-        console.log('Category section found:', categorySection);
-        console.log('Categories-grid found:', categoriesGrid); // PLURAL!
-        console.log('Category-grid found:', categoryGrid); // SINGULAR!
-        
-        // Check which grid is actually being used
-        const actualGrid = categoriesGrid || categoryGrid;
-        console.log('Actual grid being used:', actualGrid);
-        
-        if (actualGrid) {
-            const actualGridRect = actualGrid.getBoundingClientRect();
-            console.log('Actual grid rect:', actualGridRect);
-            console.log('Actual grid computed style:', window.getComputedStyle(actualGrid));
-            console.log('Actual grid offsetWidth:', actualGrid.offsetWidth);
-            console.log('Actual grid scrollWidth:', actualGrid.scrollWidth);
-            console.log('Actual grid clientWidth:', actualGrid.clientWidth);
-            
-            // Force apply styles with !important
-            actualGrid.style.cssText = `
-                display: grid !important;
-                grid-template-columns: repeat(4, 1fr) !important;
-                gap: 12px !important;
-                width: 100% !important;
-                max-width: 1400px !important;
-                margin: 0 auto 30px auto !important;
-                padding: 25px !important;
-                background: rgba(255, 255, 255, 0.05) !important;
-                border-radius: 15px !important;
-                box-sizing: border-box !important;
-            `;
-            console.log('Forced grid styles applied with !important');
-        }
-        
-        console.log('Category section found:', categorySection);
-        
-        if (categorySection) {
-            categorySection.classList.remove('hidden');
-            console.log('Category section shown');
-            
-            // Initially hide start button until 8 categories are selected
-            const startBtn = document.querySelector('.start-quiz-btn');
-            if (startBtn) {
-                startBtn.style.display = 'none';
-                startBtn.classList.add('hidden');
-                startBtn.disabled = true;
-                console.log('Start button initially hidden');
-            }
-            
-            // Debug category buttons
-            const categoryBtns = document.querySelectorAll('.category-btn');
-            console.log('Category buttons found:', categoryBtns.length);
-            categoryBtns.forEach((btn, index) => {
-                console.log(`Button ${index}:`, btn);
-                console.log(`Button ${index} computed style:`, window.getComputedStyle(btn));
-                console.log(`Button ${index} rect:`, btn.getBoundingClientRect());
-                
-                // Force apply button styles with !important
-                btn.style.cssText = `
-                    padding: 15px 10px !important;
-                    font-size: 0.85rem !important;
-                    min-height: 100px !important;
-                    border-radius: 12px !important;
-                    gap: 6px !important;
-                    display: flex !important;
-                    flex-direction: column !important;
-                    align-items: center !important;
-                    justify-content: center !important;
-                `;
-            });
-        } else {
-            console.log('Category section NOT found - this is the problem!');
-        }
-        
-        // Update category buttons to show completed status
-        const completedCategories = this.completedCategories || [];
-        this.updateCategoryButtons(completedCategories);
-        
-        console.log('=== SHOW CATEGORY SELECTION END ===');
-    }
-
-    selectCategory(category) {
-        console.log('=== SELECT CATEGORY DEBUG START ===');
-        console.log('Selected category:', category);
-        console.log('Currently selected categories BEFORE:', this.selectedCategories);
-        console.log('Categories to select:', this.categoriesToSelect);
-        console.log('Selected categories length BEFORE:', this.selectedCategories.length);
-        
-        // Don't remove categories during quiz - only allow selection
-        if (this.quizStarted) {
-            console.log('Quiz already started - ignoring category selection');
-            return;
-        }
-        
-        // Check if category is already selected
-        if (this.selectedCategories.includes(category)) {
-            console.log('Category already selected, removing:', category);
-            this.removeSelectedCategory(category);
-            console.log('=== SELECT CATEGORY DEBUG END (REMOVED) ===');
-            return;
-        }
-        
-        // Check if we can select more categories
-        if (this.selectedCategories.length >= this.categoriesToSelect) {
-            console.log('Maximum categories selected, cannot select more');
-            console.log('Current length:', this.selectedCategories.length);
-            console.log('Max allowed:', this.categoriesToSelect);
-            console.log('=== SELECT CATEGORY DEBUG END (MAX REACHED) ===');
-            return;
-        }
-        
-        // Add category to selected list
-        this.selectedCategories.push(category);
-        console.log('Category added to selection:', category);
-        console.log('Updated selected categories AFTER:', this.selectedCategories);
-        console.log('Selected categories length AFTER:', this.selectedCategories.length);
-        
-        // Update UI to show selection
-        this.updateCategorySelectionUI();
-        
-        // Check if all categories are selected
-        if (this.selectedCategories.length === this.categoriesToSelect) {
-            console.log('All categories selected - start button will be shown by updateCategorySelectionUI');
-        }
-        
-        // Send category selection to server
-        this.socket.emit('selectCategory', {
-            category: category,
-            selectedCategories: this.selectedCategories
-        });
-        
-        console.log('Category selection sent to server');
-        console.log('=== SELECT CATEGORY DEBUG END ===');
-    }
     
-    removeSelectedCategory(category) {
-        console.log('=== REMOVE SELECTED CATEGORY DEBUG START ===');
-        console.log('Removing category:', category);
-        console.log('Currently selected categories BEFORE:', this.selectedCategories);
-        
-        // Remove category from selected list
-        this.selectedCategories = this.selectedCategories.filter(cat => cat !== category);
-        console.log('Category removed from selection:', category);
-        console.log('Updated selected categories AFTER:', this.selectedCategories);
-        
-        // Update UI
-        this.updateCategorySelectionUI();
-        
-        // Start button will be hidden by updateCategorySelectionUI if not all categories selected
-        if (this.selectedCategories.length < this.categoriesToSelect) {
-            console.log('Not all categories selected - start button will be hidden by updateCategorySelectionUI');
-        }
-        
-        // Send removal to server
-        this.socket.emit('removeCategory', {
-            category: category,
-            selectedCategories: this.selectedCategories
-        });
-    }
-    
-    updateCategorySelectionUI() {
-        console.log('=== UPDATE CATEGORY SELECTION UI DEBUG ===');
-        console.log('Selected categories:', this.selectedCategories);
-        console.log('Selected categories length:', this.selectedCategories.length);
-        
-        // Update category buttons to show selection status
-        const categoryBtns = document.querySelectorAll('.category-btn');
-        console.log('Category buttons found:', categoryBtns.length);
-        
-        categoryBtns.forEach((btn, index) => {
-            const category = btn.dataset.category;
-            console.log(`Button ${index} (${category}):`, btn);
-            
-            const selectionCount = btn.querySelector('.selection-count');
-            console.log(`Selection count element for ${category}:`, selectionCount);
-            
-            if (this.selectedCategories.includes(category)) {
-                btn.classList.add('selected');
-                const categoryIndex = this.selectedCategories.indexOf(category) + 1;
-                console.log(`Setting selection count for ${category}:`, categoryIndex);
-                if (selectionCount) {
-                    selectionCount.textContent = categoryIndex;
-                    selectionCount.style.display = 'flex';
-                }
-            } else {
-                btn.classList.remove('selected');
-                console.log(`Clearing selection count for ${category}`);
-                if (selectionCount) {
-                    selectionCount.textContent = '';
-                    selectionCount.style.display = 'none';
-                }
-            }
-        });
-        
-        // Update selection counter
-        const selectionCounter = document.querySelector('.selection-counter');
-        console.log('Selection counter element:', selectionCounter);
-        if (selectionCounter) {
-            const counterText = `${this.selectedCategories.length}/${this.categoriesToSelect} selected`;
-            console.log('Setting selection counter text:', counterText);
-            selectionCounter.textContent = counterText;
-        }
-        
-        // Show or hide start button based on selection count
-        const startBtn = document.querySelector('.start-quiz-btn');
-        console.log('Start button element:', startBtn);
-        console.log('Selected categories count:', this.selectedCategories.length);
-        console.log('Categories to select:', this.categoriesToSelect);
-        
-        if (startBtn) {
-            if (this.selectedCategories.length === this.categoriesToSelect) {
-                // Show start button when exactly 8 categories are selected
-                startBtn.style.display = 'block';
-                startBtn.classList.remove('hidden');
-                startBtn.disabled = false;
-                console.log('Start button shown - 8 categories selected');
-            } else {
-                // Hide start button when not exactly 8 categories are selected
-                startBtn.style.display = 'none';
-                startBtn.classList.add('hidden');
-                startBtn.disabled = true;
-                console.log('Start button hidden - not 8 categories selected');
-            }
-        }
-        
-        console.log('=== UPDATE CATEGORY SELECTION UI END ===');
-    }
-    
-    showStartButton() {
-        const startBtn = document.querySelector('.start-quiz-btn');
-        if (startBtn) {
-            startBtn.style.display = 'block';
-            startBtn.classList.remove('hidden');
-        }
-    }
-    
-    hideStartButton() {
-        const startBtn = document.querySelector('.start-quiz-btn');
-        if (startBtn) {
-            startBtn.style.display = 'none';
-            startBtn.classList.add('hidden');
-        }
-    }
-    
-    startQuestionsQuiz() {
-        console.log('=== START QUESTIONS QUIZ DEBUG ===');
-        console.log('Selected categories:', this.selectedCategories);
-        console.log('Number of categories selected:', this.selectedCategories.length);
-        
-        // Set quiz started flag
-        this.quizStarted = true;
-        console.log('Quiz started flag set to true');
-        console.log('Questions per category: 1');
-        console.log('Total questions expected:', this.selectedCategories.length * 1);
-        console.log('Questions should be mixed from all selected categories');
-        
-        // Mark quiz as started in localStorage (prevent refresh from going to welcome)
-        localStorage.setItem('quizStarted', 'true');
-        console.log('Quiz started flag saved to localStorage');
-        
-        // Show 3-second countdown
-        this.showStartCountdown();
-        
-        // Send start signal to server with 1 question per category
-        this.socket.emit('startQuiz', {
-            selectedCategories: this.selectedCategories,
-            questionsPerCategory: 1 // 1 question from each category
-        });
-        
-        console.log('Quiz start signal sent to server');
-        console.log('=== START QUESTIONS QUIZ END ===');
-    }
-    
-    showStartCountdown() {
-        console.log('=== SHOW START COUNTDOWN ===');
-        
-        // Hide category section first
-        const categorySection = document.querySelector('.category-section');
-        if (categorySection) {
-            categorySection.classList.add('hidden');
-            console.log('Category section hidden');
-        }
-        
-        // Show countdown section
-        const countdownElement = document.querySelector('.start-countdown');
-        if (!countdownElement) {
-            console.error('Countdown element not found!');
-            return;
-        }
-        
-        // Make countdown section visible
-        countdownElement.classList.remove('hidden');
-        countdownElement.style.display = 'block';
-        
-        let countdown = this.startTimer;
-        const countdownNumber = countdownElement.querySelector('.countdown-number');
-        if (countdownNumber) {
-            countdownNumber.textContent = countdown;
-        }
-        
-        console.log('Countdown started from:', countdown);
-        
-        const countdownInterval = setInterval(() => {
-            countdown--;
-            if (countdown > 0) {
-                if (countdownNumber) {
-                    countdownNumber.textContent = countdown;
-                }
-                console.log('Countdown:', countdown);
-            } else {
-                clearInterval(countdownInterval);
-                countdownElement.classList.add('hidden');
-                countdownElement.style.display = 'none';
-                console.log('Countdown finished, starting questions');
-                this.startQuestions();
-            }
-        }, 1000);
-    }
-    
-    startQuestions() {
-        console.log('=== START QUESTIONS ===');
-        console.log('Starting questions phase');
-        
-        // Team-specific questions are already loaded in initializeTeamQuestionSystem
-        console.log('Current team questions:', this.currentTeamQuestions.length);
-        console.log('Current answering team:', this.currentAnsweringTeam);
-        
-        // Show question section
-        const questionSection = document.querySelector('.question-section');
-        if (questionSection) {
-            questionSection.classList.remove('hidden');
-            console.log('Question section shown');
-        }
-        
-        // Show first question
-        this.nextQuestion();
-        
-        console.log('=== START QUESTIONS END ===');
-    }
-    
-    mixQuestionsFromCategories() {
-        console.log('=== MIX QUESTIONS FROM CATEGORIES START ===');
-        console.log('Selected categories:', this.selectedCategories);
-        console.log('Questions per category:', this.questionsPerCategory);
-        console.log('Available questions:', Object.keys(this.questions));
-        
-        const allQuestions = [];
-        
-        // Collect questions from all selected categories
-        this.selectedCategories.forEach(category => {
-            console.log(`Processing category: ${category}`);
-            const categoryQuestions = this.questions[category] || [];
-            console.log(`Questions in ${category}:`, categoryQuestions.length);
-            
-            if (categoryQuestions.length === 0) {
-                console.warn(`WARNING: No questions found for category: ${category}`);
-                console.warn(`Available categories:`, Object.keys(this.questions));
-            }
-            
-            // Take first 10 questions from each category
-            const limitedQuestions = categoryQuestions.slice(0, this.questionsPerCategory);
-            console.log(`Limited questions for ${category}:`, limitedQuestions.length);
-            
-            // Add category info to each question
-            limitedQuestions.forEach(question => {
-                allQuestions.push({
-                    ...question,
-                    category: category
-                });
-            });
-        });
-        
-        console.log(`Total questions collected: ${allQuestions.length}`);
-        console.log(`Selected categories count: ${this.selectedCategories.length}`);
-        console.log(`Questions per category: ${this.questionsPerCategory}`);
-        console.log(`Expected: ${this.selectedCategories.length} × ${this.questionsPerCategory} = ${this.selectedCategories.length * this.questionsPerCategory}`);
-        console.log(`Selected categories array:`, this.selectedCategories);
-        
-        // Shuffle all questions
-        return this.shuffleArray(allQuestions);
-    }
-    
-    shuffleArray(array) {
-        const shuffled = [...array];
-        for (let i = shuffled.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-        }
-        return shuffled;
-    }
-    
-        
-    startQuestionTimer() {
-        console.log('=== QUESTION TIMER START ===');
-        
-        // Stop any existing timer
-        if (this.currentTimerInterval) {
-            clearInterval(this.currentTimerInterval);
-            this.currentTimerInterval = null;
-        }
-        
-        // Get timer element
-        const timerElement = document.getElementById('questionTimer');
-        console.log('Timer element:', timerElement);
-        
-        if (!timerElement) {
-            console.error('Timer element not found!');
-            return;
-        }
-        
-        // Start from 30
-        let countdown = 30;
-        timerElement.textContent = countdown;
-        console.log('Timer set to:', countdown);
-        
-        // Simple countdown
-        this.currentTimerInterval = setInterval(() => {
-            countdown--;
-            console.log('Countdown:', countdown);
-            
-            // Update display
-            timerElement.textContent = countdown;
-            
-            // Check if time is up
-            if (countdown <= 0) {
-                console.log('TIME UP!');
-                clearInterval(this.currentTimerInterval);
-                this.currentTimerInterval = null;
-                this.timeUp();
-            }
-        }, 1000);
-        
-        console.log('Timer started');
-    }
-    
-    stopQuestionTimer() {
-        if (this.currentTimerInterval) {
-            clearInterval(this.currentTimerInterval);
-            this.currentTimerInterval = null;
-            console.log('Timer stopped');
-        }
-    }
-    
-    displayQuestion(question) {
-        console.log('=== DISPLAY QUESTION ===');
-        
-        // State is managed by server - no localStorage needed
-        console.log('Question phase - server manages state');
-        
-        // Hide category selection
-        const categorySection = document.querySelector('.category-section');
-        if (categorySection) {
-            categorySection.classList.add('hidden');
-        }
-        
-        // Show question section
-        const questionSection = document.querySelector('.question-section');
-        if (questionSection) {
-            questionSection.classList.remove('hidden');
-        }
-        
-        // Update question content
-        const questionText = document.querySelector('.question-text');
-        if (questionText) {
-            questionText.textContent = question.question;
-        }
-        
-        // Update category indicator
-        const categoryIndicator = document.querySelector('.category-indicator');
-        if (categoryIndicator) {
-            categoryIndicator.textContent = question.category;
-        }
-        
-        // Update answer options - REMOVED (no variants needed)
-        const answerOptions = document.querySelector('.answer-options');
-        if (answerOptions) {
-            answerOptions.innerHTML = ''; // Empty - no variants needed
-            console.log('Answer options cleared - no variants needed');
-        }
-    }
-    
-    selectAnswer(answerIndex) {
-        this.stopQuestionTimer();
-        
-        // Check if answer is correct
-        const correct = this.currentQuestion.correct === answerIndex;
-        
-        // Send answer to server
-        this.socket.emit('answerQuestion', {
-            question: this.currentQuestion,
-            answer: answerIndex,
-            correct: correct,
-            category: this.currentCategory
-        });
-        
-        // Show next question after delay
-        setTimeout(() => {
-            this.nextQuestion();
-        }, 2000);
-    }
-    
-    timeUp() {
-        console.log('Time up for question - showing scoring interface');
-        
-        // State is managed by server - no localStorage needed
-        console.log('Scoring phase - server manages state');
-        
-        // Send time up to server
-        this.socket.emit('timeUp', {
-            question: this.currentQuestion,
-            category: this.currentCategory
-        });
-        
-        // Send scoring phase signal to server
-        this.socket.emit('scoringPhase', {
-            question: this.currentQuestion,
-            category: this.currentCategory,
-            scoringPhase: true
-        });
-        
-        // Show scoring interface instead of next question
-        this.showScoringInterface();
-    }
-    
-    showScoringInterface() {
-        console.log('=== SHOW SCORING INTERFACE ===');
-        
-        // Hide question section
-        const questionSection = document.querySelector('.question-section');
-        if (questionSection) {
-            questionSection.classList.add('hidden');
-        }
-        
-        // Show scoring section
-        const scoringSection = document.querySelector('.scoring-section');
-        if (scoringSection) {
-            scoringSection.classList.remove('hidden');
-            
-            // Update scoring content
-            const scoringContent = scoringSection.querySelector('.card');
-            if (scoringContent) {
-                const questionText = this.currentQuestion.question || 'Question not available';
-                const categoryText = this.currentCategory || 'Category not available';
-                const correctAnswerText = this.currentQuestion.options && this.currentQuestion.correct !== undefined 
-                    ? this.currentQuestion.options[this.currentQuestion.correct] 
-                    : 'Answer not available';
-                
-                scoringContent.innerHTML = '<h2>Scoring</h2>' +
-                    '<div class="question-info">' +
-                        '<p><strong>Question:</strong> ' + questionText + '</p>' +
-                        '<p><strong>Category:</strong> ' + categoryText + '</p>' +
-                        '<p><strong>Correct Answer:</strong> ' + correctAnswerText + '</p>' +
-                    '</div>' +
-                    '<div class="scoring-buttons">' +
-                        '<button class="btn btn-success" id="correctBtn">' +
-                            'Correct (1 point)' +
-                        '</button>' +
-                        '<button class="btn btn-danger" id="incorrectBtn">' +
-                            'Incorrect (0 points)' +
-                        '</button>' +
-                    '</div>' +
-                    '<div class="teams-scoring">' +
-                        '<h3>Select Team to Award Points:</h3>' +
-                        '<div class="team-scoring-list" id="teamScoringList">' +
-                            '<!-- Team buttons will be generated here -->' +
-                        '</div>' +
-                    '</div>';
-                
-                // Add event listeners to scoring buttons
-                setTimeout(() => {
-                    const correctBtn = document.getElementById('correctBtn');
-                    const incorrectBtn = document.getElementById('incorrectBtn');
-                    
-                    if (correctBtn) {
-                        correctBtn.addEventListener('click', () => this.markAnswer(true));
-                    }
-                    
-                    if (incorrectBtn) {
-                        incorrectBtn.addEventListener('click', () => this.markAnswer(false));
-                    }
-                }, 100);
-                
-                // Generate team scoring buttons
-                this.generateTeamScoringButtons();
-            }
-        }
-        
-        console.log('=== SHOW SCORING INTERFACE END ===');
-    }
-    
-    generateTeamScoringButtons() {
-        const teamScoringList = document.getElementById('teamScoringList');
-        if (!teamScoringList) return;
-        
-        teamScoringList.innerHTML = '';
-        
-        // Get teams from this.teams (not this.registeredTeams)
-        const teams = this.teams || [];
-        console.log('Teams for scoring:', teams);
-        
-        teams.forEach((team, index) => {
-            const teamButton = document.createElement('button');
-            teamButton.className = 'btn btn-primary team-score-btn';
-            teamButton.textContent = team.name;
-            teamButton.dataset.teamIndex = index;
-            teamButton.onclick = () => this.awardPointsToTeam(index);
-            teamScoringList.appendChild(teamButton);
-        });
-        
-        console.log('Team scoring buttons generated:', teams.length);
-    }
-    
-    markAnswer(isCorrect) {
-        console.log('Answer marked as:', isCorrect ? 'Correct' : 'Incorrect');
-        
-        // Store answer correctness
-        this.lastAnswerCorrect = isCorrect;
-        
-        // Enable/disable team buttons based on correctness
-        const teamButtons = document.querySelectorAll('.team-score-btn');
-        teamButtons.forEach(button => {
-            button.disabled = !isCorrect; // Only allow scoring if correct
-            if (!isCorrect) {
-                button.textContent += ' (0 points)';
-            }
-        });
-        
-        // Update scoring buttons visual state
-        const correctBtn = document.querySelector('.btn-success');
-        const incorrectBtn = document.querySelector('.btn-danger');
-        
-        if (isCorrect) {
-            correctBtn.classList.add('selected');
-            incorrectBtn.classList.remove('selected');
-        } else {
-            incorrectBtn.classList.add('selected');
-            correctBtn.classList.remove('selected');
-        }
-    }
-    
-    awardPointsToTeam(teamIndex) {
-        if (!this.lastAnswerCorrect) {
-            console.log('No points awarded - answer was incorrect');
-            return;
-        }
-        
-        console.log('Awarding 1 point to team:', teamIndex);
-        
-        // Award 1 point to the team
-        this.socket.emit('awardPoint', {
-            teamIndex: teamIndex,
-            points: 1,
-            question: this.currentQuestion,
-            category: this.currentCategory
-        });
-        
-        // Show next question after awarding points
-        setTimeout(() => {
-            this.goToNextQuestion();
-        }, 1500);
-    }
-    
-        
     endQuiz() {
-        console.log('Quiz ended');
-        
-        // Send quiz end to server
-        this.socket.emit('endQuiz', {
-            selectedCategories: this.selectedCategories
-        });
-        
-        // Show results modal instead of category selection
-        this.showResultsModal();
-        
-        // Reset quiz state
-        this.quizStarted = false;
-        this.currentQuestionIndex = 0;
-        this.currentCategory = null;
-        this.currentQuestion = null;
-        this.mixedQuestions = [];
-    }
-    
-    showResultsModal() {
-        console.log('=== SHOW RESULTS MODAL ===');
-        
-        // Hide question section
-        const questionSection = document.querySelector('.question-section');
-        if (questionSection) {
-            questionSection.classList.add('hidden');
-        }
-        
-        // Create results modal
-        const modal = document.createElement('div');
-        modal.className = 'results-modal-overlay';
-        modal.innerHTML = `
-            <div class="results-modal">
-                <div class="results-header">
-                    <h2>Quiz Complete! </h2>
-                    <button class="close-modal-btn" onclick="this.closest('.results-modal-overlay').remove()">×</button>
-                </div>
-                <div class="results-content">
-                    <div class="winner-animation" id="winnerAnimation">
-                        <div class="trophy"> </div>
-                        <h3>Congratulations!</h3>
-                    </div>
-                    <div class="final-leaderboard" id="finalLeaderboard">
-                        <!-- Leaderboard will be generated here -->
-                    </div>
-                </div>
-                <div class="results-actions">
-                    <button class="btn btn-primary" onclick="location.reload()">New Quiz</button>
-                </div>
-            </div>
-        `;
-        
-        // Add modal to page
-        document.body.appendChild(modal);
-        
-        // Generate leaderboard
-        this.generateFinalLeaderboard();
-        
-        // Show winner animation
-        this.showWinnerAnimation();
-        
-        console.log('Results modal shown');
-    }
-    
-    generateFinalLeaderboard() {
-        const leaderboard = document.getElementById('finalLeaderboard');
-        if (!leaderboard) return;
-        
-        // Sort teams by score (descending)
-        const sortedTeams = Object.entries(this.scores)
-            .sort(([,a], [,b]) => b - a)
-            .map(([teamId, score]) => {
-                const team = this.teams.find(t => t.id === parseInt(teamId));
-                return {
-                    ...team,
-                    score: score
-                };
-            });
-        
-        // Generate leaderboard HTML
-        leaderboard.innerHTML = '<h3>Final Scores</h3>';
-        
-        sortedTeams.forEach((team, index) => {
-            const position = index + 1;
-            const isWinner = position === 1;
-            
-            const teamElement = document.createElement('div');
-            teamElement.className = `leaderboard-item ${isWinner ? 'winner' : ''}`;
-            teamElement.innerHTML = `
-                <div class="position">${position}</div>
-                <div class="team-info">
-                    <span class="team-name">${team.name}</span>
-                </div>
-                <div class="team-score">${team.score}</div>
-            `;
-            
-            leaderboard.appendChild(teamElement);
-        });
-        
-        console.log('Final leaderboard generated:', sortedTeams);
-    }
-    
-    showWinnerAnimation() {
-        const winnerAnimation = document.getElementById('winnerAnimation');
-        if (!winnerAnimation) return;
-        
-        // Find the winning team
-        const sortedTeams = Object.entries(this.scores)
-            .sort(([,a], [,b]) => b - a);
-        
-        if (sortedTeams.length > 0) {
-            const [winnerId, winnerScore] = sortedTeams[0];
-            const winnerTeam = this.teams.find(t => t.id === parseInt(winnerId));
-            
-            if (winnerTeam) {
-                winnerAnimation.innerHTML = `
-                    <div class="trophy"> </div>
-                    <h3>Congratulations!</h3>
-                    <p class="winner-name">${winnerTeam.name}</p>
-                    <p class="winner-score">Score: ${winnerScore}</p>
-                `;
-                
-                // Add animation class
-                winnerAnimation.classList.add('animate');
-                
-                // Play victory sound
-                this.playSound('victory');
-            }
-        }
-    }
-    
-    showCountdown(callback) {
-        const categorySection = document.querySelector('.category-section');
-        const questionSection = document.getElementById('questionSection');
-        const countdownDisplay = document.getElementById('countdownDisplay');
-        const countdownNumber = document.querySelector('.countdown-number');
-        
-        if (!categorySection || !questionSection || !countdownDisplay || !countdownNumber) {
-            console.error('Countdown elements not found');
-            callback();
-            return;
-        }
-        
-        // Hide category section, show question section with countdown
-        categorySection.classList.add('hidden');
-        questionSection.classList.remove('hidden');
-        
-        // Show countdown display
-        countdownDisplay.classList.remove('hidden');
-        
-        let count = 3;
-        countdownNumber.textContent = count;
-        
-        // Play countdown sound
-        this.playSound('countdown');
-        
-        const countdownInterval = setInterval(() => {
-            count--;
-            
-            if (count > 0) {
-                countdownNumber.textContent = count;
-                // Play sound for each number
-                this.playSound('countdown');
-            } else {
-                clearInterval(countdownInterval);
-                countdownDisplay.classList.add('hidden');
-                callback();
-            }
-        }, 1000);
-    }
-
-    updateCategoryButtons(completedCategories) {
-        const categoryButtons = document.querySelectorAll('.category-btn');
-        categoryButtons.forEach(button => {
-            const category = button.dataset.category;
-            
-            if (completedCategories.includes(category)) {
-                button.classList.add('completed');
-                button.disabled = true;
-                button.innerHTML = `
-                    <div class="category-icon">?</div>
-                    <span>${category.charAt(0).toUpperCase() + category.slice(1)} (Completed)</span>
-                `;
-            } else {
-                button.classList.remove('completed');
-                button.disabled = false;
-                const categoryIcons = {
-                    'music': 'Music',
-                    'sports': 'Sports',
-                    'art': 'Art',
-                    'mathematics': 'Math',
-                    'geography': 'Geo'
-                };
-                const icon = categoryIcons[category] || category.charAt(0).toUpperCase() + category.slice(1);
-                button.innerHTML = `
-                    <div class="category-icon">${icon}</div>
-                    <span>${category.charAt(0).toUpperCase() + category.slice(1)}</span>
-                `;
-            }
-        });
-    }
-
-    showQuestion() {
-        const categorySection = document.querySelector('.category-section');
-        const questionSection = document.querySelector('.question-section');
-        const categoryDisplay = document.querySelector('.category-indicator');
-        const questionText = document.querySelector('.question-text');
-        const answerOptions = document.querySelector('.answer-options');
-        
-        console.log('=== SHOW QUESTION DEBUG ===');
-        console.log('Category section:', categorySection);
-        console.log('Question section:', questionSection);
-        console.log('Category display:', categoryDisplay);
-        console.log('Question text:', questionText);
-        console.log('Answer options:', answerOptions);
-        
-        if (!categorySection || !questionSection || !categoryDisplay || !questionText || !answerOptions) {
-            console.error('Question display elements not found');
-            return;
-        }
-        
-        // Hide category section, show question section
-        categorySection.classList.add('hidden');
-        questionSection.classList.remove('hidden');
-        
-        // Update category display
-        categoryDisplay.textContent = this.currentCategory.charAt(0).toUpperCase() + this.currentCategory.slice(1);
-        
-        // Update question text without number
-        questionText.textContent = this.currentQuestion.question;
-        
-        // Update question number separately if element exists
-        const questionNumberElement = document.querySelector('.question-number');
-        if (questionNumberElement) {
-            const currentQuestionNum = this.currentTeamQuestionIndex + 1;
-            const totalQuestions = this.currentTeamQuestions.length;
-            const currentTeam = this.teams[this.currentTeamIndex];
-            questionNumberElement.textContent = `${currentQuestionNum} of ${totalQuestions} (Team ${currentTeam.name})`;
-        }
-        
-        // Update answer options
-        answerOptions.innerHTML = '';
-        answerOptions.style.display = 'block'; // Make sure options are visible
-        this.currentQuestion.options.forEach((option, index) => {
-            const optionElement = document.createElement('div');
-            optionElement.className = 'answer-option';
-            optionElement.textContent = option;
-            answerOptions.appendChild(optionElement);
-        });
-        
-        // Start timer and show ready to answer button
-        this.startQuestionTimer();
-        this.showReadyToAnswerButton();
-    }
-
-    showNextQuestionButton() {
-        const nextQuestionBtn = document.getElementById('nextQuestionBtn');
-        if (nextQuestionBtn) {
-            nextQuestionBtn.style.display = 'block';
-            console.log('Next question button shown');
-        }
-    }
-
-    hideNextQuestionButton() {
-        const nextQuestionBtn = document.getElementById('nextQuestionBtn');
-        if (nextQuestionBtn) {
-            nextQuestionBtn.style.display = 'none';
-            console.log('Next question button hidden');
-        }
-    }
-
-    showReadyToAnswerButton() {
-        const readyToAnswerBtn = document.getElementById('readyToAnswerBtn');
-        if (readyToAnswerBtn) {
-            readyToAnswerBtn.style.display = 'block';
-            console.log('Ready to answer button shown');
-        }
-    }
-
-    hideReadyToAnswerButton() {
-        const readyToAnswerBtn = document.getElementById('readyToAnswerBtn');
-        if (readyToAnswerBtn) {
-            readyToAnswerBtn.style.display = 'none';
-            console.log('Ready to answer button hidden');
-        }
-    }
-
-    handleReadyToAnswer() {
-        console.log('=== HANDLE READY TO ANSWER ===');
-        
-        // Hide ready to answer button
-        this.hideReadyToAnswerButton();
+        console.log('=== QUIZ END ===');
         
         // Stop timer
         this.stopQuestionTimer();
         
-        // Check if we're on index.html
-        const currentPath = window.location.pathname;
-        console.log('Current path:', currentPath);
-        
-        // Send modal trigger to server for other devices first
-        const modalData = {
-            currentQuestion: this.currentQuestion,
-            currentAnsweringTeam: this.currentAnsweringTeam,
-            teams: this.teams,
-            scores: this.scores
-        };
-        
-        this.socket.emit('triggerModalOnIndex', modalData);
-        console.log('Modal trigger sent to server for other devices');
-        
-        // Also set auto modal trigger for same device (index.html)
-        sessionStorage.setItem('autoShowModal', 'true');
-        sessionStorage.setItem('autoModalQuestion', JSON.stringify(this.currentQuestion));
-        sessionStorage.setItem('autoModalTeam', this.currentAnsweringTeam.toString());
-        sessionStorage.setItem('autoModalTeams', JSON.stringify(this.teams));
-        sessionStorage.setItem('autoModalScores', JSON.stringify(this.scores));
-        console.log('Auto modal trigger set for same device');
-        
-        // Check if we're on index.html
-        if (currentPath.includes('index.html') || currentPath === '/') {
-            // Show modal on index.html
-            console.log('On index.html - showing modal');
-            this.showTeamAnswerModal();
-        } else {
-            // Don't show modal on questions.html
-            console.log('On questions.html - modal will not show here');
-            return; // Stop execution here
-        }
-    }
-
-    startTimer() {
-        const timerContainer = document.getElementById('timerContainer');
-        const stopwatchDisplay = document.getElementById('stopwatchDisplay');
-        const timerTime = document.querySelector('.timer-time');
-        const timerCircle = document.querySelector('.timer-circle');
-        
-        if (!timerContainer || !stopwatchDisplay || !timerTime || !timerCircle) {
-            console.error('Timer elements not found');
-            return;
-        }
-        
-        // Reset flags
-        this.timeUpCalled = false;
-        this.isAnimating = false;
-        
-        console.log('Timer started - flags reset');
-        
-        // Show timer
-        timerContainer.classList.remove('hidden');
-        stopwatchDisplay.classList.remove('hidden');
-        
-        // Start countdown
-        this.startStopwatch(timerTime, timerCircle);
-    }
-
-    startStopwatch(timerTime, timerCircle) {
-        let timeLeft = 30;
-        
-        // Clear any existing timer
-        if (this.currentTimerInterval) {
-            clearInterval(this.currentTimerInterval);
-            this.currentTimerInterval = null;
-        }
-        
-        const stopwatchInterval = setInterval(() => {
-            timeLeft--;
-            timerTime.textContent = timeLeft;
-            
-            // Update timer circle
-            const percentage = (timeLeft / 30) * 100;
-            timerCircle.style.background = `conic-gradient(#4a90e2 ${percentage}%, #e9ecef ${percentage}%)`;
-            
-            // Play warning sounds
-            if (timeLeft === 10) {
-                this.playSound('warning');
-            } else if (timeLeft === 5) {
-                this.playSound('warning');
-            }
-            
-            // Time's up - only call once
-            if (timeLeft <= 0 && !this.timeUpCalled) {
-                clearInterval(stopwatchInterval);
-                this.currentTimerInterval = null;
-                this.timeUp();
-            }
-        }, 1000);
-        
-        this.currentTimerInterval = stopwatchInterval;
-    }
-
-    timeUp() {
-        // Prevent multiple timeUp calls
-        if (this.timeUpCalled) {
-            console.log('TimeUp already called, skipping...');
-            return;
-        }
-        
-        this.timeUpCalled = true;
-        console.log('TimeUp called - setting flag');
-        
-        // STOP THE TIMER HERE!
-        if (this.currentTimerInterval) {
-            clearInterval(this.currentTimerInterval);
-            this.currentTimerInterval = null;
-            console.log('Timer stopped in timeUp method');
-        }
-        
-        // Play time's up sound
-        this.playSound('timeup');
-        
-        // Clear timer
-        if (this.currentTimerInterval) {
-            clearInterval(this.currentTimerInterval);
-            this.currentTimerInterval = null;
-        }
-        
-        // Send time up signal to server
-        this.socket.emit('timeUp');
-        console.log('Time up signal sent to server');
-        
-        // Show only TIME'S UP! message
-        const questionText = document.getElementById('questionText');
-        if (questionText) {
-            questionText.innerHTML = `
-                <div style="color: #e74c3c; font-size: 2rem; font-weight: 800;">
-                    TIME'S UP!
-                </div>
-                <div style="color: #4a90e2; font-size: 1.2rem; margin-top: 15px;">
-                    Waiting for scoring from admin...
-                </div>
-            `;
-        }
-        
-        // Hide stopwatch
-        const stopwatchDisplay = document.getElementById('stopwatchDisplay');
-        if (stopwatchDisplay) {
-            stopwatchDisplay.classList.add('hidden');
-        }
-    }
-
-    playSound(type) {
-        // Prevent multiple sounds from playing at once
-        if (this.currentSound) {
-            try {
-                this.currentSound.stop();
-                this.currentSound = null;
-            } catch (e) {
-                console.log('Error stopping previous sound:', e);
-                this.currentSound = null;
-            }
-        }
-        
-        // Create audio context for sound generation
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        
-        switch(type) {
-            case 'countdown':
-                oscillator.frequency.value = 800;
-                gainNode.gain.value = 0.1;
-                oscillator.start();
-                oscillator.stop(audioContext.currentTime + 0.1);
-                break;
-            case 'warning':
-                oscillator.frequency.value = 600;
-                gainNode.gain.value = 0.2;
-                oscillator.start();
-                oscillator.stop(audioContext.currentTime + 0.2);
-                break;
-            case 'timeup':
-                oscillator.frequency.value = 400;
-                gainNode.gain.value = 0.3;
-                oscillator.start();
-                oscillator.stop(audioContext.currentTime + 0.5);
-                
-                // Set up stop handler
-                oscillator.onended = () => {
-                    console.log('Time up sound ended');
-                    this.currentSound = null;
-                };
-                
-                this.currentSound = oscillator;
-                break;
-        }
-    }
-
-    goToNextQuestion() {
-        console.log('goToNextQuestion called - proceeding to next question');
-        // Reset timeUp flag for next question
-        this.timeUpCalled = false;
-        // Also reset animation flag
-        this.isAnimating = false;
-        this.nextQuestion();
-    }
-    
-    nextQuestion() {
-        console.log('=== NEXT QUESTION DEBUG ===');
-        console.log('Current team index:', this.currentTeamIndex);
-        console.log('Current team question index:', this.currentTeamQuestionIndex);
-        console.log('Current team questions length:', this.currentTeamQuestions.length);
-        
-        // Check if current team has more questions
-        if (this.currentTeamQuestionIndex >= this.currentTeamQuestions.length) {
-            console.log('Current team questions finished, moving to next team');
-            this.moveToNextTeam();
-            return;
-        }
-        
-        // Get current question from current team's questions
-        const question = this.currentTeamQuestions[this.currentTeamQuestionIndex];
-        console.log('Next question:', question);
-        console.log('Question text:', question.question);
-        console.log('Question category:', question.category);
-        console.log('Current answering team:', this.currentAnsweringTeam);
-        
-        this.currentQuestion = question;
-        this.currentCategory = question.category;
-        
-        // Show question
-        this.showQuestion();
-        
-        // Reset question answered flag
-        this.currentQuestionAnswered = false;
-        
-        // Don't auto-show modal - wait for ready to answer button
-        console.log('Waiting for ready to answer button click...');
-        
-        // Increment question index for next time
-        this.currentTeamQuestionIndex++;
-        
-        console.log('=== NEXT QUESTION END ===');
-    }
-    
-    moveToNextTeam() {
-        console.log('=== MOVE TO NEXT TEAM ===');
-        
-        // Move to next team
-        this.currentTeamIndex++;
-        
-        // Check if all teams are done
-        if (this.currentTeamIndex >= this.teams.length) {
-            console.log('All teams finished, ending quiz');
-            this.endQuiz();
-            return;
-        }
-        
-        // Set new current answering team
-        this.currentAnsweringTeam = this.teams[this.currentTeamIndex].id;
-        
-        console.log('Moving to team:', this.teams[this.currentTeamIndex].name);
-        
-        // Load questions for new team
-        this.loadQuestionsForCurrentTeam();
-        
-        // Show next question after delay
-        setTimeout(() => {
-            this.nextQuestion();
-        }, 2000);
-    }
-    
-    animateScoreUpdates(scores) {
-        // Set animation flag
-        this.isAnimating = true;
-            
-        console.log('Starting 3-second score animation for scores:', scores);
-            
-        // Simple animation - just update display with effect
-        Object.keys(scores).forEach((teamId, index) => {
-            const scoreValue = scores[teamId];
-            if (scoreValue > 0) {
-                setTimeout(() => {
-                    this.animateSingleTeamScore(teamId, scoreValue);
-                }, index * 200);
-            }
+        // Calculate final scores
+        const sortedTeams = [...this.teams].sort((a, b) => {
+            return (this.scores[b.id] || 0) - (this.scores[a.id] || 0);
         });
         
-        // Clear animation flag after 3 seconds
-        setTimeout(() => {
-            this.isAnimating = false;
-            console.log('3-second score animation completed');
-        }, 3000); // Extended to 3 seconds
-    }
-    
-    animateSingleTeamScore(teamId, scoreValue) {
-        const teamCard = document.querySelector(`[data-team-id="${teamId}"]`);
-        if (!teamCard) {
-            console.log('Team card not found for team:', teamId);
-            return;
+        // Show results
+        const winner = sortedTeams[0];
+        const resultsHTML = `
+            <div class="quiz-results">
+                <h2>🎉 Quiz Complete! 🎉</h2>
+                <div class="winner-announcement">
+                    <h3>Winner: ${winner.name}</h3>
+                    <p>Score: ${this.scores[winner.id] || 0}</p>
+                </div>
+                <div class="final-scores">
+                    <h4>Final Scores:</h4>
+                    ${sortedTeams.map(team => `
+                        <div class="team-score">
+                            <span>${team.name}:</span>
+                            <span>${this.scores[team.id] || 0}</span>
+                        </div>
+                    `).join('')}
+                </div>
+                <button class="btn btn-primary" onclick="location.reload()">Play Again</button>
+            </div>
+        `;
+        
+        const questionSection = document.getElementById('questionSection');
+        if (questionSection) {
+            questionSection.innerHTML = resultsHTML;
         }
         
-        // Find the score element
-        const scoreElement = teamCard.querySelector('.team-score');
-        if (!scoreElement) {
-            console.log('Score element not found for team:', teamId);
-            return;
-        }
-        
-        // Get current and target scores
-        const currentScore = parseInt(scoreElement.textContent) || 0;
-        const targetScore = currentScore + scoreValue;
-        
-        console.log(`Animating score for team ${teamId}: ${currentScore} -> ${targetScore}`);
-        
-        // Add visual effect
-        teamCard.style.background = '#e8f5e8';
-        teamCard.style.transform = 'scale(1.05)';
-        teamCard.style.transition = 'all 0.3s ease';
-        
-        // Animate the number
-        this.animateNumber(scoreElement, currentScore, targetScore, 800);
-        
-        // Remove visual effect after animation
-        setTimeout(() => {
-            teamCard.style.background = '';
-            teamCard.style.transform = '';
-        }, 800);
-    }
-    
-    animateNumber(element, start, end, duration) {
-        const startTime = performance.now();
-        const animate = (currentTime) => {
-            const elapsed = currentTime - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-            
-            // Easing function for smooth animation
-            const easeOutQuart = 1 - Math.pow(1 - progress, 4);
-            const currentNumber = Math.floor(start + (end - start) * easeOutQuart);
-            
-            element.textContent = currentNumber;
-            
-            if (progress < 1) {
-                requestAnimationFrame(animate);
-            } else {
-                element.textContent = end; // Ensure final number is exact
-            }
-        };
-        
-        requestAnimationFrame(animate);
-    }
-    
-    markCategoryCompleted(category) {
-        if (!this.completedCategories.includes(category)) {
-            this.completedCategories.push(category);
-            console.log('Category marked as completed:', category);
-            console.log('All completed categories:', this.completedCategories);
-            
-            // Update buttons immediately to show completion
-            this.updateCategoryButtons(this.completedCategories);
-            
-            // Send completion signal to server
-            if (this.socket) {
-                this.socket.emit('categoryCompleted', category);
-                console.log('Category completion signal sent to server:', category);
-            }
-        } else {
-            console.log('Category already marked as completed:', category);
-        }
+        // Send final scores to server
+        this.socket.emit('submitScores', this.scores);
     }
 }
 
-// Initialize the app when DOM is loaded
+// Initialize the quiz app when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    window.app = new QuizApp();
-});
-
-// Generate initial team inputs on page load
-window.addEventListener('load', () => {
-    const teamCountInput = document.getElementById('teamCount');
-    if (teamCountInput) {
-        // Generate inputs for default value
-        const event = new Event('change');
-        teamCountInput.dispatchEvent(event);
-    }
+    console.log('=== DOM CONTENT LOADED ===');
+    const quizApp = new QuizApp();
+    quizApp.initialize();
 });

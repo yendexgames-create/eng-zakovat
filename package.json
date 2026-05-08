@@ -1,7 +1,7 @@
 {
-  "name": "quiz-app",
+  "name": "eng-zakovat",
   "version": "1.0.0",
-  "description": "Multi-device quiz application",
+  "description": "English Quiz Application",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -14,5 +14,8 @@
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
-  }
+  },
+  "keywords": ["quiz", "education", "socket.io"],
+  "author": "Quiz Developer",
+  "license": "MIT"
 }

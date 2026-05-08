@@ -3,25 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Control Panel</title>
+    <title>English Quiz - Team Setup</title>
     <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="index-page">
+<body>
     <div class="container">
-        <main class="main-content">
-            <header class="header hidden">
-                <div class="header-content">
-                    <div class="header-text">
-                        <h1>Quiz Control Panel</h1>
-                        <p class="subtitle">Set up your teams and start the quiz</p>
-                    </div>
-                    <div class="header-actions">
-                        <button id="resetQuiz" class="btn btn-danger">Reset Quiz</button>
-                    </div>
-                </div>
-            </header>
-            
-            <section class="setup-section">
+        <header class="header hidden">
+            <div class="header-content">
+                <h1>English Quiz</h1>
+                <button id="resetQuiz" class="btn btn-danger">Reset Quiz</button>
+            </div>
+        </header>
+        
+        <main>
+            <section id="setupSection" class="setup-section">
                 <div class="card">
                     <h2>Team Setup</h2>
                     
@@ -43,6 +39,17 @@
                     <div id="setupStatus" class="setup-status hidden">
                         <div class="status-message">
                             <h3>Quiz Setup Complete!</h3>
+                            <p>Quiz is activated! Open questions.html on another device to start.</p>
+                            <div class="teams-display">
+                                <h4>Registered Teams:</h4>
+                                <div class="teams-list">
+                                    <!-- Teams will be displayed here -->
+                                </div>
+                            </div>
+                            <div class="quiz-status">
+                                <p class="status-text">Quiz is ready on other devices!</p>
+                                <button id="openQuestionsBtn" class="btn btn-secondary" style="margin-top: 15px;">Open Questions Page</button>
+                            </div>
                         </div>
                     </div>
                     
@@ -61,44 +68,35 @@
                     </div>
                 </div>
             </section>
+            
+            <section id="quizSection" class="quiz-section hidden">
+                <div class="card">
+                    <h2>Quiz Categories</h2>
+                    <div id="categorySelection" class="category-selection">
+                        <!-- Categories will be generated here -->
+                    </div>
+                    <div class="action-buttons">
+                        <button id="randomCategoriesBtn" class="btn btn-secondary">Random Categories</button>
+                        <button id="startQuizBtn" class="btn btn-primary start-quiz-btn" disabled>Start Quiz</button>
+                    </div>
+                </div>
+            </section>
         </main>
     </div>
-
-    <!-- Scoring Modal -->
-    <div id="scoringModal" class="modal hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Score This Question</h2>
-                <button class="modal-close" id="closeModal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div id="modalScoringQuestion" class="scoring-question">
-                    <!-- Question will be displayed here -->
-                </div>
-                <div id="modalTeamScores" class="team-scores">
-                    <!-- Team scoring buttons will be generated here -->
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button id="modalSubmitScores" class="btn btn-primary">Submit Scores</button>
-                <button id="modalSkipScoring" class="btn btn-secondary">Skip Scoring</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Emoji Animation Container -->
-    <div id="emojiContainer" class="emoji-container"></div>
 
     <!-- Team Answer Modal -->
     <div id="teamAnswerModal" class="modal hidden">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Team <span id="answeringTeamName"></span> Answer</h2>
+                <h2>Team Answer</h2>
                 <button class="modal-close" id="closeTeamAnswerModal">&times;</button>
             </div>
             <div class="modal-body">
-                <div id="teamAnswerQuestion" class="scoring-question">
-                    <!-- Question will be displayed here -->
+                <div class="team-answer-info">
+                    <h3>Team: <span id="answeringTeamName"></span></h3>
+                    <div id="teamAnswerQuestion" class="team-answer-question">
+                        <!-- Question will be displayed here -->
+                    </div>
                 </div>
                 <div class="team-answer-actions">
                     <button id="answerCorrect" class="btn btn-success">Correct</button>
@@ -107,6 +105,9 @@
             </div>
         </div>
     </div>
+
+    <!-- Emoji Animation Container -->
+    <div id="emojiContainer" class="emoji-container"></div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="script.js"></script>
