@@ -1332,8 +1332,10 @@ class QuizApp {
                 `;
             }).join('');
             
+            console.log('Generated leaderboard HTML:', leaderboardHTML);
             leaderboard.innerHTML = leaderboardHTML;
             console.log('Leaderboard updated');
+            console.log('Leaderboard innerHTML after update:', leaderboard.innerHTML);
         }
     }
     
