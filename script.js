@@ -661,7 +661,7 @@ class QuizApp {
                     categoryBtn.className = 'category-btn';
                     categoryBtn.textContent = category.charAt(0).toUpperCase() + category.slice(1);
                     categoryBtn.dataset.category = category;
-                    categoryBtn.addEventListener('click', () => this.toggleCategory(category));
+                    // Remove click event listener - no manual selection allowed
                     categorySelection.appendChild(categoryBtn);
                     console.log(`Category button ${index + 1} added:`, categoryBtn);
                 });
@@ -731,18 +731,22 @@ class QuizApp {
     updateStartButton() {
         const startBtn = document.getElementById('startQuizBtn');
         if (startBtn) {
-            startBtn.disabled = this.selectedCategories.length !== 8;
+            const requiredCategories = this.teams.length * 2;
+            startBtn.disabled = this.selectedCategories.length !== requiredCategories;
         }
     }
     
     selectRandomCategoriesForTeams() {
         console.log('=== SELECT RANDOM CATEGORIES ===');
         
+        // Calculate total categories needed (2 per team)
+        const totalCategoriesNeeded = this.teams.length * 2;
+        
         // Shuffle all categories
         const shuffled = [...this.categories].sort(() => 0.5 - Math.random());
         
-        // Select required number
-        this.selectedCategories = shuffled.slice(0, this.categoriesToSelect);
+        // Select exactly 2 categories per team
+        this.selectedCategories = shuffled.slice(0, totalCategoriesNeeded);
         
         console.log('Selected categories:', this.selectedCategories);
         
@@ -811,8 +815,9 @@ class QuizApp {
     startQuestionsQuiz() {
         console.log('=== START QUESTIONS QUIZ ===');
         
-        if (this.selectedCategories.length !== 8) {
-            alert(`Iltimos, avval 8 ta tur tanlang!`);
+        const requiredCategories = this.teams.length * 2;
+        if (this.selectedCategories.length !== requiredCategories) {
+            alert(`Iltimos, avval ${requiredCategories} ta tur tanlang!`);
             return;
         }
         

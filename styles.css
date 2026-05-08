@@ -255,17 +255,18 @@ body {
     border: 2px solid #e2e8f0;
     border-radius: 15px;
     background: white;
-    cursor: pointer;
+    color: #4a5568;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: default;
     transition: all 0.3s ease;
     text-align: center;
-    font-weight: 600;
-    color: #4a5568;
 }
 
 .category-btn:hover {
-    border-color: #4299e1;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: #e2e8f0;
+    transform: none;
+    box-shadow: none;
 }
 
 .category-btn.selected {
