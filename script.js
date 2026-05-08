@@ -637,9 +637,11 @@ class QuizApp {
         if (setupSection) setupSection.classList.add('hidden');
         
         // Show category section only on questions.html
-        if (quizSection && isQuestionsPage) {
+        if (isQuestionsPage) {
             console.log('Showing category section on questions.html');
-            quizSection.classList.remove('hidden');
+            if (quizSection) {
+                quizSection.classList.remove('hidden');
+            }
             
             const categorySelection = document.getElementById('categorySelection');
             if (categorySelection) {
