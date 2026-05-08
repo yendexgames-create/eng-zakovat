@@ -500,12 +500,16 @@ body {
 
 /* Leaderboard Section */
 .leaderboard-section {
+    margin-top: 20px;
+    display: block !important;
+    visibility: visible !important;
     max-width: 600px;
     margin: 0 auto 30px;
 }
 
 .leaderboard {
-    display: flex;
+    display: flex !important;
+    visibility: visible !important;
     flex-direction: column;
     gap: 15px;
 }
