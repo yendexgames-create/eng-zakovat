@@ -761,11 +761,12 @@ class QuizApp {
         console.log('=== ASSIGN CATEGORIES TO TEAMS ===');
         
         this.teamCategories = {};
+        const availableCategories = [...this.selectedCategories];
         
-        // Assign exactly 2 categories per team
+        // Assign exactly 2 unique categories per team without duplicates across teams
         this.teams.forEach((team, teamIndex) => {
-            // Get 2 random categories for this team
-            const shuffled = [...this.selectedCategories].sort(() => 0.5 - Math.random());
+            // Get 2 random unique categories for this team
+            const shuffled = [...availableCategories].sort(() => 0.5 - Math.random());
             const teamCategories = shuffled.slice(0, 2);
             
             this.teamCategories[team.id] = teamCategories;
@@ -773,43 +774,31 @@ class QuizApp {
             console.log(`Team ${team.name} categories:`, this.teamCategories[team.id]);
         });
         
-        // Display team categories
-        this.displayTeamCategories();
+        // Display categories summary
+        this.displayCategoriesSummary();
     }
     
-    displayTeamCategories() {
-        console.log('=== DISPLAY TEAM CATEGORIES ===');
+    displayCategoriesSummary() {
+        console.log('=== DISPLAY CATEGORIES SUMMARY ===');
         
-        const teamCategoriesSection = document.getElementById('teamCategoriesSection');
-        const teamCategories = document.getElementById('teamCategories');
+        const categoriesSummary = document.getElementById('categoriesSummary');
+        const categoriesList = document.getElementById('categoriesList');
         
-        if (!teamCategoriesSection || !teamCategories) {
-            console.log('Team categories elements not found');
+        if (!categoriesSummary || !categoriesList) {
+            console.log('Categories summary elements not found');
             return;
         }
         
-        // Show team categories section
-        teamCategoriesSection.style.display = 'block';
+        // Show categories summary
+        categoriesSummary.style.display = 'block';
         
-        // Generate team categories HTML
-        const teamCategoriesHTML = this.teams.map(team => {
-            const categories = this.teamCategories[team.id] || [];
-            const categoryTags = categories.map(category => 
-                `<span class="team-category-tag">${category.charAt(0).toUpperCase() + category.slice(1)}</span>`
-            ).join('');
-            
-            return `
-                <div class="team-category-item">
-                    <div class="team-category-header">${team.name}</div>
-                    <div class="team-category-list">
-                        ${categoryTags}
-                    </div>
-                </div>
-            `;
-        }).join('');
+        // Generate categories summary HTML
+        const categoriesHTML = this.selectedCategories.map(category => 
+            `<span class="category-tag">${category.charAt(0).toUpperCase() + category.slice(1)}</span>`
+        ).join('');
         
-        teamCategories.innerHTML = teamCategoriesHTML;
-        console.log('Team categories displayed');
+        categoriesList.innerHTML = categoriesHTML;
+        console.log('Categories summary displayed');
     }
     
     startQuestionsQuiz() {

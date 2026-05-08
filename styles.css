@@ -631,33 +631,28 @@ body {
     font-weight: 700;
 }
 
-/* Team Categories Display */
-.team-categories {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.team-category-item {
+/* Categories Summary */
+.categories-summary {
     padding: 15px;
     background: #f7fafc;
     border-radius: 10px;
     border-left: 4px solid #4299e1;
 }
 
-.team-category-header {
-    font-weight: 600;
+.categories-summary h4 {
+    margin: 0 0 10px 0;
     color: #2d3748;
-    margin-bottom: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
 }
 
-.team-category-list {
+.categories-list {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
 }
 
-.team-category-tag {
+.category-tag {
     padding: 4px 8px;
     background: #4299e1;
     color: white;
