@@ -1248,6 +1248,38 @@ class QuizApp {
         }
     }
     
+    timeUp() {
+        console.log('=== TIME UP ===');
+        this.stopQuestionTimer();
+        
+        // Play time up sound
+        this.playSound('timeup');
+        
+        // Show "Time's Up!" message
+        const questionText = document.getElementById('questionText');
+        if (questionText) {
+            const originalContent = questionText.innerHTML;
+            questionText.innerHTML = `
+                <div class="time-up-message">
+                    <h2>⏰ Time's Up!</h2>
+                    <p>The correct answer was: <strong>${this.currentQuestion.options[this.currentQuestion.correctAnswer]}</strong></p>
+                </div>
+            `;
+        }
+        
+        // Disable all options
+        const optionBtns = document.querySelectorAll('.option-btn');
+        optionBtns.forEach(btn => btn.disabled = true);
+        
+        // Show correct answer
+        this.showCorrectAnswer();
+        
+        // Auto move to next question after delay
+        setTimeout(() => {
+            this.nextQuestion();
+        }, 3000);
+    }
+    
     hideReadyToAnswerButton() {
         const readyBtn = document.getElementById('readyToAnswerBtn');
         if (readyBtn) {
