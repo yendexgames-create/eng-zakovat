@@ -1275,6 +1275,44 @@ class QuizApp {
         }
     }
     
+    playSound(type) {
+        console.log(`Playing sound: ${type}`);
+        // Create audio context for sound effects
+        try {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            // Different frequencies for different sounds
+            switch(type) {
+                case 'countdown':
+                    oscillator.frequency.value = 800;
+                    gainNode.gain.value = 0.1;
+                    break;
+                case 'timeup':
+                    oscillator.frequency.value = 300;
+                    gainNode.gain.value = 0.2;
+                    break;
+                case 'correct':
+                    oscillator.frequency.value = 1000;
+                    gainNode.gain.value = 0.1;
+                    break;
+                case 'wrong':
+                    oscillator.frequency.value = 200;
+                    gainNode.gain.value = 0.1;
+                    break;
+            }
+            
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + 0.1);
+        } catch (error) {
+            console.log('Sound not supported:', error);
+        }
+    }
+    
     handleReadyToAnswer() {
         console.log('=== HANDLE READY TO ANSWER ===');
         
