@@ -954,11 +954,22 @@ class QuizApp {
         console.log('Current question:', this.currentQuestion);
         console.log('Current answering team ID:', this.currentAnsweringTeam);
         
-        // Show question section
+        // Force hide category section first
+        const categorySection = document.getElementById('categorySection');
+        if (categorySection) {
+            categorySection.classList.add('hidden');
+            categorySection.style.display = 'none';
+            console.log('Category section force hidden:', categorySection.className);
+        } else {
+            console.log('Category section not found');
+        }
+        
+        // Force show question section
         const questionSection = document.getElementById('questionSection');
         if (questionSection) {
             questionSection.classList.remove('hidden');
-            console.log('Question section classes after removing hidden:', questionSection.className);
+            questionSection.style.display = 'block';
+            console.log('Question section force shown:', questionSection.className);
             
             const questionStyles = window.getComputedStyle(questionSection);
             console.log('Question section computed styles:');
@@ -979,15 +990,6 @@ class QuizApp {
             console.log('  width:', questionRect.width);
             console.log('  height:', questionRect.height);
             console.log('  isVisible:', questionRect.width > 0 && questionRect.height > 0);
-        }
-        
-        // Hide category section
-        const categorySection = document.getElementById('categorySection');
-        if (categorySection) {
-            categorySection.classList.add('hidden');
-            console.log('Category section hidden:', categorySection.className);
-        } else {
-            console.log('Category section not found');
         }
         
         // Update leaderboard
@@ -1883,13 +1885,38 @@ class QuizApp {
         console.log('UpdateQuestionsPage - Is questions page:', isQuestionsPage);
         
         if (state.quizActivated && this.teams.length > 0) {
-            console.log('Quiz activated and teams exist - showing category section');
+            console.log('Quiz activated and teams exist - checking if quiz is started');
             
-            // Hide setup section
-            if (setupSection) setupSection.classList.add('hidden');
+            // Check if quiz is already started (has questions)
+            const quizStarted = this.mixedQuestions && this.mixedQuestions.length > 0;
             
-            // Show category selection
-            this.showCategorySelection();
+            if (quizStarted) {
+                console.log('Quiz already started - hiding category section, showing question section');
+                
+                // Hide setup section
+                if (setupSection) setupSection.classList.add('hidden');
+                
+                // Hide category section
+                if (categorySection) {
+                    categorySection.classList.add('hidden');
+                    categorySection.style.display = 'none';
+                }
+                
+                // Show question section
+                const questionSection = document.getElementById('questionSection');
+                if (questionSection) {
+                    questionSection.classList.remove('hidden');
+                    questionSection.style.display = 'block';
+                }
+            } else {
+                console.log('Quiz not started yet - showing category section');
+                
+                // Hide setup section
+                if (setupSection) setupSection.classList.add('hidden');
+                
+                // Show category selection
+                this.showCategorySelection();
+            }
         } else {
             console.log('Quiz not activated or no teams - showing waiting');
             
