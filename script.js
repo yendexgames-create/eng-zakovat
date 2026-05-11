@@ -941,8 +941,11 @@ class QuizApp {
     
     showQuestion() {
         console.log('=== SHOW QUESTION ===');
+        console.log('Current question index:', this.currentQuestionIndex);
+        console.log('Total mixed questions:', this.mixedQuestions.length);
         
         if (this.currentQuestionIndex >= this.mixedQuestions.length) {
+            console.log('Quiz ended - no more questions');
             this.endQuiz();
             return;
         }
@@ -1101,17 +1104,17 @@ class QuizApp {
         }
         
         if (questionNumber) {
-            const teamQuestions = this.mixedQuestions.filter(q => q.teamId === this.currentAnsweringTeam);
-            const currentTeamQuestionIndex = teamQuestions.findIndex(q => 
-                q.question === this.currentQuestion.question && 
-                JSON.stringify(q.options) === JSON.stringify(this.currentQuestion.options)
-            );
+            console.log('=== QUESTION NUMBER DEBUG ===');
+            console.log('Current question index:', this.currentQuestionIndex);
+            console.log('Total mixed questions:', this.mixedQuestions.length);
+            console.log('Current answering team ID:', this.currentAnsweringTeam);
             
-            if (currentTeamQuestionIndex !== -1) {
-                questionNumber.textContent = `Question ${currentTeamQuestionIndex + 1} of ${teamQuestions.length}`;
-            } else {
-                questionNumber.textContent = `Question 1 of ${teamQuestions.length}`;
-            }
+            // Use global question index instead of team-specific index
+            const displayIndex = this.currentQuestionIndex + 1;
+            const totalQuestions = this.mixedQuestions.length;
+            
+            questionNumber.textContent = `Question ${displayIndex} of ${totalQuestions}`;
+            console.log('Question number set to:', questionNumber.textContent);
         }
         
         if (currentTeam) {
@@ -1706,11 +1709,16 @@ class QuizApp {
     
     nextQuestion() {
         console.log('=== NEXT QUESTION ===');
+        console.log('Current question index before increment:', this.currentQuestionIndex);
+        console.log('Total mixed questions:', this.mixedQuestions.length);
         
         // Reset teams answered for new question
         this.teamsAnswered = [];
         
         this.currentQuestionIndex++;
+        console.log('Current question index after increment:', this.currentQuestionIndex);
+        console.log('About to call showQuestion...');
+        
         this.showQuestion();
     }
     
