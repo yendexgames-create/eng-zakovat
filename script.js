@@ -926,11 +926,17 @@ class QuizApp {
             return;
         }
         
+        // Initialize team questions object
+        this.teamQuestions = {};
+        
         // Mix questions from selected categories (1 question per team per category)
         this.mixedQuestions = [];
         this.teams.forEach(team => {
             const teamCategories = this.teamCategories[team.id] || [];
             console.log(`Team ${team.name} categories:`, teamCategories);
+            
+            // Initialize team questions array
+            this.teamQuestions[team.id] = [];
             
             teamCategories.forEach(category => {
                 const categoryQuestions = [...this.questions[category]];
@@ -946,9 +952,15 @@ class QuizApp {
                 
                 console.log(`Selected question for ${team.name} from ${category}:`, selectedQuestion.question);
                 
+                // Add to mixed questions
                 this.mixedQuestions.push(selectedQuestion);
+                
+                // Add to team-specific questions
+                this.teamQuestions[team.id].push(selectedQuestion);
             });
         });
+        
+        console.log('Team questions initialized:', this.teamQuestions);
         
         // Don't shuffle questions to maintain team-category association
         // Questions will be shown in team order
