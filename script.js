@@ -298,6 +298,9 @@ class QuizApp {
     initializeIndexPage() {
         console.log('=== INITIALIZING INDEX PAGE ===');
         
+        // Generate team inputs on page load
+        this.generateTeamInputs();
+        
         const teamCountInput = document.getElementById('teamCount');
         const startQuizBtn = document.getElementById('startQuiz');
         
