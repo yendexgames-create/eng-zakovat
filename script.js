@@ -1567,6 +1567,30 @@ class QuizApp {
         this.showNextQuestionButton();
     }
     
+    showReadyToAnswerButton() {
+        console.log('=== SHOW READY TO ANSWER BUTTON ===');
+        
+        const readyBtn = document.getElementById('readyToAnswerBtn');
+        if (readyBtn) {
+            readyBtn.classList.remove('hidden');
+            console.log('Ready to answer button shown');
+        } else {
+            console.log('Ready to answer button not found');
+        }
+    }
+    
+    hideReadyToAnswerButton() {
+        console.log('=== HIDE READY TO ANSWER BUTTON ===');
+        
+        const readyBtn = document.getElementById('readyToAnswerBtn');
+        if (readyBtn) {
+            readyBtn.classList.add('hidden');
+            console.log('Ready to answer button hidden');
+        } else {
+            console.log('Ready to answer button not found');
+        }
+    }
+    
     handleTeamAnswer(isCorrect) {
         console.log('=== HANDLE TEAM ANSWER ===');
         console.log('Team ID:', this.currentAnsweringTeam);
