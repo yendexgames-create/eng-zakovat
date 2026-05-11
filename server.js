@@ -97,6 +97,18 @@ io.on('connection', (socket) => {
         console.log('Time up modal broadcasted to other devices');
     });
     
+    // Handle next question trigger
+    socket.on('nextQuestion', (data) => {
+        console.log('Next question trigger received:', data);
+        
+        // Update quiz state with new question index
+        quizState.currentQuestionIndex = data.currentQuestionIndex;
+        
+        // Broadcast next question to all other clients
+        socket.broadcast.emit('nextQuestion', data);
+        console.log('Next question broadcasted to other devices');
+    });
+    
     // Handle score submission
     socket.on('submitScores', (scores) => {
         console.log('Scores submitted:', scores);

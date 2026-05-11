@@ -315,6 +315,29 @@ class QuizApp {
             this.showTimeUpModal(data);
         });
         
+        // Listen for next question trigger
+        this.socket.on('nextQuestion', (data) => {
+            console.log('=== NEXT QUESTION SOCKET EVENT ===');
+            console.log('Next question data received:', data);
+            console.log('Current page:', window.location.pathname);
+            
+            // Only handle on index.html
+            const isIndexPage = window.location.pathname.includes('index.html') || window.location.pathname === '/';
+            console.log('Is index page:', isIndexPage);
+            
+            if (!isIndexPage) {
+                console.log('Not on index page, ignoring next question');
+                return;
+            }
+            
+            // Update question index
+            this.currentQuestionIndex = data.currentQuestionIndex;
+            console.log('Updated current question index to:', this.currentQuestionIndex);
+            
+            // Call next question
+            this.nextQuestion();
+        });
+        
         console.log('=== SOCKET INITIALIZATION COMPLETE ===');
     }
     
@@ -1595,6 +1618,8 @@ class QuizApp {
         console.log('=== HANDLE TEAM ANSWER ===');
         console.log('Team ID:', this.currentAnsweringTeam);
         console.log('Answer correct:', isCorrect);
+        console.log('Current page:', window.location.pathname);
+        console.log('Is index page:', window.location.pathname.includes('index.html'));
         
         const currentTeam = this.teams.find(t => t.id === this.currentAnsweringTeam);
         if (!currentTeam) {
@@ -1635,6 +1660,13 @@ class QuizApp {
             console.log('Setting timeout for next question in 2000ms');
             setTimeout(() => {
                 console.log('Timeout reached - calling nextQuestion');
+                
+                // Emit next question to server for other devices
+                this.socket.emit('nextQuestion', {
+                    currentQuestionIndex: this.currentQuestionIndex + 1
+                });
+                
+                // Call next question locally
                 this.nextQuestion();
             }, 2000);
             
@@ -1664,6 +1696,13 @@ class QuizApp {
                 console.log('Setting timeout for next question in 1000ms');
                 setTimeout(() => {
                     console.log('All incorrect timeout reached - calling nextQuestion');
+                    
+                    // Emit next question to server for other devices
+                    this.socket.emit('nextQuestion', {
+                        currentQuestionIndex: this.currentQuestionIndex + 1
+                    });
+                    
+                    // Call next question locally
                     this.nextQuestion();
                 }, 1000);
             }
