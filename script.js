@@ -52,7 +52,7 @@ class QuizApp {
                     question: "What does 'MP3' stand for?",
                     options: ["Music Player 3", "MPEG Audio Layer 3", "Multi-Player 3", "Music Playback 3"],
                     correct: 0
-                };
+                }
             ],
             sports: [
                 {
@@ -69,7 +69,7 @@ class QuizApp {
                     question: "How often are Olympic Games held?",
                     options: ["Every 2 years", "Every 3 years", "Every 4 years", "Every 5 years"],
                     correct: 0
-                };
+                }
             ],
             science: [
                 {
@@ -86,7 +86,7 @@ class QuizApp {
                     question: "What is largest organ in human body?",
                     options: ["Heart", "Liver", "Brain", "Skin"],
                     correct: 0
-                };
+                }
             ],
             geography: [
                 {
@@ -103,7 +103,7 @@ class QuizApp {
                     question: "How many continents are there?",
                     options: ["5", "6", "7", "8"],
                     correct: 0
-                };
+                }
             ],
             history: [
                 {
@@ -120,7 +120,7 @@ class QuizApp {
                     question: "Which ancient wonder of world still stands today?",
                     options: ["Colossus of Rhodes", "Hanging Gardens", "Great Pyramid of Giza", "Lighthouse of Alexandria"],
                     correct: 0
-                };
+                }
             ],
             literature: [
                 {
@@ -137,7 +137,7 @@ class QuizApp {
                     question: "Who wrote '1984'?",
                     options: ["George Orwell", "Aldous Huxley", "Ray Bradbury", "H.G. Wells"],
                     correct: 0
-                };
+                }
             ],
             technology: [
                 {
@@ -154,7 +154,7 @@ class QuizApp {
                     question: "Which programming language is known as 'language of the web'?",
                     options: ["Python", "Java", "JavaScript", "C++"],
                     correct: 0
-                };
+                }
             ],
             movies: [
                 {
@@ -171,7 +171,7 @@ class QuizApp {
                     question: "What is highest-grossing movie of all time?",
                     options: ["Avatar", "Avengers: Endgame", "Titanic", "Star Wars: The Force Awakens"],
                     correct: 0
-                };
+                }
             ],
             games: [
                 {
@@ -188,7 +188,7 @@ class QuizApp {
                     question: "In which year was first Nintendo Entertainment System (NES) released?",
                     options: ["1983", "1985", "1987", "1989"],
                     correct: 0
-                };
+                }
             ],
             art: [
                 {
@@ -205,7 +205,7 @@ class QuizApp {
                     question: "Where is the Louvre Museum located?",
                     options: ["London", "Rome", "Paris", "New York"],
                     correct: 0
-                };
+                }
             ],
             food: [
                 {
@@ -222,7 +222,7 @@ class QuizApp {
                     question: "Which spice is known as 'red gold'?",
                     options: ["Paprika", "Cayenne", "Saffron", "Chili powder"],
                     correct: 0
-                };
+                }
             ],
             nature: [
                 {
@@ -239,7 +239,7 @@ class QuizApp {
                     question: "What is fastest land animal?",
                     options: ["Lion", "Cheetah", "Leopard", "Gazelle"],
                     correct: 0
-                };
+                }
             ]
         };
     };
@@ -485,14 +485,14 @@ class QuizApp {
             console.log('Setup section computed styles:', {
                 display: setupStyles.display,
                 visibility: setupStyles.visibility,
-                opacity: setupStyles.;
+                opacity: setupStyles.opacity,
             });
             console.log('Setup section bounding rect:', {
                 top: setupRect.top,
                 left: setupRect.left,
                 width: setupRect.width,
                 height: setupRect.height,
-                isVisible: setupRect.width > 0 && setupRect.height > ;
+                isVisible: setupRect.width > 0 && setupRect.height > 0
             });
         } else {
             console.log('Setup section not found');
@@ -567,7 +567,7 @@ class QuizApp {
             if (teamName) {
                 teams.push({
                     id: i,
-                    name: ;
+                    name: teamName
                 });
             };
         };
