@@ -321,12 +321,14 @@ class QuizApp {
             console.log('Next question data received:', data);
             console.log('Current page:', window.location.pathname);
             
-            // Only handle on index.html
+            // Handle on both index.html and questions.html
             const isIndexPage = window.location.pathname.includes('index.html') || window.location.pathname === '/';
+            const isQuestionsPage = window.location.pathname.includes('questions.html');
             console.log('Is index page:', isIndexPage);
+            console.log('Is questions page:', isQuestionsPage);
             
-            if (!isIndexPage) {
-                console.log('Not on index page, ignoring next question');
+            if (!isIndexPage && !isQuestionsPage) {
+                console.log('Not on quiz page, ignoring next question');
                 return;
             }
             
@@ -334,8 +336,13 @@ class QuizApp {
             this.currentQuestionIndex = data.currentQuestionIndex;
             console.log('Updated current question index to:', this.currentQuestionIndex);
             
-            // Call next question
-            this.nextQuestion();
+            // Only call nextQuestion on questions.html (not on index.html)
+            if (isQuestionsPage) {
+                console.log('On questions.html - calling nextQuestion');
+                this.nextQuestion();
+            } else {
+                console.log('On index.html - not calling nextQuestion');
+            }
         });
         
         console.log('=== SOCKET INITIALIZATION COMPLETE ===');
