@@ -985,6 +985,9 @@ class QuizApp {
         const categorySection = document.getElementById('categorySection');
         if (categorySection) {
             categorySection.classList.add('hidden');
+            console.log('Category section hidden:', categorySection.className);
+        } else {
+            console.log('Category section not found');
         }
         
         // Update leaderboard
@@ -1563,8 +1566,18 @@ class QuizApp {
             return;
         }
         
-        // Add point if correct
+        // Track which teams have answered
+        if (!this.teamsAnswered) {
+            this.teamsAnswered = [];
+        }
+        
+        // Mark this team as answered
+        if (!this.teamsAnswered.includes(this.currentAnsweringTeam)) {
+            this.teamsAnswered.push(this.currentAnsweringTeam);
+        }
+        
         if (isCorrect) {
+            // Correct answer - add point and move to next question
             this.scores[this.currentAnsweringTeam] = (this.scores[this.currentAnsweringTeam] || 0) + 1;
             console.log(`Added 1 point to team ${currentTeam.name}`);
             
@@ -1588,7 +1601,7 @@ class QuizApp {
             }, 2000);
             
         } else {
-            // Incorrect answer - move to next question for same team
+            // Incorrect answer - check if other teams can answer
             console.log(`Team ${currentTeam.name} answered incorrectly`);
             
             // Show failure emoji
@@ -1597,14 +1610,84 @@ class QuizApp {
             // Close modal
             this.closeTeamAnswerModal();
             
-            // Move to next question (same team)
-            setTimeout(() => {
-                this.nextQuestion();
-            }, 1000);
+            // Check if there are other teams that haven't answered
+            const teamsNotAnswered = this.teams.filter(team => 
+                !this.teamsAnswered.includes(team.id)
+            );
+            
+            console.log('Teams not answered:', teamsNotAnswered.map(t => t.name));
+            
+            if (teamsNotAnswered.length > 0) {
+                // Show modal for other teams to answer
+                this.showOtherTeamsModal(teamsNotAnswered);
+            } else {
+                // All teams have answered incorrectly, move to next question
+                console.log('All teams have answered, moving to next question');
+                setTimeout(() => {
+                    this.nextQuestion();
+                }, 1000);
+            }
         }
         
         // Update display
         this.displayTeams();
+    }
+    
+    showOtherTeamsModal(teamsNotAnswered) {
+        console.log('=== SHOW OTHER TEAMS MODAL ===');
+        console.log('Teams that can answer:', teamsNotAnswered.map(t => t.name));
+        
+        const modal = document.getElementById('teamAnswerModal');
+        const teamNameElement = document.getElementById('answeringTeamName');
+        const questionElement = document.getElementById('teamAnswerQuestion');
+        
+        if (!modal || !teamNameElement || !questionElement) {
+            console.error('Modal elements not found');
+            return;
+        }
+        
+        // Set team name
+        teamNameElement.textContent = 'Other Teams';
+        
+        // Create team buttons
+        const teamButtonsHTML = teamsNotAnswered.map(team => `
+            <div class="team-answer-option">
+                <h4>${team.name}</h4>
+                <div class="answer-buttons">
+                    <button class="btn btn-success" onclick="quizApp.handleOtherTeamAnswer(${team.id}, true)">Correct</button>
+                    <button class="btn btn-danger" onclick="quizApp.handleOtherTeamAnswer(${team.id}, false)">Incorrect</button>
+                </div>
+            </div>
+        `).join('');
+        
+        // Set modal content
+        questionElement.innerHTML = `
+            <div class="other-teams-modal">
+                <h3>Other Teams Can Answer!</h3>
+                <p>Each team can attempt to answer:</p>
+                <div class="teams-grid">
+                    ${teamButtonsHTML}
+                </div>
+            </div>
+        `;
+        
+        // Show modal
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+        
+        console.log('Other teams modal shown');
+    }
+    
+    handleOtherTeamAnswer(teamId, isCorrect) {
+        console.log('=== HANDLE OTHER TEAM ANSWER ===');
+        console.log('Team ID:', teamId);
+        console.log('Answer correct:', isCorrect);
+        
+        // Set current answering team
+        this.currentAnsweringTeam = teamId;
+        
+        // Handle the answer
+        this.handleTeamAnswer(isCorrect);
     }
     
     showEmoji(emoji) {
@@ -1621,6 +1704,9 @@ class QuizApp {
     
     nextQuestion() {
         console.log('=== NEXT QUESTION ===');
+        
+        // Reset teams answered for new question
+        this.teamsAnswered = [];
         
         this.currentQuestionIndex++;
         this.showQuestion();

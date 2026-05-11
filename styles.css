@@ -431,6 +431,82 @@ opacity: 0.9;
     font-size: 1.1rem;
 }
 
+.other-teams-modal {
+    text-align: center;
+    padding: 30px;
+}
+
+.other-teams-modal h3 {
+    font-size: 2rem;
+    color: #4299e1;
+    margin-bottom: 20px;
+}
+
+.other-teams-modal p {
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+    color: #4a5568;
+}
+
+.teams-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.team-answer-option {
+    background: #f7fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+.team-answer-option:hover {
+    border-color: #4299e1;
+    box-shadow: 0 4px 12px rgba(66, 153, 225, 0.15);
+}
+
+.team-answer-option h4 {
+    font-size: 1.3rem;
+    color: #2d3748;
+    margin-bottom: 15px;
+}
+
+.answer-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.answer-buttons .btn {
+    padding: 8px 20px;
+    font-size: 0.9rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.answer-buttons .btn-success {
+    background: #38a169;
+    color: white;
+}
+
+.answer-buttons .btn-success:hover {
+    background: #2f855a;
+}
+
+.answer-buttons .btn-danger {
+    background: #e53e3e;
+    color: white;
+}
+
+.answer-buttons .btn-danger:hover {
+    background: #c53030;
+}
+
 .question-text {
 font-size: 2rem;
 font-weight: 700;
