@@ -1,4 +1,4 @@
-// Quiz Application JavaScript
+// Quiz Application ;
 class QuizApp {
     constructor() {
         this.questions = {};
@@ -18,26 +18,23 @@ class QuizApp {
         this.timeUpCalled = false;
         this.isAnimating = false;
         
-        // NEW CONFIGURATION
-        this.totalCategories = 12; // 12 ta tur
-        this.categoriesToSelect = 8; // 8 tasini tanlash
+        // NEW ;
+        this.totalCategories = 12; // 12 ta ;
+        this.categoriesToSelect = 8; // 8 tasini ;
         this.questionsPerCategory = 1; // har bir turdan 1 ta savol (8 ta jami)
-        this.selectedCategories = []; // tanlangan turlar
-        this.teamCategories = {}; // har bir jamoa uchun turlar
-        this.categories = ['music', 'sports', 'science', 'history', 'geography', 'literature', 'movies', 'technology', 'games', 'art', 'food', 'nature']; // barcha turlar ro'yxati
-        
-        // Team-specific question system
+        this.selectedCategories = []; // tanlangan ;
+        this.teamCategories = {}; // har bir jamoa uchun ;
+        this.categories = ['music', 'sports', 'science', 'history', 'geography', 'literature', 'movies', 'technology', 'games', 'art', 'food', 'nature']; // barcha turlar ro';
+        // Team-specific question ;
         this.currentTeamIndex = 0; // hozirgi jamoa indeksi (0, 1, 2, ...)
-        this.currentTeamQuestions = []; // hozirgi jamoaning savollari
-        this.currentTeamQuestionIndex = 0; // hozirgi jamoaning savol indeksi
-        this.currentAnsweringTeam = 1; // hozirgi javob beruvchi jamoa
-        this.currentQuestionAnswered = false; // hozirgi savolga javob berilganmi
-        this.questionTimer = 30; // 30 soniyalik timer
-        
-        // Initialize questions
+        this.currentTeamQuestions = []; // hozirgi jamoaning ;
+        this.currentTeamQuestionIndex = 0; // hozirgi jamoaning savol ;
+        this.currentAnsweringTeam = 1; // hozirgi javob beruvchi ;
+        this.currentQuestionAnswered = false; // hozirgi savolga javob ;
+        this.questionTimer = 30; // 30 soniyalik ;
+        // Initialize ;
         this.initializeQuestions();
-    }
-    
+    };
     initializeQuestions() {
         this.questions = {
             music: [
@@ -49,104 +46,104 @@ class QuizApp {
                 {
                     question: "Which instrument has 88 keys?",
                     options: ["Guitar", "Violin", "Piano", "Drums"],
-                    correct: 2
+                    correct: 0
                 },
                 {
                     question: "What does 'MP3' stand for?",
                     options: ["Music Player 3", "MPEG Audio Layer 3", "Multi-Player 3", "Music Playback 3"],
-                    correct: 1
-                }
+                    correct: 0
+                };
             ],
             sports: [
                 {
                     question: "How many players are on a basketball team?",
                     options: ["4", "5", "6", "7"],
-                    correct: 1
+                    correct: 0
                 },
                 {
                     question: "In which sport would you perform a slam dunk?",
                     options: ["Tennis", "Basketball", "Baseball", "Golf"],
-                    correct: 1
+                    correct: 0
                 },
                 {
                     question: "How often are Olympic Games held?",
                     options: ["Every 2 years", "Every 3 years", "Every 4 years", "Every 5 years"],
-                    correct: 2
-                }
+                    correct: 0
+                };
             ],
             science: [
                 {
                     question: "What is chemical symbol for gold?",
                     options: ["Go", "Gd", "Au", "Ag"],
-                    correct: 2
+                    correct: 0
                 },
                 {
                     question: "Which planet is known as 'Red Planet'?",
                     options: ["Venus", "Mars", "Jupiter", "Saturn"],
-                    correct: 1
+                    correct: 0
                 },
                 {
                     question: "What is largest organ in human body?",
                     options: ["Heart", "Liver", "Brain", "Skin"],
-                    correct: 3
-                }
+                    correct: 0
+                };
             ],
             geography: [
                 {
                     question: "What is capital of Japan?",
                     options: ["Beijing", "Seoul", "Tokyo", "Bangkok"],
-                    correct: 2
+                    correct: 0
                 },
                 {
                     question: "Which is longest river in the world?",
                     options: ["Amazon", "Nile", "Mississippi", "Yangtze"],
-                    correct: 1
+                    correct: 0
                 },
                 {
                     question: "How many continents are there?",
                     options: ["5", "6", "7", "8"],
-                    correct: 2
-                }
+                    correct: 0
+                };
             ],
             history: [
                 {
                     question: "In which year did World War II end?",
                     options: ["1943", "1944", "1945", "1946"],
-                    correct: 2
+                    correct: 0
                 },
                 {
                     question: "Who was first President of United States?",
                     options: ["Thomas Jefferson", "George Washington", "Abraham Lincoln", "John Adams"],
-                    correct: 1
+                    correct: 0
                 },
                 {
                     question: "Which ancient wonder of world still stands today?",
                     options: ["Colossus of Rhodes", "Hanging Gardens", "Great Pyramid of Giza", "Lighthouse of Alexandria"],
-                    correct: 2
-                }
+                    correct: 0
+                };
             ],
             literature: [
                 {
                     question: "Who wrote 'Romeo and Juliet'?",
                     options: ["Charles Dickens", "William Shakespeare", "Jane Austen", "Mark Twain"],
-                    correct: 1
+                    correct: 0
                 },
                 {
                     question: "What is first book in Harry Potter series?",
                     options: ["Chamber of Secrets", "Prisoner of Azkaban", "Philosopher's Stone", "Goblet of Fire"],
-                    correct: 2
+                    correct: 0
                 },
                 {
                     question: "Who wrote '1984'?",
                     options: ["George Orwell", "Aldous Huxley", "Ray Bradbury", "H.G. Wells"],
                     correct: 0
-                }
+                };
             ],
             technology: [
                 {
                     question: "Who founded Microsoft?",
                     options: ["Steve Jobs", "Bill Gates", "Mark Zuckerberg", "Larry Page"],
-                    correct: 1
+                    correct: 0
                 },
                 {
                     question: "What does 'HTML' stand for?",
@@ -156,25 +153,25 @@ class QuizApp {
                 {
                     question: "Which programming language is known as 'language of the web'?",
                     options: ["Python", "Java", "JavaScript", "C++"],
-                    correct: 2
-                }
+                    correct: 0
+                };
             ],
             movies: [
                 {
                     question: "Who directed movie 'Titanic'?",
                     options: ["Steven Spielberg", "James Cameron", "Christopher Nolan", "Martin Scorsese"],
-                    correct: 1
+                    correct: 0
                 },
                 {
                     question: "Which movie won Academy Award for Best Picture in 2020?",
                     options: ["1917", "Joker", "Parasite", "Once Upon a Time in Hollywood"],
-                    correct: 2
+                    correct: 0
                 },
                 {
                     question: "What is highest-grossing movie of all time?",
                     options: ["Avatar", "Avengers: Endgame", "Titanic", "Star Wars: The Force Awakens"],
-                    correct: 1
-                }
+                    correct: 0
+                };
             ],
             games: [
                 {
@@ -185,68 +182,67 @@ class QuizApp {
                 {
                     question: "Which company created PlayStation?",
                     options: ["Nintendo", "Microsoft", "Sony", "Sega"],
-                    correct: 2
+                    correct: 0
                 },
                 {
                     question: "In which year was first Nintendo Entertainment System (NES) released?",
                     options: ["1983", "1985", "1987", "1989"],
-                    correct: 1
-                }
+                    correct: 0
+                };
             ],
             art: [
                 {
                     question: "Who painted the Mona Lisa?",
                     options: ["Van Gogh", "Picasso", "Leonardo da Vinci", "Michelangelo"],
-                    correct: 2
+                    correct: 0
                 },
                 {
                     question: "What art movement is Pablo Picasso associated with?",
                     options: ["Impressionism", "Cubism", "Surrealism", "Realism"],
-                    correct: 1
+                    correct: 0
                 },
                 {
                     question: "Where is the Louvre Museum located?",
                     options: ["London", "Rome", "Paris", "New York"],
-                    correct: 2
-                }
+                    correct: 0
+                };
             ],
             food: [
                 {
                     question: "Which country is famous for sushi?",
                     options: ["China", "Japan", "Korea", "Thailand"],
-                    correct: 1
+                    correct: 0
                 },
                 {
                     question: "What is main ingredient in guacamole?",
                     options: ["Tomato", "Avocado", "Onion", "Lime"],
-                    correct: 1
+                    correct: 0
                 },
                 {
                     question: "Which spice is known as 'red gold'?",
                     options: ["Paprika", "Cayenne", "Saffron", "Chili powder"],
-                    correct: 2
-                }
+                    correct: 0
+                };
             ],
             nature: [
                 {
                     question: "What is largest ocean on Earth?",
                     options: ["Atlantic Ocean", "Indian Ocean", "Arctic Ocean", "Pacific Ocean"],
-                    correct: 3
+                    correct: 0
                 },
                 {
                     question: "Which animal is known as 'King of the Jungle'?",
                     options: ["Tiger", "Lion", "Elephant", "Leopard"],
-                    correct: 1
+                    correct: 0
                 },
                 {
                     question: "What is fastest land animal?",
                     options: ["Lion", "Cheetah", "Leopard", "Gazelle"],
-                    correct: 1
-                }
+                    correct: 0
+                };
             ]
         };
-    }
-
+    };
     initializeSocket() {
         console.log('=== INITIALIZING SOCKET ===');
         this.socket = io();
@@ -270,12 +266,12 @@ class QuizApp {
             this.updateState(state);
         });
         
-        // Listen for modal trigger from other devices
+        // Listen for modal trigger from other ;
         this.socket.on('showModalOnIndex', (data) => {
             console.log('=== SHOW MODAL ON INDEX EVENT ===');
             console.log('Received modal trigger data:', data);
             
-            // Restore data from server
+            // Restore data from ;
             this.currentQuestion = data.currentQuestion;
             this.currentAnsweringTeam = data.currentAnsweringTeam;
             this.teams = data.teams;
@@ -283,48 +279,46 @@ class QuizApp {
             
             console.log('Data restored, showing modal in 500ms...');
             
-            // Show modal after short delay
+            // Show modal after short ;
             setTimeout(() => {
                 console.log('About to call showTeamAnswerModal from socket event');
                 this.showTeamAnswerModal();
             }, 500);
         });
         
-        // Listen for time up modal
+        // Listen for time up ;
         this.socket.on('showTimeUpModal', (data) => {
             console.log('=== SHOW TIME UP MODAL SOCKET EVENT ===');
             console.log('Time up modal data received:', data);
             console.log('Current page:', window.location.pathname);
             
-            // Only show modal on index.html
+            // Only show modal on index.;
             const isIndexPage = window.location.pathname.includes('index.html') || window.location.pathname === '/';
             console.log('Is index page:', isIndexPage);
             
             if (!isIndexPage) {
                 console.log('Not on index page, ignoring time up modal');
                 return;
-            }
-            
-            // Store modal data
+            };
+            // Store modal ;
             this.currentQuestion = data.currentQuestion;
             this.currentAnsweringTeam = data.currentAnsweringTeam;
             this.teams = data.teams;
             this.scores = data.scores;
             
-            // Show time up modal
+            // Show time up ;
             this.showTimeUpModal(data);
         });
         
         console.log('=== SOCKET INITIALIZATION COMPLETE ===');
-    }
-    
+    };
     initialize() {
         console.log('=== INITIALIZING QUIZ APP ===');
         
-        // Initialize socket connection
+        // Initialize socket ;
         this.initializeSocket();
         
-        // Check current page
+        // Check current ;
         const currentPath = window.location.pathname;
         
         if (currentPath.includes('questions.html') || currentPath.includes('/questions')) {
@@ -333,57 +327,50 @@ class QuizApp {
         } else {
             console.log('On index page - initializing setup');
             this.initializeIndexPage();
-        }
-        
-        // Bind events
+        };
+        // Bind ;
         this.bindEvents();
         
         console.log('=== QUIZ APP INITIALIZATION COMPLETE ===');
-    }
-    
+    };
     initializeIndexPage() {
         console.log('=== INITIALIZE INDEX PAGE START ===');
         
-        // Generate initial team inputs
+        // Generate initial team ;
         this.generateTeamInputs();
         
-        // Add Team Answer Modal event listeners for index.html
+        // Add Team Answer Modal event listeners for index.;
         const answerCorrectBtn = document.getElementById('answerCorrect');
         if (answerCorrectBtn) {
             answerCorrectBtn.addEventListener('click', () => this.handleTeamAnswer(true));
             console.log('Answer correct button event listener added');
-        }
-
+        };
         const answerIncorrectBtn = document.getElementById('answerIncorrect');
         if (answerIncorrectBtn) {
             answerIncorrectBtn.addEventListener('click', () => this.handleTeamAnswer(false));
             console.log('Answer incorrect button event listener added');
-        }
-
+        };
         const closeTeamAnswerModalBtn = document.getElementById('closeTeamAnswerModal');
         if (closeTeamAnswerModalBtn) {
             closeTeamAnswerModalBtn.addEventListener('click', () => this.closeTeamAnswerModal());
             console.log('Close modal button event listener added');
-        }
-        
+        };
         console.log('=== INITIALIZE INDEX PAGE END ===');
-    }
-    
+    };
     initializeQuestionsPage() {
         console.log('=== INITIALIZE QUESTIONS PAGE ===');
         
-        // Check if quiz is already activated
+        // Check if quiz is already ;
         if (this.teams.length > 0) {
             console.log('Teams already exist, showing category section');
             this.showCategorySelection();
             return;
-        }
-        
-        // Request current state from server
+        };
+        // Request current state from ;
         console.log('Requesting current state from server...');
         this.socket.emit('getState');
         
-        // Add event listener for random categories button
+        // Add event listener for random categories ;
         const randomCategoriesBtn = document.getElementById('randomCategoriesBtn');
         if (randomCategoriesBtn) {
             randomCategoriesBtn.addEventListener('click', () => {
@@ -392,27 +379,24 @@ class QuizApp {
             });
         } else {
             console.log('Random categories button not found yet - will be created later');
-        }
-        
-        // Add event listener for start quiz button
+        };
+        // Add event listener for start quiz ;
         const startQuizBtn = document.querySelector('.start-quiz-btn');
         if (startQuizBtn) {
             startQuizBtn.addEventListener('click', () => {
                 console.log('=== START QUIZ BUTTON CLICKED ===');
                 this.startQuestionsQuiz();
             });
-        }
-        
-        // Add event listener for ready to answer button
+        };
+        // Add event listener for ready to answer ;
         const readyToAnswerBtn = document.getElementById('readyToAnswerBtn');
         if (readyToAnswerBtn) {
             readyToAnswerBtn.addEventListener('click', () => {
                 console.log('Ready to answer button clicked');
                 this.handleReadyToAnswer();
             });
-        }
-        
-        // Add event listener for next question button
+        };
+        // Add event listener for next question ;
         const nextQuestionBtn = document.getElementById('nextQuestionBtn');
         if (nextQuestionBtn) {
             nextQuestionBtn.addEventListener('click', () => {
@@ -420,23 +404,20 @@ class QuizApp {
                 this.hideNextQuestionButton();
                 this.nextQuestion();
             });
-        }
-        
+        };
         console.log('=== INITIALIZE QUESTIONS PAGE END ===');
-    }
-    
+    };
     bindEvents() {
         console.log('=== BIND EVENTS START ===');
         
-        // Team count input
+        // Team count ;
         const teamCountInput = document.getElementById('teamCount');
         if (teamCountInput) {
             teamCountInput.addEventListener('change', () => {
                 this.generateTeamInputs();
             });
-        }
-
-        // Add event listener for generate inputs button
+        };
+        // Add event listener for generate inputs ;
         const generateInputsBtn = document.getElementById('generateInputs');
         if (generateInputsBtn) {
             console.log('Generate inputs button found!');
@@ -446,9 +427,8 @@ class QuizApp {
             });
         } else {
             console.error('Generate inputs button not found!');
-        }
-
-        // Add event listener for start quiz button
+        };
+        // Add event listener for start quiz ;
         const startBtn = document.getElementById('startQuiz');
         if (startBtn) {
             console.log('Start button found:', startBtn);
@@ -463,43 +443,39 @@ class QuizApp {
                 if (startBtn.disabled) {
                     console.log('Button is disabled - ignoring click');
                     return;
-                }
-                
+                };
                 console.log('Button is enabled - calling startQuiz()');
                 this.startQuiz();
             });
         } else {
             console.error('Start button not found!');
-        }
-
-        // Add event listener for reset button
+        };
+        // Add event listener for reset ;
         const resetBtn = document.getElementById('resetQuiz');
         if (resetBtn) {
             console.log('Reset button found, adding event listener');
             resetBtn.addEventListener('click', (e) => {
                 console.log('=== RESET QUIZ BUTTON CLICKED ===');
                 
-                // Confirm reset
+                // Confirm ;
                 if (confirm('Quizni to\'liq qayta boshlashni xohlaysizmi? Barcha ma\'lumotlar o\'chib ketadi.')) {
                     this.resetQuiz();
-                }
+                };
             });
         } else {
             console.error('Reset button not found!');
-        }
-        
+        };
         console.log('=== BIND EVENTS END ===');
-    }
-    
+    };
     generateTeamInputs() {
         console.log('=== GENERATE TEAM INPUTS DEBUG ===');
         console.log('Function called from:', new Error().stack);
         
-        // Check if we're on index page
+        // Check if we're on index ;
         const isIndexPage = window.location.pathname.includes('index.html') || window.location.pathname === '/';
         console.log('Is index page:', isIndexPage);
         
-        // Check setup section visibility
+        // Check setup section ;
         const setupSection = document.getElementById('setupSection');
         if (setupSection) {
             const setupStyles = window.getComputedStyle(setupSection);
@@ -509,19 +485,18 @@ class QuizApp {
             console.log('Setup section computed styles:', {
                 display: setupStyles.display,
                 visibility: setupStyles.visibility,
-                opacity: setupStyles.opacity
+                opacity: setupStyles.;
             });
             console.log('Setup section bounding rect:', {
                 top: setupRect.top,
                 left: setupRect.left,
                 width: setupRect.width,
                 height: setupRect.height,
-                isVisible: setupRect.width > 0 && setupRect.height > 0
+                isVisible: setupRect.width > 0 && setupRect.height > ;
             });
         } else {
             console.log('Setup section not found');
-        }
-        
+        };
         const teamCountInput = document.getElementById('teamCount');
         const teamInputsContainer = document.getElementById('teamInputsContainer');
         
@@ -532,21 +507,19 @@ class QuizApp {
         if (!teamCountInput || !teamInputsContainer) {
             console.error('Required elements not found!');
             return;
-        }
-        
+        };
         const teamCount = parseInt(teamCountInput.value);
         console.log('Parsed team count:', teamCount);
         
         if (isNaN(teamCount) || teamCount < 2 || teamCount > 10) {
             console.error('Invalid team count:', teamCount);
             return;
-        }
-
-        // Clear previous inputs
+        };
+        // Clear previous ;
         teamInputsContainer.innerHTML = '';
         console.log('Cleared previous inputs');
 
-        // Generate team inputs
+        // Generate team ;
         for (let i = 1; i <= teamCount; i++) {
             console.log(`Creating team input ${i}`);
             const teamInput = document.createElement('div');
@@ -557,21 +530,18 @@ class QuizApp {
             `;
             teamInputsContainer.appendChild(teamInput);
             console.log(`Added team input ${i} to container`);
-        }
-        
+        };
         console.log(`Generated ${teamCount} team inputs`);
         console.log('Container children count:', teamInputsContainer.children.length);
 
-        // Enable setup button
+        // Enable setup ;
         const setupBtn = document.getElementById('startQuiz');
         if (setupBtn) {
             setupBtn.disabled = false;
             console.log('Setup button enabled');
-        }
-        
+        };
         console.log('=== GENERATE TEAM INPUTS END ===');
-    }
-    
+    };
     startQuiz() {
         console.log('=== START QUIZ DEBUG ===');
         console.log('startQuiz method called');
@@ -583,14 +553,13 @@ class QuizApp {
         if (!teamCountInput) {
             console.error('Team count input not found!');
             return;
-        }
-        
+        };
         const teamCount = parseInt(teamCountInput.value);
         console.log('Team count:', teamCount);
         
         const teams = [];
 
-        // Collect team names
+        // Collect team ;
         for (let i = 1; i <= teamCount; i++) {
             const teamName = document.getElementById(`team${i}`).value.trim();
             console.log(`Team ${i} name:`, teamName);
@@ -598,19 +567,17 @@ class QuizApp {
             if (teamName) {
                 teams.push({
                     id: i,
-                    name: teamName
+                    name: ;
                 });
-            }
-        }
-        
+            };
+        };
         if (teams.length < 2) {
             alert('Iltimos, kamida 2 ta jamoa nomini kiriting!');
             return;
-        }
-        
+        };
         console.log('Teams collected:', teams);
         
-        // Store teams
+        // Store ;
         this.teams = teams;
         this.scores = {};
         
@@ -618,21 +585,19 @@ class QuizApp {
             this.scores[team.id] = 0;
         });
         
-        // Send teams to server
+        // Send teams to ;
         if (this.socket && this.socket.connected) {
             console.log('Socket connected, emitting setupTeams...');
             this.socket.emit('setupTeams', teams);
         } else {
             console.log('Socket not connected, teams will be sent when connected');
-        }
-        
-        // Show setup status
+        };
+        // Show setup ;
         this.showSetupStatus(teams);
         
-        // Initialize teams display
+        // Initialize teams ;
         this.displayTeams();
-    }
-    
+    };
     showSetupStatus(teams) {
         const setupSection = document.getElementById('setupSection');
         const setupStatus = document.getElementById('setupStatus');
@@ -654,7 +619,7 @@ class QuizApp {
                     <div class="teams-display">
                         <h4>Registered Teams:</h4>
                         <div class="teams-list">
-                            ${teamsList}
+                            ${teamsList};
                         </div>
                     </div>
                     <div class="quiz-status">
@@ -664,30 +629,27 @@ class QuizApp {
                 </div>
             `;
             
-            // Bind optional open questions button
+            // Bind optional open questions ;
             const openQuestionsBtn = document.getElementById('openQuestionsBtn');
             if (openQuestionsBtn) {
                 openQuestionsBtn.addEventListener('click', () => {
                     window.open('questions.html', '_blank');
                 });
-            }
-            
-            // Auto-activate the quiz for other devices
+            };
+            // Auto-activate the quiz for other ;
             setTimeout(() => {
                 this.activateQuiz();
             }, 1000);
-        }
-        
-        // Don't show category selection on index.html
-        // Categories should only appear on questions.html
+        };
+        // Don't show category selection on index.;
+        // Categories should only appear on questions.;
         console.log('Setup complete - categories will appear on questions.html');
-    }
-    
+    };
     showCategorySelection() {
         const setupSection = document.getElementById('setupSection');
         const categorySection = document.getElementById('categorySection');
         
-        // Check current page - only show categories on questions.html
+        // Check current page - only show categories on questions.;
         const currentPath = window.location.pathname;
         const isQuestionsPage = currentPath.includes('questions.html') || currentPath.includes('/questions') || currentPath.endsWith('questions');
         
@@ -699,10 +661,10 @@ class QuizApp {
         console.log('Is questions page:', isQuestionsPage);
         console.log('=== END PAGE DETECTION DEBUG ===');
         
-        // Hide setup section
+        // Hide setup ;
         if (setupSection) setupSection.classList.add('hidden');
         
-        // Show category section only on questions.html
+        // Show category section only on questions.;
         if (isQuestionsPage) {
             console.log('Showing category section on questions.html');
             console.log('Category section element:', categorySection);
@@ -713,8 +675,7 @@ class QuizApp {
                 categorySection.classList.remove('hidden');
                 console.log('Removed hidden class from category section');
                 console.log('Category section classes after removal:', categorySection.className);
-            }
-            
+            };
             const categorySelection = document.getElementById('categorySelection');
             console.log('Category selection element:', categorySelection);
             
@@ -727,22 +688,21 @@ class QuizApp {
                     categoryBtn.className = 'category-btn';
                     categoryBtn.textContent = category.charAt(0).toUpperCase() + category.slice(1);
                     categoryBtn.dataset.category = category;
-                    // Remove click event listener - no manual selection allowed
+                    // Remove click event listener - no manual selection ;
                     categorySelection.appendChild(categoryBtn);
                     console.log(`Category button ${index + 1} added:`, categoryBtn);
                 });
                 console.log('Categories generated:', this.categories.length);
                 console.log('Category selection children count:', categorySelection.children.length);
                 console.log('Category selection innerHTML:', categorySelection.innerHTML.substring(0, 200) + '...');
-            }
+            };
         } else {
             console.log('On index.html - hiding category section');
             if (categorySection) {
                 categorySection.classList.add('hidden');
-            }
-        }
-    }
-    
+            };
+        };
+    };
     toggleCategory(category) {
         const index = this.selectedCategories.indexOf(category);
         if (index > -1) {
@@ -753,13 +713,11 @@ class QuizApp {
             } else {
                 alert(`Siz faqat 8 ta tur tanlashingiz mumkin!`);
                 return;
-            }
-        }
-        
+            };
+        };
         this.updateCategoryButtons();
         this.updateStartButton();
-    }
-    
+    };
     updateCategoryButtons() {
         console.log('=== UPDATE CATEGORY BUTTONS ===');
         console.log('Selected categories:', this.selectedCategories);
@@ -778,7 +736,7 @@ class QuizApp {
             if (isSelected) {
                 button.classList.add('selected');
                 
-                // Add team assignment info if available
+                // Add team assignment info if ;
                 if (this.teamCategories) {
                     const assignedTeams = this.teams.filter(team => 
                         this.teamCategories[team.id] && 
@@ -795,64 +753,61 @@ class QuizApp {
                             <div class="category-teams">${teamNames}</div>
                         `;
                         console.log(`Updated button for ${category} with teams: ${teamNames}`);
-                    }
-                }
+                    };
+                };
             } else {
                 button.classList.remove('selected');
                 button.innerHTML = category.charAt(0).toUpperCase() + category.slice(1);
                 button.removeAttribute('title');
-            }
+            };
         });
-    }
-    
+    };
     updateStartButton() {
         const startBtn = document.getElementById('startQuizBtn');
         if (startBtn) {
             const requiredCategories = this.teams.length * 2;
             startBtn.disabled = this.selectedCategories.length !== requiredCategories;
-        }
-    }
-    
+        };
+    };
     selectRandomCategoriesForTeams() {
         console.log('=== SELECT RANDOM CATEGORIES ===');
         
         // Calculate total categories needed (2 per team)
         const totalCategoriesNeeded = this.teams.length * 2;
         
-        // Shuffle all categories
+        // Shuffle all ;
         const shuffled = [...this.categories].sort(() => 0.5 - Math.random());
         
-        // Select exactly 2 categories per team
+        // Select exactly 2 categories per ;
         this.selectedCategories = shuffled.slice(0, totalCategoriesNeeded);
         
         console.log('Selected categories:', this.selectedCategories);
         
-        // Assign categories to teams
+        // Assign categories to ;
         this.assignCategoriesToTeams();
         
         this.updateCategoryButtons();
         this.updateStartButton();
-    }
-    
+    };
     assignCategoriesToTeams() {
         console.log('=== ASSIGN CATEGORIES TO TEAMS ===');
         
         this.teamCategories = {};
         const availableCategories = [...this.selectedCategories];
         
-        // Create array to track used categories
+        // Create array to track used ;
         const usedCategories = [];
         
-        // Assign exactly 2 unique categories per team without duplicates across teams
+        // Assign exactly 2 unique categories per team without duplicates across ;
         this.teams.forEach((team, teamIndex) => {
             // Get available categories (not used yet)
             const remainingCategories = availableCategories.filter(cat => !usedCategories.includes(cat));
             
-            // Get 2 random unique categories for this team
+            // Get 2 random unique categories for this ;
             const shuffled = remainingCategories.sort(() => 0.5 - Math.random());
             const teamCategories = shuffled.slice(0, 2);
             
-            // Add to used categories
+            // Add to used ;
             usedCategories.push(...teamCategories);
             
             this.teamCategories[team.id] = teamCategories;
@@ -860,10 +815,9 @@ class QuizApp {
             console.log(`Team ${team.name} categories:`, this.teamCategories[team.id]);
         });
         
-        // Display categories summary
+        // Display categories ;
         this.displayCategoriesSummary();
-    }
-    
+    };
     displayCategoriesSummary() {
         console.log('=== DISPLAY CATEGORIES SUMMARY ===');
         
@@ -873,20 +827,18 @@ class QuizApp {
         if (!categoriesSummary || !categoriesList) {
             console.log('Categories summary elements not found');
             return;
-        }
-        
-        // Show categories summary
+        };
+        // Show categories ;
         categoriesSummary.style.display = 'block';
         
-        // Generate categories summary HTML
+        // Generate categories summary ;
         const categoriesHTML = this.selectedCategories.map(category => 
             `<span class="category-tag">${category.charAt(0).toUpperCase() + category.slice(1)}</span>`
         ).join('');
         
         categoriesList.innerHTML = categoriesHTML;
         console.log('Categories summary displayed');
-    }
-    
+    };
     startQuestionsQuiz() {
         console.log('=== START QUESTIONS QUIZ ===');
         
@@ -894,8 +846,7 @@ class QuizApp {
         if (this.selectedCategories.length !== requiredCategories) {
             alert(`Iltimos, avval ${requiredCategories} ta tur tanlang!`);
             return;
-        }
-        
+        };
         // Mix questions from selected categories (1 question per team per category)
         this.mixedQuestions = [];
         this.teams.forEach(team => {
@@ -906,11 +857,11 @@ class QuizApp {
                 const categoryQuestions = [...this.questions[category]];
                 console.log(`Questions for category ${category}:`, categoryQuestions.length);
                 
-                // Take 1 random question from this category for this team
+                // Take 1 random question from this category for this ;
                 const randomIndex = Math.floor(Math.random() * categoryQuestions.length);
                 const selectedQuestion = categoryQuestions[randomIndex];
                 
-                // Add team info to question for tracking
+                // Add team info to question for ;
                 selectedQuestion.teamId = team.id;
                 selectedQuestion.category = category;
                 
@@ -920,25 +871,23 @@ class QuizApp {
             });
         });
         
-        // Don't shuffle questions to maintain team-category association
-        // Questions will be shown in team order
-        
+        // Don't shuffle questions to maintain team-category ;
+        // Questions will be shown in team ;
         console.log('Mixed questions ready:', this.mixedQuestions.length);
         
-        // Set first team as answering team
+        // Set first team as answering ;
         this.currentAnsweringTeam = this.teams[0].id;
         
-        // Start with first question
+        // Start with first ;
         this.currentQuestionIndex = 0;
         this.showQuestion();
         
-        // Show question section
+        // Show question ;
         const categorySection = document.getElementById('categorySection');
         const questionSection = document.getElementById('questionSection');
         
         if (categorySection) categorySection.classList.add('hidden');
-    }
-    
+    };
     showQuestion() {
         console.log('=== SHOW QUESTION ===');
         console.log('Current question index:', this.currentQuestionIndex);
@@ -948,8 +897,7 @@ class QuizApp {
             console.log('Quiz ended - no more questions');
             this.endQuiz();
             return;
-        }
-        
+        };
         this.currentQuestion = this.mixedQuestions[this.currentQuestionIndex];
         this.currentQuestionAnswered = false;
         this.currentAnsweringTeam = this.currentQuestion.teamId;
@@ -957,51 +905,35 @@ class QuizApp {
         console.log('Current question:', this.currentQuestion);
         console.log('Current answering team ID:', this.currentAnsweringTeam);
         
-        // Force hide category section first
+        // Force hide category section ;
         const categorySection = document.getElementById('categorySection');
         if (categorySection) {
             categorySection.classList.add('hidden');
             categorySection.style.display = 'none';
-            console.log('Category section force hidden:', categorySection.className);
+            console.log('Category section completely hidden:', categorySection.className);
         } else {
             console.log('Category section not found');
-        }
-        
-        // Force show question section
+        };
+        // Force show question section with high ;
         const questionSection = document.getElementById('questionSection');
         if (questionSection) {
             questionSection.classList.remove('hidden');
             questionSection.style.display = 'block';
+            questionSection.style.visibility = 'visible';
+            questionSection.style.opacity = '1';
+            questionSection.style.zIndex = '100';
+            questionSection.style.position = 'relative';
             console.log('Question section force shown:', questionSection.className);
             
-            const questionStyles = window.getComputedStyle(questionSection);
-            console.log('Question section computed styles:');
-            console.log('  display:', questionStyles.display);
-            console.log('  visibility:', questionStyles.visibility);
-            console.log('  opacity:', questionStyles.opacity);
-            console.log('  height:', questionStyles.height);
-            console.log('  width:', questionStyles.width);
-            console.log('  position:', questionStyles.position);
-            console.log('  zIndex:', questionStyles.zIndex);
-            console.log('  overflow:', questionStyles.overflow);
-            console.log('  transform:', questionStyles.transform);
-            
-            const questionRect = questionSection.getBoundingClientRect();
-            console.log('Question section bounding rect:');
-            console.log('  top:', questionRect.top);
-            console.log('  left:', questionRect.left);
-            console.log('  width:', questionRect.width);
-            console.log('  height:', questionRect.height);
-            console.log('  isVisible:', questionRect.width > 0 && questionRect.height > 0);
-        }
-        
-        // Update leaderboard
+            // Force ;
+            questionSection.offsetHeight;
+        };
+        // Update ;
         this.updateLeaderboard();
         
-        // Show 3 second countdown before question
+        // Show 3 second countdown before ;
         this.showCountdownBeforeQuestion();
-    }
-    
+    };
     showCountdownBeforeQuestion() {
         console.log('=== SHOW COUNTDOWN BEFORE QUESTION ===');
         
@@ -1012,19 +944,18 @@ class QuizApp {
         const readyToAnswerBtn = document.getElementById('readyToAnswerBtn');
         const nextQuestionBtn = document.getElementById('nextQuestionBtn');
         
-        // Hide question elements
+        // Hide question ;
         if (questionText) questionText.innerHTML = '';
         if (optionsContainer) optionsContainer.innerHTML = '';
         if (readyToAnswerBtn) readyToAnswerBtn.classList.add('hidden');
         if (nextQuestionBtn) nextQuestionBtn.classList.add('hidden');
         
-        // Show countdown
+        // Show ;
         let countdown = 3;
         if (questionText) {
             questionText.innerHTML = `<div class="countdown">${countdown}</div>`;
-        }
-        
-        // Play countdown sound
+        };
+        // Play countdown ;
         this.playSound('countdown');
         
         const countdownInterval = setInterval(() => {
@@ -1033,15 +964,14 @@ class QuizApp {
             if (countdown > 0) {
                 if (questionText) {
                     questionText.innerHTML = `<div class="countdown">${countdown}</div>`;
-                }
+                };
                 this.playSound('countdown');
             } else {
                 clearInterval(countdownInterval);
                 this.showActualQuestion();
-            }
+            };
         }, 1000);
-    }
-    
+    };
     showActualQuestion() {
         console.log('=== SHOW ACTUAL QUESTION ===');
         
@@ -1049,10 +979,9 @@ class QuizApp {
         this.updateCategoryTitle();
         this.startQuestionTimer();
         this.showReadyToAnswerButton();
-    }
-    
+    };
     getCategoryFromQuestion(question) {
-        // Find which category this question belongs to
+        // Find which category this question belongs ;
         for (const category in this.questions) {
             const categoryQuestions = this.questions[category];
             const found = categoryQuestions.some(q => 
@@ -1061,26 +990,10 @@ class QuizApp {
             );
             if (found) {
                 return category;
-            }
-        }
+            };
+        };
         return 'Unknown';
-    }
-    
-    updateCategoryTitle() {
-        const categoryTitle = document.getElementById('categoryTitle');
-        if (!categoryTitle) return;
-        
-        const currentTeam = this.teams.find(t => t.id === this.currentAnsweringTeam);
-        if (!currentTeam) return;
-        
-        const teamCategories = this.teamCategories[currentTeam.id] || [];
-        if (teamCategories.length > 0) {
-            // Find which category this question belongs to
-            const questionCategory = this.getCategoryFromQuestion(this.currentQuestion);
-            categoryTitle.textContent = `Category: ${questionCategory.charAt(0).toUpperCase() + questionCategory.slice(1)}`;
-        }
-    }
-    
+    };
     updateQuestionDisplay() {
         const questionText = document.getElementById('questionText');
         const optionsContainer = document.getElementById('optionsContainer');
@@ -1089,8 +1002,7 @@ class QuizApp {
         
         if (questionText) {
             questionText.textContent = this.currentQuestion.question;
-        }
-        
+        };
         if (optionsContainer) {
             optionsContainer.innerHTML = '';
             
@@ -1101,22 +1013,20 @@ class QuizApp {
                 optionBtn.addEventListener('click', () => this.selectOption(index));
                 optionsContainer.appendChild(optionBtn);
             });
-        }
-        
+        };
         if (questionNumber) {
             console.log('=== QUESTION NUMBER DEBUG ===');
             console.log('Current question index:', this.currentQuestionIndex);
             console.log('Total mixed questions:', this.mixedQuestions.length);
             console.log('Current answering team ID:', this.currentAnsweringTeam);
             
-            // Use global question index instead of team-specific index
+            // Use global question index instead of team-specific ;
             const displayIndex = this.currentQuestionIndex + 1;
             const totalQuestions = this.mixedQuestions.length;
             
             questionNumber.textContent = `Question ${displayIndex} of ${totalQuestions}`;
             console.log('Question number set to:', questionNumber.textContent);
-        }
-        
+        };
         if (currentTeam) {
             console.log('=== TEAM DEBUG ===');
             console.log('Current answering team ID:', this.currentAnsweringTeam);
@@ -1132,10 +1042,154 @@ class QuizApp {
             } else {
                 currentTeam.textContent = `Team ${this.currentAnsweringTeam}`;
                 console.log('Team not found, using fallback');
-            }
-        }
-    }
-    
+            };
+        };
+    };
+            console.log('  width:', questionStyles.width);
+            console.log('  position:', questionStyles.position);
+            console.log('  zIndex:', questionStyles.zIndex);
+            console.log('  overflow:', questionStyles.overflow);
+            console.log('  transform:', questionStyles.transform);
+            
+            const questionRect = questionSection.getBoundingClientRect();
+            console.log('Question section bounding rect:');
+            console.log('  top:', questionRect.top);
+            console.log('  left:', questionRect.left);
+            console.log('  width:', questionRect.width);
+            console.log('  height:', questionRect.height);
+            console.log('  isVisible:', questionRect.width > 0 && questionRect.height > 0);
+        };
+        // Update ;
+        this.updateLeaderboard();
+        
+        // Show 3 second countdown before ;
+        this.showCountdownBeforeQuestion();
+    };
+    showCountdownBeforeQuestion() {
+        console.log('=== SHOW COUNTDOWN BEFORE QUESTION ===');
+        
+        const questionText = document.getElementById('questionText');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const timerProgress = document.getElementById('timerProgress');
+        const readyToAnswerBtn = document.getElementById('readyToAnswerBtn');
+        const nextQuestionBtn = document.getElementById('nextQuestionBtn');
+        
+        // Hide question ;
+        if (questionText) questionText.innerHTML = '';
+        if (optionsContainer) optionsContainer.innerHTML = '';
+        if (readyToAnswerBtn) readyToAnswerBtn.classList.add('hidden');
+        if (nextQuestionBtn) nextQuestionBtn.classList.add('hidden');
+        
+        // Show ;
+        let countdown = 3;
+        if (questionText) {
+            questionText.innerHTML = `<div class="countdown">${countdown}</div>`;
+        };
+        // Play countdown ;
+        this.playSound('countdown');
+        
+        const countdownInterval = setInterval(() => {
+            countdown--;
+            
+            if (countdown > 0) {
+                if (questionText) {
+                    questionText.innerHTML = `<div class="countdown">${countdown}</div>`;
+                };
+                this.playSound('countdown');
+            } else {
+                clearInterval(countdownInterval);
+                this.showActualQuestion();
+            };
+        }, 1000);
+    };
+    showActualQuestion() {
+        console.log('=== SHOW ACTUAL QUESTION ===');
+        
+        this.updateQuestionDisplay();
+        this.updateCategoryTitle();
+        this.startQuestionTimer();
+        this.showReadyToAnswerButton();
+    };
+    getCategoryFromQuestion(question) {
+        // Find which category this question belongs ;
+        for (const category in this.questions) {
+            const categoryQuestions = this.questions[category];
+            const found = categoryQuestions.some(q => 
+                q.question === question.question && 
+                JSON.stringify(q.options) === JSON.stringify(question.options)
+            );
+            if (found) {
+                return category;
+            };
+        };
+        return 'Unknown';
+    };
+    updateCategoryTitle() {
+        const categoryTitle = document.getElementById('categoryTitle');
+        if (!categoryTitle) return;
+        
+        const currentTeam = this.teams.find(t => t.id === this.currentAnsweringTeam);
+        if (!currentTeam) return;
+        
+        const teamCategories = this.teamCategories[currentTeam.id] || [];
+        if (teamCategories.length > 0) {
+            // Find which category this question belongs ;
+            const questionCategory = this.getCategoryFromQuestion(this.currentQuestion);
+            categoryTitle.textContent = `Category: ${questionCategory.charAt(0).toUpperCase() + questionCategory.slice(1)}`;
+        };
+    };
+    updateQuestionDisplay() {
+        const questionText = document.getElementById('questionText');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const questionNumber = document.getElementById('questionNumber');
+        const currentTeam = document.getElementById('currentTeam');
+        
+        if (questionText) {
+            questionText.textContent = this.currentQuestion.question;
+        };
+        if (optionsContainer) {
+            optionsContainer.innerHTML = '';
+            
+            this.currentQuestion.options.forEach((option, index) => {
+                const optionBtn = document.createElement('button');
+                optionBtn.className = 'option-btn';
+                optionBtn.textContent = option;
+                optionBtn.addEventListener('click', () => this.selectOption(index));
+                optionsContainer.appendChild(optionBtn);
+            });
+        };
+        if (questionNumber) {
+            console.log('=== QUESTION NUMBER DEBUG ===');
+            console.log('Current question index:', this.currentQuestionIndex);
+            console.log('Total mixed questions:', this.mixedQuestions.length);
+            console.log('Current answering team ID:', this.currentAnsweringTeam);
+            
+            // Use global question index instead of team-specific ;
+            const displayIndex = this.currentQuestionIndex + 1;
+            const totalQuestions = this.mixedQuestions.length;
+            
+            questionNumber.textContent = `Question ${displayIndex} of ${totalQuestions}`;
+            console.log('Question number set to:', questionNumber.textContent);
+        };
+        if (currentTeam) {
+            console.log('=== TEAM DEBUG ===');
+            console.log('Current answering team ID:', this.currentAnsweringTeam);
+            console.log('Available teams:', this.teams);
+            console.log('Team categories:', this.teamCategories);
+            
+            const team = this.teams.find(t => t.id === this.currentAnsweringTeam);
+            console.log('Found team:', team);
+            
+            if (team) {
+                currentTeam.textContent = team.name;
+                console.log('Set team name:', team.name);
+            } else {
+                currentTeam.textContent = `Team ${this.currentAnsweringTeam}`;
+                console.log('Team not found, using fallback');
+            };
+        };
+    };
     selectOption(index) {
         console.log('Option selected:', index);
         
@@ -1143,8 +1197,7 @@ class QuizApp {
         optionBtns.forEach(btn => btn.classList.remove('selected'));
         
         optionBtns[index].classList.add('selected');
-    }
-    
+    };
     startQuestionTimer() {
         console.log('=== START TIMER ===');
         this.stopQuestionTimer();
@@ -1157,10 +1210,10 @@ class QuizApp {
         console.log('Timer progress element:', timerProgress);
         console.log('Question timer duration:', this.questionTimer);
         
-        // Delay to ensure DOM is ready
+        // Delay to ensure DOM is ;
         setTimeout(() => {
             if (timerDisplay) {
-                // Check if element is visible
+                // Check if element is ;
                 const styles = window.getComputedStyle(timerDisplay);
                 const rect = timerDisplay.getBoundingClientRect();
                 
@@ -1187,7 +1240,7 @@ class QuizApp {
                 console.log('Timer display after set:', timerDisplay.textContent);
                 console.log('Timer display actual content:', document.getElementById('timerDisplay').textContent);
                 
-                // Check parent elements
+                // Check parent ;
                 const timerSection = timerDisplay.parentElement;
                 const questionMain = timerSection ? timerSection.parentElement : null;
                 const questionCard = questionMain ? questionMain.parentElement : null;
@@ -1209,17 +1262,16 @@ class QuizApp {
                     console.log('  width:', timerSectionRect.width);
                     console.log('  height:', timerSectionRect.height);
                     console.log('  isVisible:', timerSectionRect.width > 0 && timerSectionRect.height > 0);
-                }
+                };
             } else {
                 console.log('Timer display not found');
-            }
-            
+            };
             if (timerProgress) {
                 timerProgress.style.width = '100%';
                 console.log('Timer progress set to 100%');
             } else {
                 console.log('Timer progress not found');
-            }
+            };
         }, 100);
         
         this.currentTimerInterval = setInterval(() => {
@@ -1228,14 +1280,14 @@ class QuizApp {
             console.log(`Timer countdown: ${timeLeft} seconds left`);
             
             if (timerDisplay) {
-                // Force update with multiple methods
+                // Force update with multiple ;
                 timerDisplay.textContent = timeLeft;
                 timerDisplay.innerText = timeLeft;
                 timerDisplay.innerHTML = timeLeft;
                 
-                // Force reflow
+                // Force ;
                 timerDisplay.style.display = 'none';
-                timerDisplay.offsetHeight; // Trigger reflow
+                timerDisplay.offsetHeight; // Trigger ;
                 timerDisplay.style.display = '';
                 
                 console.log(`Timer display updated to: ${timeLeft}`);
@@ -1245,53 +1297,47 @@ class QuizApp {
                 console.log(`Timer display computed style: ${window.getComputedStyle(timerDisplay).display}`);
             } else {
                 console.log('Timer display element not found during countdown');
-            }
-            
+            };
             if (timerProgress) {
                 const percentage = (timeLeft / this.questionTimer) * 100;
                 timerProgress.style.width = `${percentage}%`;
                 console.log(`Timer progress updated to: ${percentage}%`);
             } else {
                 console.log('Timer progress element not found during countdown');
-            }
-            
+            };
             if (timeLeft <= 0) {
                 console.log('Timer reached zero, stopping timer');
                 this.stopQuestionTimer();
                 this.timeUp();
-            }
+            };
         }, 1000);
-    }
-    
+    };
     stopQuestionTimer() {
         if (this.currentTimerInterval) {
             clearInterval(this.currentTimerInterval);
             this.currentTimerInterval = null;
-        }
-        
+        };
         const readyBtn = document.getElementById('readyToAnswerBtn');
         const nextBtn = document.getElementById('nextQuestionBtn');
         
         if (readyBtn) {
             readyBtn.classList.remove('hidden');
-        }
-        
+        };
         if (nextBtn) {
             nextBtn.classList.add('hidden');
-        }
-    }
-    
+        };
+    };
     timeUp() {
         console.log('=== TIME UP ===');
         this.stopQuestionTimer();
         
-        // Play time up sound
+        // Play time up ;
         this.playSound('timeup');
         
-        // Send time up modal to index.html
+        // Send time up modal to index.;
         this.sendTimeUpModalToIndex();
         
-        // Show "Time's Up!" message on questions.html
+        // Show "Time's Up!" message on questions.;
         const questionText = document.getElementById('questionText');
         if (questionText) {
             questionText.innerHTML = `
@@ -1300,34 +1346,31 @@ class QuizApp {
                     <p>The correct answer was: <strong>${this.currentQuestion.options[this.currentQuestion.correctAnswer]}</strong></p>
                 </div>
             `;
-        }
-        
-        // Disable all options
+        };
+        // Disable all ;
         const optionBtns = document.querySelectorAll('.option-btn');
         optionBtns.forEach(btn => btn.disabled = true);
         
-        // Show correct answer
+        // Show correct ;
         this.showCorrectAnswer();
         
-        // Auto move to next question after delay
+        // Auto move to next question after ;
         setTimeout(() => {
             this.nextQuestion();
         }, 3000);
-    }
-    
+    };
     sendTimeUpModalToIndex() {
         console.log('=== SEND TIME UP MODAL TO INDEX ===');
         console.log('Socket connected:', !!this.socket);
         console.log('Socket id:', this.socket?.id);
         
-        // Get current answering team
+        // Get current answering ;
         const currentTeam = this.teams.find(t => t.id === this.currentAnsweringTeam);
         if (!currentTeam) {
             console.error('Current answering team not found');
             return;
-        }
-        
-        // Send time up modal data to server
+        };
+        // Send time up modal data to ;
         const modalData = {
             type: 'timeUp',
             currentQuestion: this.currentQuestion,
@@ -1346,9 +1389,8 @@ class QuizApp {
             console.log('Time up modal emitted successfully');
         } else {
             console.error('Socket not connected or available');
-        }
-    }
-    
+        };
+    };
     showTimeUpModal(data) {
         console.log('=== SHOW TIME UP MODAL ===');
         console.log('Modal data:', data);
@@ -1364,12 +1406,11 @@ class QuizApp {
         if (!modal || !teamNameElement || !questionElement) {
             console.error('Time up modal elements not found');
             return;
-        }
-        
-        // Set team name
+        };
+        // Set team ;
         teamNameElement.textContent = data.teamName;
         
-        // Set time up message
+        // Set time up ;
         questionElement.innerHTML = `
             <div class="time-up-modal">
                 <h3>⏰ Time's Up!</h3>
@@ -1381,14 +1422,13 @@ class QuizApp {
             </div>
         `;
         
-        // Show modal
+        // Show ;
         console.log('About to remove hidden class from time up modal');
         modal.classList.remove('hidden');
         modal.style.display = 'flex';
         
         console.log(`Time up modal for ${data.teamName} shown`);
-    }
-    
+    };
     closeTimeUpModal() {
         console.log('=== CLOSE TIME UP MODAL ===');
         
@@ -1396,39 +1436,34 @@ class QuizApp {
         if (modal) {
             modal.classList.add('hidden');
             modal.style.display = 'none';
-        }
-    }
-    
+        };
+    };
     hideReadyToAnswerButton() {
         const readyBtn = document.getElementById('readyToAnswerBtn');
         if (readyBtn) {
             readyBtn.classList.add('hidden');
-        }
-    }
-    
+        };
+    };
     showNextQuestionButton() {
         const readyBtn = document.getElementById('readyToAnswerBtn');
         const nextBtn = document.getElementById('nextQuestionBtn');
         
         if (readyBtn) {
             readyBtn.classList.add('hidden');
-        }
-        
+        };
         if (nextBtn) {
             nextBtn.classList.remove('hidden');
-        }
-    }
-    
+        };
+    };
     hideNextQuestionButton() {
         const nextBtn = document.getElementById('nextQuestionBtn');
         if (nextBtn) {
             nextBtn.classList.add('hidden');
-        }
-    }
-    
+        };
+    };
     playSound(type) {
         console.log(`Playing sound: ${type}`);
-        // Create audio context for sound effects
+        // Create audio context for sound ;
         try {
             const audioContext = new (window.AudioContext || window.webkitAudioContext)();
             const oscillator = audioContext.createOscillator();
@@ -1437,7 +1472,7 @@ class QuizApp {
             oscillator.connect(gainNode);
             gainNode.connect(audioContext.destination);
             
-            // Different frequencies for different sounds
+            // Different frequencies for different ;
             switch(type) {
                 case 'countdown':
                     oscillator.frequency.value = 800;
@@ -1455,25 +1490,23 @@ class QuizApp {
                     oscillator.frequency.value = 200;
                     gainNode.gain.value = 0.1;
                     break;
-            }
-            
+            };
             oscillator.start();
             oscillator.stop(audioContext.currentTime + 0.1);
         } catch (error) {
             console.log('Sound not supported:', error);
-        }
-    }
-    
+        };
+    };
     handleReadyToAnswer() {
         console.log('=== HANDLE READY TO ANSWER ===');
         
-        // Stop timer
+        // Stop ;
         this.stopQuestionTimer();
         
-        // Hide ready to answer button
+        // Hide ready to answer ;
         this.hideReadyToAnswerButton();
         
-        // Store modal data in sessionStorage for same device
+        // Store modal data in sessionStorage for same ;
         sessionStorage.setItem('autoShowModal', 'true');
         sessionStorage.setItem('autoModalQuestion', JSON.stringify(this.currentQuestion));
         sessionStorage.setItem('autoModalTeam', this.currentAnsweringTeam.toString());
@@ -1481,30 +1514,29 @@ class QuizApp {
         sessionStorage.setItem('autoModalScores', JSON.stringify(this.scores));
         console.log('Auto modal trigger set for same device');
         
-        // Send modal trigger to server for other devices
+        // Send modal trigger to server for other ;
         const modalData = {
             currentQuestion: this.currentQuestion,
             currentAnsweringTeam: this.currentAnsweringTeam,
             teams: this.teams,
-            scores: this.scores
+            scores: this.;
         };
         
         this.socket.emit('triggerModalOnIndex', modalData);
         console.log('Modal trigger sent to server for other devices');
         
-        // Check if we're on index.html
+        // Check if we're on index.;
         const currentPath = window.location.pathname;
         if (currentPath.includes('index.html') || currentPath === '/') {
-            // Show modal on index.html
+            // Show modal on index.;
             console.log('On index.html - showing modal');
             this.showTeamAnswerModal();
         } else {
-            // Don't show modal on questions.html
+            // Don't show modal on questions.;
             console.log('On questions.html - modal will not show here');
-            return; // Stop execution here
-        }
-    }
-    
+            return; // Stop execution ;
+        };
+    };
     showTeamAnswerModal() {
         console.log('=== SHOW TEAM ANSWER MODAL ===');
         console.log('Current page:', window.location.pathname);
@@ -1520,16 +1552,14 @@ class QuizApp {
         if (!modal || !teamNameElement || !questionElement) {
             console.error('Team answer modal elements not found');
             return;
-        }
-        
-        // Get current answering team
+        };
+        // Get current answering ;
         const currentTeam = this.teams.find(t => t.id === this.currentAnsweringTeam);
         if (!currentTeam) {
             console.error('Current answering team not found');
             return;
-        }
-        
-        // Set team name
+        };
+        // Set team ;
         teamNameElement.textContent = currentTeam.name;
         
         // Set team answer interface (no question, just team name and buttons)
@@ -1539,14 +1569,13 @@ class QuizApp {
             </div>
         `;
         
-        // Show modal
+        // Show ;
         console.log('About to remove hidden class from modal');
         modal.classList.remove('hidden');
         modal.style.display = 'flex';
         
         console.log(`Team ${currentTeam.name} answer modal shown`);
-    }
-    
+    };
     closeTeamAnswerModal() {
         console.log('=== CLOSE TEAM ANSWER MODAL ===');
         
@@ -1554,12 +1583,10 @@ class QuizApp {
         if (modal) {
             modal.classList.add('hidden');
             modal.style.display = 'none';
-        }
-        
-        // Show next question button when modal is closed
+        };
+        // Show next question button when modal is ;
         this.showNextQuestionButton();
-    }
-    
+    };
     handleTeamAnswer(isCorrect) {
         console.log('=== HANDLE TEAM ANSWER ===');
         console.log('Team ID:', this.currentAnsweringTeam);
@@ -1569,53 +1596,50 @@ class QuizApp {
         if (!currentTeam) {
             console.error('Current answering team not found');
             return;
-        }
-        
-        // Track which teams have answered
+        };
+        // Track which teams have ;
         if (!this.teamsAnswered) {
             this.teamsAnswered = [];
-        }
-        
-        // Mark this team as answered
+        };
+        // Mark this team as ;
         if (!this.teamsAnswered.includes(this.currentAnsweringTeam)) {
             this.teamsAnswered.push(this.currentAnsweringTeam);
-        }
-        
+        };
         if (isCorrect) {
-            // Correct answer - add point and move to next question
+            // Correct answer - add point and move to next ;
             this.scores[this.currentAnsweringTeam] = (this.scores[this.currentAnsweringTeam] || 0) + 1;
             console.log(`Added 1 point to team ${currentTeam.name}`);
             
-            // Send score to server
+            // Send score to ;
             this.socket.emit('submitScores', {
                 [this.currentAnsweringTeam]: this.scores[this.currentAnsweringTeam]
             });
             
-            // Show success emoji
+            // Show success ;
             this.showEmoji('✅');
             
-            // Close modal
+            // Close ;
             this.closeTeamAnswerModal();
             
-            // Mark question as answered
+            // Mark question as ;
             this.currentQuestionAnswered = true;
             
-            // Go to next question after delay
+            // Go to next question after ;
             setTimeout(() => {
                 this.nextQuestion();
             }, 2000);
             
         } else {
-            // Incorrect answer - check if other teams can answer
+            // Incorrect answer - check if other teams can ;
             console.log(`Team ${currentTeam.name} answered incorrectly`);
             
-            // Show failure emoji
+            // Show failure ;
             this.showEmoji('❌');
             
-            // Close modal
+            // Close ;
             this.closeTeamAnswerModal();
             
-            // Check if there are other teams that haven't answered
+            // Check if there are other teams that haven't ;
             const teamsNotAnswered = this.teams.filter(team => 
                 !this.teamsAnswered.includes(team.id)
             );
@@ -1623,21 +1647,19 @@ class QuizApp {
             console.log('Teams not answered:', teamsNotAnswered.map(t => t.name));
             
             if (teamsNotAnswered.length > 0) {
-                // Show modal for other teams to answer
+                // Show modal for other teams to ;
                 this.showOtherTeamsModal(teamsNotAnswered);
             } else {
-                // All teams have answered incorrectly, move to next question
+                // All teams have answered incorrectly, move to next ;
                 console.log('All teams have answered, moving to next question');
                 setTimeout(() => {
                     this.nextQuestion();
                 }, 1000);
-            }
-        }
-        
-        // Update display
+            };
+        };
+        // Update ;
         this.displayTeams();
-    }
-    
+    };
     showOtherTeamsModal(teamsNotAnswered) {
         console.log('=== SHOW OTHER TEAMS MODAL ===');
         console.log('Teams that can answer:', teamsNotAnswered.map(t => t.name));
@@ -1649,12 +1671,11 @@ class QuizApp {
         if (!modal || !teamNameElement || !questionElement) {
             console.error('Modal elements not found');
             return;
-        }
-        
-        // Set team name
+        };
+        // Set team ;
         teamNameElement.textContent = 'Other Teams';
         
-        // Create team buttons
+        // Create team ;
         const teamButtonsHTML = teamsNotAnswered.map(team => `
             <div class="team-answer-option">
                 <h4>${team.name}</h4>
@@ -1665,36 +1686,34 @@ class QuizApp {
             </div>
         `).join('');
         
-        // Set modal content
+        // Set modal ;
         questionElement.innerHTML = `
             <div class="other-teams-modal">
                 <h3>Other Teams Can Answer!</h3>
                 <p>Each team can attempt to answer:</p>
                 <div class="teams-grid">
-                    ${teamButtonsHTML}
+                    ${teamButtonsHTML};
                 </div>
             </div>
         `;
         
-        // Show modal
+        // Show ;
         modal.classList.remove('hidden');
         modal.style.display = 'flex';
         
         console.log('Other teams modal shown');
-    }
-    
+    };
     handleOtherTeamAnswer(teamId, isCorrect) {
         console.log('=== HANDLE OTHER TEAM ANSWER ===');
         console.log('Team ID:', teamId);
         console.log('Answer correct:', isCorrect);
         
-        // Set current answering team
+        // Set current answering ;
         this.currentAnsweringTeam = teamId;
         
-        // Handle the answer
+        // Handle the ;
         this.handleTeamAnswer(isCorrect);
-    }
-    
+    };
     showEmoji(emoji) {
         const container = document.getElementById('emojiContainer');
         if (container) {
@@ -1704,15 +1723,14 @@ class QuizApp {
             setTimeout(() => {
                 container.style.display = 'none';
             }, 1000);
-        }
-    }
-    
+        };
+    };
     nextQuestion() {
         console.log('=== NEXT QUESTION ===');
         console.log('Current question index before increment:', this.currentQuestionIndex);
         console.log('Total mixed questions:', this.mixedQuestions.length);
         
-        // Reset teams answered for new question
+        // Reset teams answered for new ;
         this.teamsAnswered = [];
         
         this.currentQuestionIndex++;
@@ -1720,30 +1738,26 @@ class QuizApp {
         console.log('About to call showQuestion...');
         
         this.showQuestion();
-    }
-    
+    };
     displayTeams() {
-        // Update team displays if they exist
+        // Update team displays if they ;
         const currentTeamDisplay = document.getElementById('currentTeamDisplay');
         if (currentTeamDisplay) {
             const team = this.teams.find(t => t.id === this.currentAnsweringTeam);
             if (team) {
                 currentTeamDisplay.textContent = team.name;
-            }
-        }
-        
-        // Update leaderboard
+            };
+        };
+        // Update ;
         this.updateLeaderboard();
-    }
-    
+    };
     updateLeaderboard() {
         console.log('=== UPDATE LEADERBOARD ===');
         
-        // Update both category and question leaderboards
+        // Update both category and question ;
         this.updateLeaderboardInSection('categorySection', 'categoryLeaderboardSection', 'categoryLeaderboard');
         this.updateLeaderboardInSection('questionSection', 'leaderboardSection', 'leaderboard');
-    }
-    
+    };
     updateLeaderboardInSection(sectionId, sectionElementId, leaderboardElementId) {
         console.log(`=== UPDATE LEADERBOARD IN ${sectionId.toUpperCase()} ===`);
         
@@ -1756,13 +1770,12 @@ class QuizApp {
         if (!sectionElement || !leaderboardElement) {
             console.log(`${sectionId} leaderboard elements not found`);
             return;
-        }
-        
-        // Show leaderboard if there are teams
+        };
+        // Show leaderboard if there are ;
         if (this.teams.length > 0) {
             sectionElement.classList.remove('hidden');
             
-            // Sort teams by score
+            // Sort teams by ;
             const sortedTeams = [...this.teams].sort((a, b) => {
                 return (this.scores[b.id] || 0) - (this.scores[a.id] || 0);
             });
@@ -1771,7 +1784,7 @@ class QuizApp {
             console.log('Teams data:', this.teams);
             console.log('Scores data:', this.scores);
             
-            // Generate leaderboard HTML
+            // Generate leaderboard ;
             const leaderboardHTML = sortedTeams.map((team, index) => {
                 const score = this.scores[team.id] || 0;
                 const isWinner = index === 0 && score > 0;
@@ -1780,7 +1793,7 @@ class QuizApp {
                     id: team.id,
                     name: team.name,
                     score: score,
-                    isWinner: isWinner
+                    isWinner: ;
                 });
                 
                 return `
@@ -1799,9 +1812,9 @@ class QuizApp {
             console.log(`${sectionId} leaderboard updated`);
             console.log(`${sectionId} leaderboard innerHTML after update:`, leaderboardElement.innerHTML);
             
-            // Check if leaderboard is actually visible
+            // Check if leaderboard is actually ;
             if (sectionElement) {
-                // Check parent elements
+                // Check parent ;
                 const parent = sectionElement.parentElement;
                 const grandParent = parent ? parent.parentElement : null;
                 console.log(`${sectionId} leaderboard section parent:`, parent);
@@ -1822,8 +1835,7 @@ class QuizApp {
                     console.log('  left:', parentRect.left);
                     console.log('  width:', parentRect.width);
                     console.log('  height:', parentRect.height);
-                }
-                
+                };
                 const styles = window.getComputedStyle(sectionElement);
                 console.log(`${sectionId} leaderboard section computed styles:`);
                 console.log('  display:', styles.display);
@@ -1836,7 +1848,7 @@ class QuizApp {
                 console.log('  overflow:', styles.overflow);
                 console.log('  transform:', styles.transform);
                 
-                // Check if element is actually visible in viewport
+                // Check if element is actually visible in ;
                 const rect = sectionElement.getBoundingClientRect();
                 console.log(`${sectionId} leaderboard section bounding rect:`);
                 console.log('  top:', rect.top);
@@ -1844,15 +1856,14 @@ class QuizApp {
                 console.log('  width:', rect.width);
                 console.log('  height:', rect.height);
                 console.log('  isVisible:', rect.width > 0 && rect.height > 0);
-            }
-        }
-    }
-    
+            };
+        };
+    };
     updateState(state) {
         console.log('=== UPDATE STATE START ===');
         console.log('State received:', state);
         
-        // Update local state
+        // Update local ;
         this.teams = state.teams || [];
         this.scores = state.scores || {};
         this.currentCategory = state.currentCategory;
@@ -1861,7 +1872,7 @@ class QuizApp {
         this.quizStarted = state.quizStarted;
         this.quizActivated = state.quizActivated;
         
-        // Update UI based on current page
+        // Update UI based on current ;
         const currentPath = window.location.pathname;
         const isQuestionsPage = currentPath.includes('questions.html') || currentPath.includes('/questions') || currentPath.endsWith('questions');
         
@@ -1874,18 +1885,16 @@ class QuizApp {
         } else {
             console.log('Updating index page');
             this.updateIndexPage(state);
-        }
-        
+        };
         console.log('=== UPDATE STATE END ===');
-    }
-    
+    };
     updateQuestionsPage(state) {
         console.log('=== UPDATE QUESTIONS PAGE ===');
         
         const setupSection = document.getElementById('setupSection');
         const categorySection = document.getElementById('categorySection');
         
-        // Check current page
+        // Check current ;
         const currentPath = window.location.pathname;
         const isQuestionsPage = currentPath.includes('questions.html') || currentPath.includes('/questions') || currentPath.endsWith('questions');
         
@@ -1901,72 +1910,76 @@ class QuizApp {
             if (quizStarted) {
                 console.log('Quiz already started - hiding category section, showing question section');
                 
-                // Hide setup section
+                // Hide setup ;
                 if (setupSection) setupSection.classList.add('hidden');
                 
-                // Hide category section
+                // Hide category section ;
                 if (categorySection) {
                     categorySection.classList.add('hidden');
                     categorySection.style.display = 'none';
-                }
-                
-                // Show question section
+                    categorySection.style.visibility = 'hidden';
+                    categorySection.style.opacity = '0';
+                    console.log('Category section completely hidden');
+                };
+                // Show question section with ;
                 const questionSection = document.getElementById('questionSection');
                 if (questionSection) {
                     questionSection.classList.remove('hidden');
                     questionSection.style.display = 'block';
-                }
+                    questionSection.style.visibility = 'visible';
+                    questionSection.style.opacity = '1';
+                    questionSection.style.zIndex = '10';
+                    console.log('Question section force shown');
+                    
+                    // Force ;
+                    questionSection.offsetHeight;
+                };
             } else {
                 console.log('Quiz not started yet - showing category section');
                 
-                // Hide setup section
+                // Hide setup ;
                 if (setupSection) setupSection.classList.add('hidden');
                 
-                // Show category selection
+                // Show category ;
                 this.showCategorySelection();
-            }
+            };
         } else {
             console.log('Quiz not activated or no teams - showing waiting');
             
-            // Show waiting section
+            // Show waiting ;
             if (setupSection) setupSection.classList.remove('hidden');
             
-            // Hide category section
+            // Hide category ;
             if (categorySection) categorySection.classList.add('hidden');
-        }
-        
-        // Update leaderboard on questions page too
+        };
+        // Update leaderboard on questions page ;
         this.updateLeaderboard();
-    }
-    
+    };
     updateIndexPage(state) {
         console.log('=== UPDATE INDEX PAGE ===');
         
-        // Update teams display if it exists
+        // Update teams display if it ;
         this.displayTeams();
         
-        // Hide category section on index.html
+        // Hide category section on index.;
         const categorySection = document.getElementById('categorySection');
         if (categorySection) {
             categorySection.classList.add('hidden');
-        }
-        
+        };
         console.log('Index page updated - categories hidden');
-    }
-    
+    };
     activateQuiz() {
-        // Send activation signal to server
+        // Send activation signal to ;
         this.socket.emit('activateQuiz');
         console.log('Quiz activation sent to server');
-    }
-    
+    };
     resetQuiz() {
         console.log('=== RESET QUIZ START ===');
         
-        // Stop any running timers
+        // Stop any running ;
         this.stopQuestionTimer();
         
-        // Reset all local state
+        // Reset all local ;
         this.teams = [];
         this.scores = {};
         this.currentCategory = null;
@@ -1978,24 +1991,24 @@ class QuizApp {
         this.quizActivated = false;
         this.currentQuestionAnswered = false;
         
-        // Send reset signal to server
+        // Send reset signal to ;
         this.socket.emit('resetQuiz');
         console.log('Reset signal sent to server');
         
-        // Reset UI based on current page
+        // Reset UI based on current ;
         if (window.location.pathname.includes('questions.html') || 
             window.location.pathname.endsWith('/questions') ||
             window.location.href.includes('questions.html')) {
             
-            // On questions page - redirect to index.html
+            // On questions page - redirect to index.;
             console.log('Redirecting to index.html after reset');
             window.location.href = 'index.html';
             
         } else {
-            // On index.html - reset to initial state
+            // On index.html - reset to initial ;
             console.log('Resetting index.html to initial state');
             
-            // Hide header and setup status
+            // Hide header and setup ;
             const header = document.querySelector('.header');
             const setupStatus = document.getElementById('setupStatus');
             const scoringSection = document.getElementById('scoringSection');
@@ -2008,33 +2021,31 @@ class QuizApp {
             if (quizSection) quizSection.classList.add('hidden');
             if (setupSection) setupSection.classList.remove('hidden');
             
-            // Reset team inputs
+            // Reset team ;
             this.generateTeamInputs();
             
-            // Reset start button
+            // Reset start ;
             const startBtn = document.getElementById('startQuiz');
             if (startBtn) startBtn.disabled = true;
             
-            // Reset team count input
+            // Reset team count ;
             const teamCountInput = document.getElementById('teamCount');
             if (teamCountInput) teamCountInput.value = 2;
-        }
-        
+        };
         console.log('=== RESET QUIZ END ===');
-    }
-    
+    };
     endQuiz() {
         console.log('=== QUIZ END ===');
         
-        // Stop timer
+        // Stop ;
         this.stopQuestionTimer();
         
-        // Calculate final scores
+        // Calculate final ;
         const sortedTeams = [...this.teams].sort((a, b) => {
             return (this.scores[b.id] || 0) - (this.scores[a.id] || 0);
         });
         
-        // Show results
+        // Show ;
         const winner = sortedTeams[0];
         const resultsHTML = `
             <div class="quiz-results">
@@ -2050,7 +2061,7 @@ class QuizApp {
                             <span>${team.name}:</span>
                             <span>${this.scores[team.id] || 0}</span>
                         </div>
-                    `).join('')}
+                    `).join('')};
                 </div>
                 <button class="btn btn-primary" onclick="location.reload()">Play Again</button>
             </div>
@@ -2059,20 +2070,18 @@ class QuizApp {
         const questionSection = document.getElementById('questionSection');
         if (questionSection) {
             questionSection.innerHTML = resultsHTML;
-        }
-        
-        // Send final scores to server
+        };
+        // Send final scores to ;
         this.socket.emit('submitScores', this.scores);
-    }
-}
-
-// Initialize quiz app when DOM is loaded
+    };
+};
+// Initialize quiz app when DOM is ;
 document.addEventListener('DOMContentLoaded', () => {
     console.log('=== DOM CONTENT LOADED ===');
     const quizApp = new QuizApp();
     quizApp.initialize();
     
-    // Auto-generate team inputs only on index.html
+    // Auto-generate team inputs only on index.;
     const currentPath = window.location.pathname;
     const isIndexPage = !currentPath.includes('questions.html') && !currentPath.includes('/questions') && !currentPath.endsWith('questions');
     
@@ -2081,5 +2090,5 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('=== AUTO GENERATE TEAM INPUTS (INDEX PAGE ONLY) ===');
             quizApp.generateTeamInputs();
         }, 1000);
-    }
+    };
 });
