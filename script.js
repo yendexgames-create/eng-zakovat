@@ -1163,28 +1163,40 @@ class QuizApp {
             if (currentTeam && this.teamQuestions && this.teamQuestions[currentTeam.id]) {
                 const teamQuestions = this.teamQuestions[currentTeam.id];
                 
-                // Count how many questions this team has answered so far
-                let teamQuestionCount = 0;
-                for (let i = 0; i <= this.currentQuestionIndex; i++) {
-                    if (this.mixedQuestions[i] && this.mixedQuestions[i].teamId === this.currentAnsweringTeam) {
-                        teamQuestionCount++;
-                    }
+                // Find the current question in the team's questions array
+                const currentTeamQuestionIndex = teamQuestions.findIndex(q => 
+                    q.question === this.currentQuestion.question && 
+                    q.category === this.currentQuestion.category
+                );
+                
+                if (currentTeamQuestionIndex !== -1) {
+                    const displayIndex = currentTeamQuestionIndex + 1;
+                    const totalTeamQuestions = teamQuestions.length;
+                    
+                    questionNumber.textContent = `Question ${displayIndex} of ${totalTeamQuestions}`;
+                    console.log('Question number set to:', questionNumber.textContent);
+                    console.log('Team question index:', currentTeamQuestionIndex);
+                    console.log('Display index:', displayIndex);
+                    console.log('Total team questions:', totalTeamQuestions);
+                    console.log('Current answering team ID:', this.currentAnsweringTeam);
+                    console.log('Current question:', this.currentQuestion.question);
+                    console.log('Current category:', this.currentQuestion.category);
+                } else {
+                    // Fallback to global display if team question not found
+                    const displayIndex = this.currentQuestionIndex + 1;
+                    const totalQuestions = this.mixedQuestions.length;
+                    questionNumber.textContent = `Question ${displayIndex} of ${totalQuestions}`;
+                    console.log('Team question not found, fallback question number set to:', questionNumber.textContent);
+                    console.log('Current question:', this.currentQuestion.question);
+                    console.log('Current category:', this.currentQuestion.category);
+                    console.log('Team questions:', teamQuestions);
                 }
-                
-                const displayIndex = teamQuestionCount;
-                const totalTeamQuestions = teamQuestions.length;
-                
-                questionNumber.textContent = `Question ${displayIndex} of ${totalTeamQuestions}`;
-                console.log('Question number set to:', questionNumber.textContent);
-                console.log('Team question count:', teamQuestionCount);
-                console.log('Total team questions:', totalTeamQuestions);
-                console.log('Current answering team ID:', this.currentAnsweringTeam);
             } else {
                 // Fallback to global display if team questions not available
                 const displayIndex = this.currentQuestionIndex + 1;
                 const totalQuestions = this.mixedQuestions.length;
                 questionNumber.textContent = `Question ${displayIndex} of ${totalQuestions}`;
-                console.log('Fallback question number set to:', questionNumber.textContent);
+                console.log('Team questions not available, fallback question number set to:', questionNumber.textContent);
             }
         }
         
