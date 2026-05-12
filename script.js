@@ -978,6 +978,18 @@ class QuizApp {
         });
         console.log('=== END TEAM QUESTIONS INITIALIZATION DEBUG ===');
         
+        console.log('=== MIXED QUESTIONS DEBUG ===');
+        console.log('Mixed questions array:', this.mixedQuestions);
+        console.log('Mixed questions length:', this.mixedQuestions.length);
+        this.mixedQuestions.forEach((q, index) => {
+            console.log(`  [${index}]:`, JSON.stringify({
+                question: q.question,
+                category: q.category,
+                teamId: q.teamId
+            }, null, 2));
+        });
+        console.log('=== END MIXED QUESTIONS DEBUG ===');
+        
         // Don't shuffle questions to maintain team-category association
         // Questions will be shown in team order
         
