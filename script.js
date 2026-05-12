@@ -960,35 +960,7 @@ class QuizApp {
             });
         });
         
-        console.log('=== TEAM QUESTIONS INITIALIZATION DEBUG ===');
-        console.log('Team questions object:', this.teamQuestions);
-        console.log('Team questions keys:', Object.keys(this.teamQuestions));
-        
-        // Log each team's questions
-        Object.keys(this.teamQuestions).forEach(teamId => {
-            console.log(`Team ${teamId} questions:`, this.teamQuestions[teamId]);
-            console.log(`Team ${teamId} questions length:`, this.teamQuestions[teamId].length);
-            this.teamQuestions[teamId].forEach((q, index) => {
-                console.log(`  [${index}]:`, JSON.stringify({
-                    question: q.question,
-                    category: q.category,
-                    teamId: q.teamId
-                }, null, 2));
-            });
-        });
-        console.log('=== END TEAM QUESTIONS INITIALIZATION DEBUG ===');
-        
-        console.log('=== MIXED QUESTIONS DEBUG ===');
-        console.log('Mixed questions array:', this.mixedQuestions);
-        console.log('Mixed questions length:', this.mixedQuestions.length);
-        this.mixedQuestions.forEach((q, index) => {
-            console.log(`  [${index}]:`, JSON.stringify({
-                question: q.question,
-                category: q.category,
-                teamId: q.teamId
-            }, null, 2));
-        });
-        console.log('=== END MIXED QUESTIONS DEBUG ===');
+        console.log('Team questions initialized:', this.teamQuestions);
         
         // Don't shuffle questions to maintain team-category association
         // Questions will be shown in team order
@@ -1000,7 +972,6 @@ class QuizApp {
         
         // Start with first question
         this.currentQuestionIndex = 0;
-        this.currentQuestion = this.mixedQuestions[this.currentQuestionIndex];
         this.showQuestion();
         
         // Show question section
@@ -1015,21 +986,20 @@ class QuizApp {
         console.log('Current question index:', this.currentQuestionIndex);
         console.log('Total mixed questions:', this.mixedQuestions.length);
         console.log('Mixed questions array exists:', !!this.mixedQuestions);
-        console.log('Mixed questions array length:', this.mixedQuestions.length);
+        console.log('Mixed questions array length:', this.mixedQuestions?.length);
         
         if (!this.mixedQuestions || this.mixedQuestions.length === 0) {
-            console.error('No questions available');
+            console.log('ERROR: No mixed questions available');
             return;
         }
-        
-        // Use the current question from mixedQuestions array
-        this.currentQuestion = this.mixedQuestions[this.currentQuestionIndex];
         
         if (this.currentQuestionIndex >= this.mixedQuestions.length) {
             console.log('Quiz ended - no more questions');
             this.endQuiz();
             return;
         }
+        
+        this.currentQuestion = this.mixedQuestions[this.currentQuestionIndex];
         this.currentQuestionAnswered = false;
         this.currentAnsweringTeam = this.currentQuestion.teamId;
         
@@ -1200,7 +1170,7 @@ class QuizApp {
                 console.log('Team questions array length:', teamQuestions.length);
                 console.log('Team questions array contents:');
                 teamQuestions.forEach((q, index) => {
-                    console.log(`  [${index}]:`, JSON.stringify(q, null, 2));
+                    console.log(`  [${index}]:`, q);
                 });
                 console.log('Current question object:', this.currentQuestion);
                 console.log('Current question text:', this.currentQuestion.question);
@@ -1208,28 +1178,11 @@ class QuizApp {
                 console.log('Current question teamId:', this.currentQuestion.teamId);
                 
                 // Find current question in team's questions array using unique matching
-                console.log('=== FIND INDEX DEBUG ===');
-                console.log('Searching for question:', JSON.stringify(this.currentQuestion, null, 2));
-                console.log('In team questions array:');
-                teamQuestions.forEach((q, index) => {
-                    console.log(`  [${index}]:`, JSON.stringify(q, null, 2));
-                    console.log(`    Match check:`, {
-                        questionMatch: q.question === this.currentQuestion.question,
-                        categoryMatch: q.category === this.currentQuestion.category,
-                        teamIdMatch: q.teamId === this.currentAnsweringTeam,
-                        allMatch: q.question === this.currentQuestion.question && 
-                                 q.category === this.currentQuestion.category &&
-                                 q.teamId === this.currentAnsweringTeam
-                    });
-                });
-                
                 const currentTeamQuestionIndex = teamQuestions.findIndex(q => 
                     q.question === this.currentQuestion.question && 
                     q.category === this.currentQuestion.category &&
                     q.teamId === this.currentAnsweringTeam
                 );
-                
-                console.log('=== END FIND INDEX DEBUG ===');
                 
                 console.log('Found question index:', currentTeamQuestionIndex);
                 console.log('=== END TEAM QUESTIONS DEBUG ===');
@@ -1649,8 +1602,7 @@ class QuizApp {
         } else {
             // Don't show modal on questions.html
             console.log('On questions.html - modal will not show here');
-            // Don't return here - let the modal trigger handle next question
-            // The next question will be triggered by the modal answer on index.html
+            return; // Stop execution here
         }
     }
     
@@ -1928,14 +1880,12 @@ class QuizApp {
         console.log('Current question index before increment:', this.currentQuestionIndex);
         console.log('Total mixed questions:', this.mixedQuestions.length);
         console.log('Mixed questions array:', this.mixedQuestions);
-        console.log('Current question before increment:', this.currentQuestion);
         
         // Reset teams answered for new question
         this.teamsAnswered = [];
         
         this.currentQuestionIndex++;
         console.log('Current question index after increment:', this.currentQuestionIndex);
-        console.log('Next question will be:', this.mixedQuestions[this.currentQuestionIndex]);
         
         if (this.currentQuestionIndex >= this.mixedQuestions.length) {
             console.log('Quiz should end - no more questions');
