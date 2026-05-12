@@ -1167,7 +1167,15 @@ class QuizApp {
                 console.log('=== TEAM QUESTIONS DEBUG ===');
                 console.log('Current team ID:', this.currentAnsweringTeam);
                 console.log('Team questions array:', teamQuestions);
+                console.log('Team questions array length:', teamQuestions.length);
+                console.log('Team questions array contents:');
+                teamQuestions.forEach((q, index) => {
+                    console.log(`  [${index}]:`, q);
+                });
                 console.log('Current question object:', this.currentQuestion);
+                console.log('Current question text:', this.currentQuestion.question);
+                console.log('Current question category:', this.currentQuestion.category);
+                console.log('Current question teamId:', this.currentQuestion.teamId);
                 
                 // Find current question in team's questions array using unique matching
                 const currentTeamQuestionIndex = teamQuestions.findIndex(q => 
