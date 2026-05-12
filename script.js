@@ -969,11 +969,11 @@ class QuizApp {
             console.log(`Team ${teamId} questions:`, this.teamQuestions[teamId]);
             console.log(`Team ${teamId} questions length:`, this.teamQuestions[teamId].length);
             this.teamQuestions[teamId].forEach((q, index) => {
-                console.log(`  [${index}]:`, {
+                console.log(`  [${index}]:`, JSON.stringify({
                     question: q.question,
                     category: q.category,
                     teamId: q.teamId
-                });
+                }, null, 2));
             });
         });
         console.log('=== END TEAM QUESTIONS INITIALIZATION DEBUG ===');
@@ -988,6 +988,7 @@ class QuizApp {
         
         // Start with first question
         this.currentQuestionIndex = 0;
+        this.currentQuestion = this.mixedQuestions[this.currentQuestionIndex];
         this.showQuestion();
         
         // Show question section
@@ -1002,20 +1003,21 @@ class QuizApp {
         console.log('Current question index:', this.currentQuestionIndex);
         console.log('Total mixed questions:', this.mixedQuestions.length);
         console.log('Mixed questions array exists:', !!this.mixedQuestions);
-        console.log('Mixed questions array length:', this.mixedQuestions?.length);
+        console.log('Mixed questions array length:', this.mixedQuestions.length);
         
         if (!this.mixedQuestions || this.mixedQuestions.length === 0) {
-            console.log('ERROR: No mixed questions available');
+            console.error('No questions available');
             return;
         }
+        
+        // Use the current question from mixedQuestions array
+        this.currentQuestion = this.mixedQuestions[this.currentQuestionIndex];
         
         if (this.currentQuestionIndex >= this.mixedQuestions.length) {
             console.log('Quiz ended - no more questions');
             this.endQuiz();
             return;
         }
-        
-        this.currentQuestion = this.mixedQuestions[this.currentQuestionIndex];
         this.currentQuestionAnswered = false;
         this.currentAnsweringTeam = this.currentQuestion.teamId;
         
@@ -1186,7 +1188,7 @@ class QuizApp {
                 console.log('Team questions array length:', teamQuestions.length);
                 console.log('Team questions array contents:');
                 teamQuestions.forEach((q, index) => {
-                    console.log(`  [${index}]:`, q);
+                    console.log(`  [${index}]:`, JSON.stringify(q, null, 2));
                 });
                 console.log('Current question object:', this.currentQuestion);
                 console.log('Current question text:', this.currentQuestion.question);
