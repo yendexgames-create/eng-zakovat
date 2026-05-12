@@ -1163,10 +1163,11 @@ class QuizApp {
             if (currentTeam && this.teamQuestions && this.teamQuestions[currentTeam.id]) {
                 const teamQuestions = this.teamQuestions[currentTeam.id];
                 
-                // Find the current question in the team's questions array
+                // Find current question in team's questions array using unique matching
                 const currentTeamQuestionIndex = teamQuestions.findIndex(q => 
                     q.question === this.currentQuestion.question && 
-                    q.category === this.currentQuestion.category
+                    q.category === this.currentQuestion.category &&
+                    q.teamId === this.currentAnsweringTeam
                 );
                 
                 if (currentTeamQuestionIndex !== -1) {
