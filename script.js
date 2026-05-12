@@ -1620,7 +1620,8 @@ class QuizApp {
         } else {
             // Don't show modal on questions.html
             console.log('On questions.html - modal will not show here');
-            return; // Stop execution here
+            // Don't return here - let the modal trigger handle next question
+            // The next question will be triggered by the modal answer on index.html
         }
     }
     
