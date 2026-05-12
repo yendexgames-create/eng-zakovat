@@ -1916,12 +1916,14 @@ class QuizApp {
         console.log('Current question index before increment:', this.currentQuestionIndex);
         console.log('Total mixed questions:', this.mixedQuestions.length);
         console.log('Mixed questions array:', this.mixedQuestions);
+        console.log('Current question before increment:', this.currentQuestion);
         
         // Reset teams answered for new question
         this.teamsAnswered = [];
         
         this.currentQuestionIndex++;
         console.log('Current question index after increment:', this.currentQuestionIndex);
+        console.log('Next question will be:', this.mixedQuestions[this.currentQuestionIndex]);
         
         if (this.currentQuestionIndex >= this.mixedQuestions.length) {
             console.log('Quiz should end - no more questions');
