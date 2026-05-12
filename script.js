@@ -960,7 +960,23 @@ class QuizApp {
             });
         });
         
-        console.log('Team questions initialized:', this.teamQuestions);
+        console.log('=== TEAM QUESTIONS INITIALIZATION DEBUG ===');
+        console.log('Team questions object:', this.teamQuestions);
+        console.log('Team questions keys:', Object.keys(this.teamQuestions));
+        
+        // Log each team's questions
+        Object.keys(this.teamQuestions).forEach(teamId => {
+            console.log(`Team ${teamId} questions:`, this.teamQuestions[teamId]);
+            console.log(`Team ${teamId} questions length:`, this.teamQuestions[teamId].length);
+            this.teamQuestions[teamId].forEach((q, index) => {
+                console.log(`  [${index}]:`, {
+                    question: q.question,
+                    category: q.category,
+                    teamId: q.teamId
+                });
+            });
+        });
+        console.log('=== END TEAM QUESTIONS INITIALIZATION DEBUG ===');
         
         // Don't shuffle questions to maintain team-category association
         // Questions will be shown in team order
