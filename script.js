@@ -1163,12 +1163,21 @@ class QuizApp {
             if (currentTeam && this.teamQuestions && this.teamQuestions[currentTeam.id]) {
                 const teamQuestions = this.teamQuestions[currentTeam.id];
                 
+                // Debug: Log teamQuestions structure
+                console.log('=== TEAM QUESTIONS DEBUG ===');
+                console.log('Current team ID:', this.currentAnsweringTeam);
+                console.log('Team questions array:', teamQuestions);
+                console.log('Current question object:', this.currentQuestion);
+                
                 // Find current question in team's questions array using unique matching
                 const currentTeamQuestionIndex = teamQuestions.findIndex(q => 
                     q.question === this.currentQuestion.question && 
                     q.category === this.currentQuestion.category &&
                     q.teamId === this.currentAnsweringTeam
                 );
+                
+                console.log('Found question index:', currentTeamQuestionIndex);
+                console.log('=== END TEAM QUESTIONS DEBUG ===');
                 
                 if (currentTeamQuestionIndex !== -1) {
                     const displayIndex = currentTeamQuestionIndex + 1;
