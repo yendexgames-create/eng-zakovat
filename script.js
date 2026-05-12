@@ -999,14 +999,19 @@ class QuizApp {
             return;
         }
         
+        // Get current question
         this.currentQuestion = this.mixedQuestions[this.currentQuestionIndex];
-        this.currentQuestionAnswered = false;
+        console.log('Current question set to:', this.currentQuestion);
+        
+        // Set current answering team
         this.currentAnsweringTeam = this.currentQuestion.teamId;
+        console.log('=== SHOW QUESTION TEAM UPDATE ===');
+        console.log('Current question index:', this.currentQuestionIndex);
+        console.log('Current question teamId:', this.currentQuestion.teamId);
+        console.log('Updated currentAnsweringTeam to:', this.currentAnsweringTeam);
+        console.log('=== END SHOW QUESTION TEAM UPDATE ===');
         
-        console.log('Current question:', this.currentQuestion);
-        console.log('Current answering team ID:', this.currentAnsweringTeam);
-        
-        // Force hide category section first
+        // Force hide category section
         const categorySection = document.getElementById('categorySection');
         if (categorySection) {
             categorySection.classList.add('hidden');
@@ -1894,6 +1899,8 @@ class QuizApp {
         }
         
         console.log('About to call showQuestion...');
+        console.log('Next question - currentQuestionIndex:', this.currentQuestionIndex);
+        console.log('Next question - currentAnsweringTeam:', this.currentAnsweringTeam);
         this.showQuestion();
     }
     
