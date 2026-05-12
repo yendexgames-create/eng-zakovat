@@ -1605,9 +1605,8 @@ class QuizApp {
             console.log('On index.html - showing modal');
             this.showTeamAnswerModal();
         } else {
-            // Don't show modal on questions.html
-            console.log('On questions.html - modal will not show here');
-            return; // Stop execution here
+            // Don't show modal on questions.html but continue execution
+            console.log('On questions.html - modal will not show here, but continuing execution');
         }
     }
     
