@@ -1630,6 +1630,29 @@ class QuizApp {
         console.log(`Team ${currentTeam.name} answer modal shown`);
     }
     
+    showCorrectAnswer() {
+        console.log('=== SHOW CORRECT ANSWER ===');
+        
+        // Highlight the correct answer option
+        const optionBtns = document.querySelectorAll('.option-btn');
+        optionBtns.forEach((btn, index) => {
+            if (index === this.currentQuestion.correctAnswer) {
+                btn.classList.add('correct');
+                btn.style.backgroundColor = '#28a745';
+                btn.style.color = 'white';
+                btn.style.borderColor = '#28a745';
+            } else {
+                btn.classList.add('incorrect');
+                btn.style.backgroundColor = '#dc3545';
+                btn.style.color = 'white';
+                btn.style.borderColor = '#dc3545';
+            }
+            btn.disabled = true;
+        });
+        
+        console.log('Correct answer highlighted');
+    }
+    
     closeTeamAnswerModal() {
         console.log('=== CLOSE TEAM ANSWER MODAL ===');
         
