@@ -1196,11 +1196,28 @@ class QuizApp {
                 console.log('Current question teamId:', this.currentQuestion.teamId);
                 
                 // Find current question in team's questions array using unique matching
+                console.log('=== FIND INDEX DEBUG ===');
+                console.log('Searching for question:', JSON.stringify(this.currentQuestion, null, 2));
+                console.log('In team questions array:');
+                teamQuestions.forEach((q, index) => {
+                    console.log(`  [${index}]:`, JSON.stringify(q, null, 2));
+                    console.log(`    Match check:`, {
+                        questionMatch: q.question === this.currentQuestion.question,
+                        categoryMatch: q.category === this.currentQuestion.category,
+                        teamIdMatch: q.teamId === this.currentAnsweringTeam,
+                        allMatch: q.question === this.currentQuestion.question && 
+                                 q.category === this.currentQuestion.category &&
+                                 q.teamId === this.currentAnsweringTeam
+                    });
+                });
+                
                 const currentTeamQuestionIndex = teamQuestions.findIndex(q => 
                     q.question === this.currentQuestion.question && 
                     q.category === this.currentQuestion.category &&
                     q.teamId === this.currentAnsweringTeam
                 );
+                
+                console.log('=== END FIND INDEX DEBUG ===');
                 
                 console.log('Found question index:', currentTeamQuestionIndex);
                 console.log('=== END TEAM QUESTIONS DEBUG ===');
