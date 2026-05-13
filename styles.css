@@ -1037,3 +1037,139 @@ border-left: 5px solid #4299e1;
         flex-direction: column;
     }
 }
+
+.question-exit {
+    animation: questionExit 0.18s ease both;
+}
+
+.question-enter {
+    animation: questionEnter 0.22s ease both;
+}
+
+@keyframes questionExit {
+    from { opacity: 1; transform: translateX(0); }
+    to { opacity: 0; transform: translateX(-18px); }
+}
+
+@keyframes questionEnter {
+    from { opacity: 0; transform: translateX(18px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.score-bump {
+    animation: scoreBump 0.6s ease;
+}
+
+@keyframes scoreBump {
+    0% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(66, 153, 225, 0)); }
+    45% { transform: scale(1.18); filter: drop-shadow(0 10px 18px rgba(66, 153, 225, 0.35)); }
+    100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(66, 153, 225, 0)); }
+}
+
+.score-popup {
+    position: fixed;
+    z-index: 3500;
+    pointer-events: none;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(56, 161, 105, 0.95);
+    color: white;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    box-shadow: 0 10px 24px rgba(56, 161, 105, 0.3);
+    transform: translate(-50%, -50%);
+    animation: scoreFloat 0.9s ease forwards;
+}
+
+@keyframes scoreFloat {
+    0% { opacity: 0; transform: translate(-50%, -35%) scale(0.9); }
+    20% { opacity: 1; }
+    100% { opacity: 0; transform: translate(-50%, -130%) scale(1.05); }
+}
+
+.celebration-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 4000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(8px);
+    animation: celebrationFadeIn 0.35s ease both;
+}
+
+.celebration-panel {
+    position: relative;
+    width: min(760px, 94vw);
+    max-height: 92vh;
+    overflow: auto;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 24px;
+    padding: 34px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+    animation: celebrationPop 0.45s cubic-bezier(0.2, 0.9, 0.2, 1) both;
+}
+
+.celebration-trophy {
+    text-align: center;
+    font-size: 4rem;
+    margin-bottom: 10px;
+    animation: trophyBounce 1.2s ease-in-out infinite;
+}
+
+.celebration-winner {
+    text-align: center;
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin: 8px 0 18px;
+    color: #2d3748;
+    animation: winnerGlow 1.4s ease-in-out infinite;
+}
+
+.celebration-leaderboard {
+    margin-top: 18px;
+}
+
+.celebration-confetti {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.confetti-piece {
+    position: absolute;
+    top: -20px;
+    border-radius: 3px;
+    opacity: 0;
+    animation-name: confettiFall;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+}
+
+@keyframes confettiFall {
+    0% { opacity: 0; transform: translateX(0) translateY(-20px) rotate(var(--rot)); }
+    10% { opacity: 1; }
+    100% { opacity: 0; transform: translateX(var(--dx)) translateY(110vh) rotate(calc(var(--rot) + 720deg)); }
+}
+
+@keyframes celebrationFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes celebrationPop {
+    from { opacity: 0; transform: translateY(14px) scale(0.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes trophyBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+@keyframes winnerGlow {
+    0%, 100% { text-shadow: 0 0 0 rgba(236, 201, 75, 0); }
+    50% { text-shadow: 0 12px 28px rgba(236, 201, 75, 0.6); }
+}

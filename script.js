@@ -4,6 +4,7 @@ class QuizApp {
         this.questions = {};
         this.teams = [];
         this.scores = {};
+        this.prevScores = {};
         this.currentCategory = null;
         this.currentQuestionIndex = 0;
         this.currentQuestions = [];
@@ -1768,6 +1769,8 @@ class QuizApp {
             
             // Show success emoji
             this.showEmoji('✅');
+
+            this.showScoreGain(this.currentAnsweringTeam, 1);
             
             // Close modal
             this.closeTeamAnswerModal();
@@ -1902,6 +1905,61 @@ class QuizApp {
         }, 1000);
     }
 
+    showScoreGain(teamId, delta) {
+        const items = document.querySelectorAll(`.leaderboard-item[data-team-id="${teamId}"]`);
+        items.forEach((item) => {
+            const scoreEl = item.querySelector('.leaderboard-score');
+            if (scoreEl) {
+                scoreEl.classList.remove('score-bump');
+                scoreEl.offsetHeight;
+                scoreEl.classList.add('score-bump');
+            }
+        });
+
+        const primaryItem = document.querySelector(`.leaderboard-item[data-team-id="${teamId}"]`);
+        if (!primaryItem) return;
+
+        const rect = primaryItem.getBoundingClientRect();
+        const popup = document.createElement('div');
+        popup.className = 'score-popup';
+        popup.textContent = `+${delta}`;
+        popup.style.left = `${Math.max(10, rect.right - 40)}px`;
+        popup.style.top = `${Math.max(10, rect.top - 10)}px`;
+
+        document.body.appendChild(popup);
+        setTimeout(() => popup.remove(), 900);
+    }
+
+    startConfetti(container, count = 60) {
+        if (!container) return;
+        container.innerHTML = '';
+
+        const colors = ['#4299e1', '#38a169', '#e53e3e', '#ecc94b', '#805ad5', '#ed64a6'];
+        for (let i = 0; i < count; i++) {
+            const piece = document.createElement('div');
+            piece.className = 'confetti-piece';
+
+            const left = Math.random() * 100;
+            const size = 6 + Math.random() * 8;
+            const delay = Math.random() * 0.6;
+            const duration = 1.9 + Math.random() * 1.6;
+            const rotate = Math.random() * 360;
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            const dx = (Math.random() * 2 - 1) * 80;
+
+            piece.style.left = `${left}%`;
+            piece.style.width = `${size}px`;
+            piece.style.height = `${Math.max(8, size * 1.6)}px`;
+            piece.style.background = color;
+            piece.style.animationDelay = `${delay}s`;
+            piece.style.animationDuration = `${duration}s`;
+            piece.style.setProperty('--rot', `${rotate}deg`);
+            piece.style.setProperty('--dx', `${dx}px`);
+
+            container.appendChild(piece);
+        }
+    }
+
     updateState(state) {
         if (!state) return;
 
@@ -1964,17 +2022,18 @@ class QuizApp {
 
     updateLeaderboard() {
         const sortedTeams = [...this.teams].sort((a, b) => (this.scores[b.id] || 0) - (this.scores[a.id] || 0));
+        const prevScores = this.prevScores || {};
 
         const html = sortedTeams.map((team, index) => {
             const score = this.scores[team.id] || 0;
             const winnerClass = index === 0 && score > 0 ? ' winner' : '';
             return `
-                <div class="leaderboard-item${winnerClass}">
+                <div class="leaderboard-item${winnerClass}" data-team-id="${team.id}">
                     <div class="leaderboard-rank">${index + 1}</div>
                     <div class="leaderboard-info">
                         <div class="leaderboard-name">${team.name}</div>
                     </div>
-                    <div class="leaderboard-score">${score}</div>
+                    <div class="leaderboard-score" data-team-id="${team.id}">${score}</div>
                 </div>
             `;
         }).join('');
@@ -1984,6 +2043,24 @@ class QuizApp {
             const el = document.getElementById(id);
             if (el) el.innerHTML = html;
         });
+
+        sortedTeams.forEach((team) => {
+            const prev = prevScores[team.id] || 0;
+            const current = this.scores[team.id] || 0;
+            if (current <= prev) return;
+
+            ids.forEach((id) => {
+                const root = document.getElementById(id);
+                if (!root) return;
+                const scoreEl = root.querySelector(`.leaderboard-item[data-team-id="${team.id}"] .leaderboard-score`);
+                if (!scoreEl) return;
+                scoreEl.classList.remove('score-bump');
+                scoreEl.offsetHeight;
+                scoreEl.classList.add('score-bump');
+            });
+        });
+
+        this.prevScores = { ...this.scores };
     }
 
     activateQuiz() {
@@ -2010,8 +2087,28 @@ class QuizApp {
             return;
         }
 
-        this.hideNextQuestionButton();
-        this.showQuestion();
+        const card = document.querySelector('#questionSection .question-main .card');
+        if (card) {
+            card.classList.remove('question-enter');
+            card.classList.add('question-exit');
+        }
+
+        const run = () => {
+            this.hideNextQuestionButton();
+            this.showQuestion();
+
+            if (card) {
+                card.classList.remove('question-exit');
+                card.classList.add('question-enter');
+                setTimeout(() => card.classList.remove('question-enter'), 260);
+            }
+        };
+
+        if (card) {
+            setTimeout(run, 180);
+        } else {
+            run();
+        }
     }
 
     endQuiz() {
@@ -2026,29 +2123,32 @@ class QuizApp {
         const winner = sortedTeams[0];
 
         questionSection.innerHTML = `
-            <div class="question-layout">
-                <div class="question-main">
-                    <div class="card">
-                        <h2>Quiz Finished!</h2>
-                        <p>Winner: <strong>${winner ? winner.name : ''}</strong></p>
-                        <div class="leaderboard">
-                            ${sortedTeams.map((team, index) => `
-                                <div class="leaderboard-item${index === 0 ? ' winner' : ''}">
-                                    <div class="leaderboard-rank">${index + 1}</div>
-                                    <div class="leaderboard-info">
-                                        <div class="leaderboard-name">${team.name}</div>
-                                    </div>
-                                    <div class="leaderboard-score">${this.scores[team.id] || 0}</div>
+            <div class="celebration-overlay" id="celebrationOverlay">
+                <div class="celebration-confetti" id="celebrationConfetti"></div>
+                <div class="celebration-panel">
+                    <div class="celebration-trophy">🏆</div>
+                    <h2>Congratulations!</h2>
+                    <p class="celebration-winner">${winner ? winner.name : ''}</p>
+                    <div class="leaderboard celebration-leaderboard">
+                        ${sortedTeams.map((team, index) => `
+                            <div class="leaderboard-item${index === 0 ? ' winner' : ''}" data-team-id="${team.id}">
+                                <div class="leaderboard-rank">${index + 1}</div>
+                                <div class="leaderboard-info">
+                                    <div class="leaderboard-name">${team.name}</div>
                                 </div>
-                            `).join('')}
-                        </div>
-                        <div class="action-buttons" style="margin-top: 20px;">
-                            <button class="btn btn-primary" onclick="location.reload()">Play Again</button>
-                        </div>
+                                <div class="leaderboard-score" data-team-id="${team.id}">${this.scores[team.id] || 0}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="action-buttons" style="margin-top: 20px;">
+                        <button class="btn btn-primary" onclick="location.reload()">Play Again</button>
                     </div>
                 </div>
             </div>
         `;
+
+        const confetti = document.getElementById('celebrationConfetti');
+        this.startConfetti(confetti, 90);
 
         if (this.socket && this.socket.connected) {
             this.socket.emit('submitScores', this.scores);
