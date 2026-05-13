@@ -5,6 +5,10 @@ class QuizApp {
         this.teams = [];
         this.scores = {};
         this.prevScores = {};
+        this.tieBreakerTimer = 15;
+        this.tieBreakerActive = false;
+        this.tieBreakerRound = 0;
+        this.usedQuestionKeys = new Set();
         this.currentCategory = null;
         this.currentQuestionIndex = 0;
         this.currentQuestions = [];
@@ -1017,6 +1021,8 @@ class QuizApp {
         // Get current question
         this.currentQuestion = this.mixedQuestions[this.currentQuestionIndex];
         console.log('Current question set to:', this.currentQuestion);
+
+        this.usedQuestionKeys.add(this.getQuestionKey(this.currentQuestion));
         
         // Set current answering team
         this.currentAnsweringTeam = this.currentQuestion.teamId;
@@ -1139,6 +1145,14 @@ class QuizApp {
         const categoryTitle = document.getElementById('categoryTitle');
         if (!categoryTitle) return;
         
+        if (this.currentQuestion && this.currentQuestion.isTieBreaker) {
+            categoryTitle.classList.add('tie-breaker-title');
+            categoryTitle.textContent = 'Tie-breaker';
+            return;
+        }
+        
+        categoryTitle.classList.remove('tie-breaker-title');
+
         const currentTeam = this.teams.find(t => t.id === this.currentAnsweringTeam);
         if (!currentTeam) return;
         
@@ -1275,18 +1289,26 @@ class QuizApp {
         
         optionBtns[index].classList.add('selected');
     }
+
+    getTimerForCurrentQuestion() {
+        if (this.currentQuestion && this.currentQuestion.isTieBreaker) {
+            return this.tieBreakerTimer;
+        }
+        return this.questionTimer;
+    }
     
     startQuestionTimer() {
         console.log('=== START TIMER ===');
         this.stopQuestionTimer();
         
-        let timeLeft = this.questionTimer;
+        const totalTime = this.getTimerForCurrentQuestion();
+        let timeLeft = totalTime;
         const timerDisplay = document.getElementById('timerDisplay');
         const timerProgress = document.getElementById('timerProgress');
         
         console.log('Timer display element:', timerDisplay);
         console.log('Timer progress element:', timerProgress);
-        console.log('Question timer duration:', this.questionTimer);
+        console.log('Question timer duration:', totalTime);
         
         // Delay to ensure DOM is ready
         setTimeout(() => {
@@ -1379,7 +1401,7 @@ class QuizApp {
             }
             
             if (timerProgress) {
-                const percentage = (timeLeft / this.questionTimer) * 100;
+                const percentage = (timeLeft / totalTime) * 100;
                 timerProgress.style.width = `${percentage}%`;
                 console.log(`Timer progress updated to: ${percentage}%`);
             } else {
@@ -1960,6 +1982,109 @@ class QuizApp {
         }
     }
 
+    getQuestionKey(question) {
+        if (!question) return '';
+        const category = question.category || this.getCategoryFromQuestion(question) || '';
+        const q = question.question || '';
+        const options = Array.isArray(question.options) ? question.options.join('||') : '';
+        return `${category}::${q}::${options}`;
+    }
+
+    getTieGroup() {
+        if (!Array.isArray(this.teams) || this.teams.length === 0) return null;
+
+        const sorted = [...this.teams].sort((a, b) => (this.scores[b.id] || 0) - (this.scores[a.id] || 0));
+        const byScore = new Map();
+
+        sorted.forEach((team) => {
+            const score = this.scores[team.id] || 0;
+            const arr = byScore.get(score) || [];
+            arr.push(team);
+            byScore.set(score, arr);
+        });
+
+        const scoresDesc = [...byScore.keys()].sort((a, b) => b - a);
+        for (const score of scoresDesc) {
+            const group = byScore.get(score) || [];
+            if (group.length > 1) {
+                return {
+                    score,
+                    teams: group
+                };
+            }
+        }
+
+        return null;
+    }
+
+    getAllQuestionPool() {
+        const pool = [];
+        for (const category in this.questions) {
+            const arr = this.questions[category] || [];
+            for (let i = 0; i < arr.length; i++) {
+                pool.push({
+                    ...arr[i],
+                    category
+                });
+            }
+        }
+        return pool;
+    }
+
+    pickTieBreakerQuestion() {
+        const pool = this.getAllQuestionPool();
+        const available = pool.filter(q => !this.usedQuestionKeys.has(this.getQuestionKey(q)));
+        const list = available.length > 0 ? available : pool;
+        const selected = list[Math.floor(Math.random() * list.length)];
+
+        const q = {
+            ...selected
+        };
+
+        if (q.correctAnswer === undefined && q.correct !== undefined) {
+            q.correctAnswer = q.correct;
+        }
+
+        return q;
+    }
+
+    startTieBreaker(group) {
+        if (!group || !Array.isArray(group.teams) || group.teams.length < 2) return false;
+        if (!this.mixedQuestions) this.mixedQuestions = [];
+        if (!this.teamQuestions) this.teamQuestions = {};
+
+        this.tieBreakerActive = true;
+        this.tieBreakerRound += 1;
+
+        const startIndex = this.mixedQuestions.length;
+        group.teams.forEach((team) => {
+            const base = this.pickTieBreakerQuestion();
+            const question = {
+                ...base,
+                teamId: team.id,
+                isTieBreaker: true,
+                tieBreakerRound: this.tieBreakerRound
+            };
+
+            this.mixedQuestions.push(question);
+            this.usedQuestionKeys.add(this.getQuestionKey(question));
+
+            if (!Array.isArray(this.teamQuestions[team.id])) {
+                this.teamQuestions[team.id] = [];
+            }
+            this.teamQuestions[team.id].push(question);
+        });
+
+        if (this.socket && this.socket.connected) {
+            this.socket.emit('nextQuestion', {
+                currentQuestionIndex: startIndex
+            });
+        }
+
+        this.nextQuestion(startIndex);
+        return true;
+    }
+
     updateState(state) {
         if (!state) return;
 
@@ -2118,6 +2243,16 @@ class QuizApp {
 
         const questionSection = document.getElementById('questionSection');
         if (!questionSection) return;
+
+        const tieGroup = this.getTieGroup();
+        if (tieGroup) {
+            const started = this.startTieBreaker(tieGroup);
+            if (started) {
+                return;
+            }
+        }
+
+        this.tieBreakerActive = false;
 
         const sortedTeams = [...this.teams].sort((a, b) => (this.scores[b.id] || 0) - (this.scores[a.id] || 0));
         const winner = sortedTeams[0];
