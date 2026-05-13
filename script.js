@@ -343,17 +343,13 @@ class QuizApp {
                 console.log('Not on quiz page, ignoring next question');
                 return;
             }
-            
-            // Update question index
-            this.currentQuestionIndex = data.currentQuestionIndex;
-            console.log('Updated current question index to:', this.currentQuestionIndex);
-            
-            // Only call nextQuestion on questions.html (not on index.html)
+
             if (isQuestionsPage) {
                 console.log('On questions.html - calling nextQuestion');
-                this.nextQuestion();
+                this.nextQuestion(data.currentQuestionIndex);
             } else {
                 console.log('On index.html - not calling nextQuestion');
+                this.currentQuestionIndex = data.currentQuestionIndex;
             }
         });
         
@@ -460,7 +456,13 @@ class QuizApp {
             nextQuestionBtn.addEventListener('click', () => {
                 console.log('Next question button clicked');
                 this.hideNextQuestionButton();
-                this.nextQuestion();
+                const nextIndex = this.currentQuestionIndex + 1;
+                if (this.socket && this.socket.connected) {
+                    this.socket.emit('nextQuestion', {
+                        currentQuestionIndex: nextIndex
+                    });
+                }
+                this.nextQuestion(nextIndex);
             });
         }
         
@@ -1436,11 +1438,8 @@ class QuizApp {
         
         // Show correct answer
         this.showCorrectAnswer();
-        
-        // Auto move to next question after delay
-        setTimeout(() => {
-            this.nextQuestion();
-        }, 3000);
+
+        this.showNextQuestionButton();
     }
     
     sendTimeUpModalToIndex() {
@@ -1780,14 +1779,13 @@ class QuizApp {
             console.log('Setting timeout for next question in 2000ms');
             setTimeout(() => {
                 console.log('Timeout reached - calling nextQuestion');
-                
-                // Emit next question to server for other devices
+                const nextIndex = this.currentQuestionIndex + 1;
+
                 this.socket.emit('nextQuestion', {
-                    currentQuestionIndex: this.currentQuestionIndex + 1
+                    currentQuestionIndex: nextIndex
                 });
-                
-                // Call next question locally
-                this.nextQuestion();
+
+                this.nextQuestion(nextIndex);
             }, 2000);
             
         } else {
@@ -1816,14 +1814,13 @@ class QuizApp {
                 console.log('Setting timeout for next question in 1000ms');
                 setTimeout(() => {
                     console.log('All incorrect timeout reached - calling nextQuestion');
-                    
-                    // Emit next question to server for other devices
+                    const nextIndex = this.currentQuestionIndex + 1;
+
                     this.socket.emit('nextQuestion', {
-                        currentQuestionIndex: this.currentQuestionIndex + 1
+                        currentQuestionIndex: nextIndex
                     });
-                    
-                    // Call next question locally
-                    this.nextQuestion();
+
+                    this.nextQuestion(nextIndex);
                 }, 1000);
             }
         }
@@ -1891,4 +1888,179 @@ class QuizApp {
     
     showEmoji(emoji) {
         const container = document.getElementById('emojiContainer');
-        if
+        if (!container) return;
+
+        container.textContent = emoji;
+        container.style.animation = 'none';
+        container.offsetHeight;
+        container.style.animation = '';
+
+        setTimeout(() => {
+            if (container.textContent === emoji) {
+                container.textContent = '';
+            }
+        }, 1000);
+    }
+
+    updateState(state) {
+        if (!state) return;
+
+        if (Array.isArray(state.teams)) {
+            this.teams = state.teams;
+        }
+
+        if (state.scores && typeof state.scores === 'object') {
+            this.scores = state.scores;
+        }
+
+        if (state.currentQuestion !== undefined) {
+            this.currentQuestion = state.currentQuestion;
+        }
+
+        if (state.currentAnsweringTeam !== undefined) {
+            this.currentAnsweringTeam = state.currentAnsweringTeam;
+        }
+
+        if (state.currentQuestionIndex !== undefined) {
+            this.currentQuestionIndex = state.currentQuestionIndex;
+        }
+
+        if (state.quizActivated !== undefined) {
+            this.quizActivated = state.quizActivated;
+        }
+
+        const header = document.querySelector('.header');
+        if (header) {
+            header.classList.remove('hidden');
+        }
+
+        this.displayTeams();
+
+        const currentPath = window.location.pathname;
+        const isQuestionsPage = currentPath.includes('questions.html') || currentPath.includes('/questions');
+        if (isQuestionsPage && this.quizActivated && this.teams.length > 0) {
+            this.showCategorySelection();
+        }
+    }
+
+    displayTeams() {
+        const teamsListEl = document.querySelector('#setupStatus .teams-list');
+        if (teamsListEl && this.teams.length > 0) {
+            teamsListEl.innerHTML = this.teams.map(team => `
+                <div class="team-item">
+                    <span class="team-name">${team.name}</span>
+                    <span class="team-id">Team ${team.id}</span>
+                </div>
+            `).join('');
+        }
+
+        this.updateLeaderboard();
+    }
+
+    updateLeaderboard() {
+        const sortedTeams = [...this.teams].sort((a, b) => (this.scores[b.id] || 0) - (this.scores[a.id] || 0));
+
+        const html = sortedTeams.map((team, index) => {
+            const score = this.scores[team.id] || 0;
+            const winnerClass = index === 0 && score > 0 ? ' winner' : '';
+            return `
+                <div class="leaderboard-item${winnerClass}">
+                    <div class="leaderboard-rank">${index + 1}</div>
+                    <div class="leaderboard-info">
+                        <div class="leaderboard-name">${team.name}</div>
+                    </div>
+                    <div class="leaderboard-score">${score}</div>
+                </div>
+            `;
+        }).join('');
+
+        const ids = ['leaderboard', 'categoryLeaderboard'];
+        ids.forEach((id) => {
+            const el = document.getElementById(id);
+            if (el) el.innerHTML = html;
+        });
+    }
+
+    activateQuiz() {
+        if (this.socket && this.socket.connected) {
+            this.socket.emit('activateQuiz');
+        }
+    }
+
+    nextQuestion(nextIndex) {
+        const currentPath = window.location.pathname;
+        const isQuestionsPage = currentPath.includes('questions.html') || currentPath.includes('/questions');
+
+        if (typeof nextIndex === 'number') {
+            this.currentQuestionIndex = nextIndex;
+        } else {
+            this.currentQuestionIndex += 1;
+        }
+
+        this.teamsAnswered = [];
+        this.currentQuestionAnswered = false;
+        this.timeUpCalled = false;
+
+        if (!isQuestionsPage) {
+            return;
+        }
+
+        this.hideNextQuestionButton();
+        this.showQuestion();
+    }
+
+    endQuiz() {
+        const currentPath = window.location.pathname;
+        const isQuestionsPage = currentPath.includes('questions.html') || currentPath.includes('/questions');
+        if (!isQuestionsPage) return;
+
+        const questionSection = document.getElementById('questionSection');
+        if (!questionSection) return;
+
+        const sortedTeams = [...this.teams].sort((a, b) => (this.scores[b.id] || 0) - (this.scores[a.id] || 0));
+        const winner = sortedTeams[0];
+
+        questionSection.innerHTML = `
+            <div class="question-layout">
+                <div class="question-main">
+                    <div class="card">
+                        <h2>Quiz Finished!</h2>
+                        <p>Winner: <strong>${winner ? winner.name : ''}</strong></p>
+                        <div class="leaderboard">
+                            ${sortedTeams.map((team, index) => `
+                                <div class="leaderboard-item${index === 0 ? ' winner' : ''}">
+                                    <div class="leaderboard-rank">${index + 1}</div>
+                                    <div class="leaderboard-info">
+                                        <div class="leaderboard-name">${team.name}</div>
+                                    </div>
+                                    <div class="leaderboard-score">${this.scores[team.id] || 0}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="action-buttons" style="margin-top: 20px;">
+                            <button class="btn btn-primary" onclick="location.reload()">Play Again</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        if (this.socket && this.socket.connected) {
+            this.socket.emit('submitScores', this.scores);
+        }
+    }
+
+    resetQuiz() {
+        if (this.socket && this.socket.connected) {
+            this.socket.emit('resetQuiz');
+        }
+
+        sessionStorage.clear();
+        window.location.reload();
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    window.quizApp = new QuizApp();
+    window.quizApp.initialize();
+});
