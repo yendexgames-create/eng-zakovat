@@ -1929,15 +1929,20 @@ class QuizApp {
             this.quizActivated = state.quizActivated;
         }
 
+        const currentPath = window.location.pathname;
+        const isQuestionsPage = currentPath.includes('questions.html') || currentPath.includes('/questions');
+
         const header = document.querySelector('.header');
         if (header) {
-            header.classList.remove('hidden');
+            if (isQuestionsPage) {
+                header.classList.add('hidden');
+            } else {
+                header.classList.remove('hidden');
+            }
         }
 
         this.displayTeams();
 
-        const currentPath = window.location.pathname;
-        const isQuestionsPage = currentPath.includes('questions.html') || currentPath.includes('/questions');
         if (isQuestionsPage && this.quizActivated && this.teams.length > 0) {
             this.showCategorySelection();
         }

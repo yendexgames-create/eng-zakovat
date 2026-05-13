@@ -8,8 +8,16 @@
 body {
     font-family: 'Inter', sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background-size: 400% 400%;
+    animation: gradientShift 18s ease infinite;
     min-height: 100vh;
     color: #2d3748;
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
 .container {
@@ -68,6 +76,18 @@ body {
     padding: 30px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     margin-bottom: 30px;
+    animation: fadeInUp 0.45s ease both;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .card h2 {
@@ -524,6 +544,18 @@ background: #f7fafc;
 border-radius: 15px;
 border-left: 5px solid #4299e1;
     border-left: 5px solid #4299e1;
+    animation: questionReveal 0.35s ease both;
+}
+
+@keyframes questionReveal {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .options-container {
@@ -555,6 +587,12 @@ border-left: 5px solid #4299e1;
     opacity: 1;
     position: relative;
     z-index: 1;
+    animation: timerPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes timerPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.04); }
 }
 
 .timer-bar {
@@ -701,6 +739,7 @@ border-left: 5px solid #4299e1;
     border-radius: 15px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
+    animation: fadeInUp 0.35s ease both;
 }
 
 .leaderboard-item:hover {
