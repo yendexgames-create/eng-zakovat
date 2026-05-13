@@ -45,6 +45,12 @@ io.on('connection', (socket) => {
     
     // Send current state to new client
     socket.emit('stateUpdate', quizState);
+
+    // Respond to explicit state requests from clients
+    socket.on('getState', () => {
+        console.log('getState requested by', socket.id);
+        socket.emit('stateUpdate', quizState);
+    });
     
     // Handle team setup
     socket.on('setupTeams', (teams) => {

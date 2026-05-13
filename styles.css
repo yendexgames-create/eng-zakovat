@@ -338,6 +338,11 @@ body {
     border-radius: 15px;
     font-weight: 600;
     font-size: 0.9rem;
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    z-index: 1 !important;
 }
 
 #currentTeam {

@@ -245,6 +245,18 @@ class QuizApp {
                 }
             ]
         };
+
+        // Normalize question objects: ensure each question has `correctAnswer` property
+        for (const cat in this.questions) {
+            const arr = this.questions[cat];
+            for (let i = 0; i < arr.length; i++) {
+                const q = arr[i];
+                if (q.correctAnswer === undefined && q.correct !== undefined) {
+                    q.correctAnswer = q.correct;
+                }
+                // keep backward-compat: if only correctAnswer exists, fine
+            }
+        }
     }
 
     initializeSocket() {
@@ -1163,10 +1175,16 @@ class QuizApp {
             console.log('Total mixed questions:', this.mixedQuestions.length);
             console.log('Current answering team ID:', this.currentAnsweringTeam);
             
+            // Force remove any hidden classes and ensure visibility
+            questionNumber.classList.remove('hidden');
+            questionNumber.style.display = 'inline-block';
+            questionNumber.style.visibility = 'visible';
+            questionNumber.style.opacity = '1';
+            
             // Get team-specific questions for current answering team
-            const currentTeam = this.teams.find(t => t.id === this.currentAnsweringTeam);
-            if (currentTeam && this.teamQuestions && this.teamQuestions[currentTeam.id]) {
-                const teamQuestions = this.teamQuestions[currentTeam.id];
+            const currentTeamObj = this.teams.find(t => t.id === this.currentAnsweringTeam);
+            if (currentTeamObj && this.teamQuestions && this.teamQuestions[currentTeamObj.id]) {
+                const teamQuestions = this.teamQuestions[currentTeamObj.id];
                 
                 // Debug: Log teamQuestions structure
                 console.log('=== TEAM QUESTIONS DEBUG ===');
@@ -1221,6 +1239,10 @@ class QuizApp {
                 questionNumber.textContent = `Question ${displayIndex} of ${totalQuestions}`;
                 console.log('Team questions not available, fallback question number set to:', questionNumber.textContent);
             }
+            
+            // Force reflow to ensure the update is applied
+            questionNumber.offsetHeight;
+            console.log('Question number element forced reflow:', questionNumber.textContent);
         }
         
         if (currentTeam) {
@@ -1869,398 +1891,4 @@ class QuizApp {
     
     showEmoji(emoji) {
         const container = document.getElementById('emojiContainer');
-        if (container) {
-            container.textContent = emoji;
-            container.style.display = 'block';
-            
-            setTimeout(() => {
-                container.style.display = 'none';
-            }, 1000);
-        }
-    }
-    
-    nextQuestion() {
-        console.log('=== NEXT QUESTION ===');
-        console.log('Current question index before increment:', this.currentQuestionIndex);
-        console.log('Total mixed questions:', this.mixedQuestions.length);
-        console.log('Mixed questions array:', this.mixedQuestions);
-        
-        // Reset teams answered for new question
-        this.teamsAnswered = [];
-        
-        this.currentQuestionIndex++;
-        console.log('Current question index after increment:', this.currentQuestionIndex);
-        
-        if (this.currentQuestionIndex >= this.mixedQuestions.length) {
-            console.log('Quiz should end - no more questions');
-            this.endQuiz();
-            return;
-        }
-        
-        console.log('About to call showQuestion...');
-        console.log('Next question - currentQuestionIndex:', this.currentQuestionIndex);
-        console.log('Next question - currentAnsweringTeam:', this.currentAnsweringTeam);
-        this.showQuestion();
-    }
-    
-    displayTeams() {
-        // Update team displays if they exist
-        const currentTeamDisplay = document.getElementById('currentTeamDisplay');
-        if (currentTeamDisplay) {
-            const team = this.teams.find(t => t.id === this.currentAnsweringTeam);
-            if (team) {
-                currentTeamDisplay.textContent = team.name;
-            }
-        }
-        
-        // Update leaderboard
-        this.updateLeaderboard();
-    }
-    
-    updateLeaderboard() {
-        console.log('=== UPDATE LEADERBOARD ===');
-        
-        // Update both category and question leaderboards
-        this.updateLeaderboardInSection('categorySection', 'categoryLeaderboardSection', 'categoryLeaderboard');
-        this.updateLeaderboardInSection('questionSection', 'leaderboardSection', 'leaderboard');
-    }
-    
-    updateLeaderboardInSection(sectionId, sectionElementId, leaderboardElementId) {
-        console.log(`=== UPDATE LEADERBOARD IN ${sectionId.toUpperCase()} ===`);
-        
-        const sectionElement = document.querySelector(`#${sectionId} #${sectionElementId}`);
-        const leaderboardElement = document.querySelector(`#${sectionId} #${leaderboardElementId}`);
-        
-        console.log(`${sectionId} leaderboard section element:`, sectionElement);
-        console.log(`${sectionId} leaderboard element:`, leaderboardElement);
-        
-        if (!sectionElement || !leaderboardElement) {
-            console.log(`${sectionId} leaderboard elements not found`);
-            return;
-        }
-        
-        // Show leaderboard if there are teams
-        if (this.teams.length > 0) {
-            sectionElement.classList.remove('hidden');
-            
-            // Sort teams by score
-            const sortedTeams = [...this.teams].sort((a, b) => {
-                return (this.scores[b.id] || 0) - (this.scores[a.id] || 0);
-            });
-            
-            console.log(`Sorted teams for ${sectionId} leaderboard:`, sortedTeams);
-            console.log('Teams data:', this.teams);
-            console.log('Scores data:', this.scores);
-            
-            // Generate leaderboard HTML
-            const leaderboardHTML = sortedTeams.map((team, index) => {
-                const score = this.scores[team.id] || 0;
-                const isWinner = index === 0 && score > 0;
-                
-                console.log(`${sectionId} Team ${index + 1}:`, {
-                    id: team.id,
-                    name: team.name,
-                    score: score,
-                    isWinner: isWinner
-                });
-                
-                return `
-                    <div class="leaderboard-item ${isWinner ? 'winner' : ''}">
-                        <div class="leaderboard-rank">${index + 1}</div>
-                        <div class="leaderboard-info">
-                            <div class="leaderboard-name">${team.name}</div>
-                            <div class="leaderboard-score">${score} ${score === 1 ? 'point' : 'points'}</div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            
-            console.log(`Generated ${sectionId} leaderboard HTML:`, leaderboardHTML);
-            leaderboardElement.innerHTML = leaderboardHTML;
-            console.log(`${sectionId} leaderboard updated`);
-            console.log(`${sectionId} leaderboard innerHTML after update:`, leaderboardElement.innerHTML);
-            
-            // Check if leaderboard is actually visible
-            if (sectionElement) {
-                // Check parent elements
-                const parent = sectionElement.parentElement;
-                const grandParent = parent ? parent.parentElement : null;
-                console.log(`${sectionId} leaderboard section parent:`, parent);
-                console.log(`${sectionId} leaderboard section grandparent:`, grandParent);
-                
-                if (parent) {
-                    const parentStyles = window.getComputedStyle(parent);
-                    console.log(`${sectionId} parent computed styles:`);
-                    console.log('  display:', parentStyles.display);
-                    console.log('  visibility:', parentStyles.visibility);
-                    console.log('  opacity:', parentStyles.opacity);
-                    console.log('  height:', parentStyles.height);
-                    console.log('  width:', parentStyles.width);
-                    
-                    const parentRect = parent.getBoundingClientRect();
-                    console.log(`${sectionId} parent bounding rect:`);
-                    console.log('  top:', parentRect.top);
-                    console.log('  left:', parentRect.left);
-                    console.log('  width:', parentRect.width);
-                    console.log('  height:', parentRect.height);
-                }
-                
-                const styles = window.getComputedStyle(sectionElement);
-                console.log(`${sectionId} leaderboard section computed styles:`);
-                console.log('  display:', styles.display);
-                console.log('  visibility:', styles.visibility);
-                console.log('  opacity:', styles.opacity);
-                console.log('  height:', styles.height);
-                console.log('  width:', styles.width);
-                console.log('  position:', styles.position);
-                console.log('  zIndex:', styles.zIndex);
-                console.log('  overflow:', styles.overflow);
-                console.log('  transform:', styles.transform);
-                
-                // Check if element is actually visible in viewport
-                const rect = sectionElement.getBoundingClientRect();
-                console.log(`${sectionId} leaderboard section bounding rect:`);
-                console.log('  top:', rect.top);
-                console.log('  left:', rect.left);
-                console.log('  width:', rect.width);
-                console.log('  height:', rect.height);
-                console.log('  isVisible:', rect.width > 0 && rect.height > 0);
-            }
-        }
-    }
-    
-    updateState(state) {
-        console.log('=== UPDATE STATE START ===');
-        console.log('State received:', state);
-        
-        // Update local state
-        this.teams = state.teams || [];
-        this.scores = state.scores || {};
-        this.currentCategory = state.currentCategory;
-        this.currentQuestion = state.currentQuestion;
-        this.currentAnsweringTeam = state.currentAnsweringTeam;
-        this.quizStarted = state.quizStarted;
-        this.quizActivated = state.quizActivated;
-        
-        // Update UI based on current page
-        const currentPath = window.location.pathname;
-        const isQuestionsPage = currentPath.includes('questions.html') || currentPath.includes('/questions') || currentPath.endsWith('questions');
-        
-        console.log('Current page:', currentPath);
-        console.log('Is questions page:', isQuestionsPage);
-        
-        if (isQuestionsPage) {
-            console.log('Updating questions page');
-            this.updateQuestionsPage(state);
-        } else {
-            console.log('Updating index page');
-            this.updateIndexPage(state);
-        }
-        
-        console.log('=== UPDATE STATE END ===');
-    }
-    
-    updateQuestionsPage(state) {
-        console.log('=== UPDATE QUESTIONS PAGE ===');
-        
-        const setupSection = document.getElementById('setupSection');
-        const categorySection = document.getElementById('categorySection');
-        
-        // Check current page
-        const currentPath = window.location.pathname;
-        const isQuestionsPage = currentPath.includes('questions.html') || currentPath.includes('/questions') || currentPath.endsWith('questions');
-        
-        console.log('UpdateQuestionsPage - Current page:', currentPath);
-        console.log('UpdateQuestionsPage - Is questions page:', isQuestionsPage);
-        
-        if (state.quizActivated && this.teams.length > 0) {
-            console.log('Quiz activated and teams exist - checking if quiz is started');
-            
-            // Check if quiz is already started (has questions)
-            const quizStarted = this.mixedQuestions && this.mixedQuestions.length > 0;
-            
-            if (quizStarted) {
-                console.log('Quiz already started - hiding category section, showing question section');
-                
-                // Hide setup section
-                if (setupSection) setupSection.classList.add('hidden');
-                
-                // Hide category section
-                if (categorySection) {
-                    categorySection.classList.add('hidden');
-                    categorySection.style.display = 'none';
-                }
-                
-                // Show question section
-                const questionSection = document.getElementById('questionSection');
-                if (questionSection) {
-                    questionSection.classList.remove('hidden');
-                    questionSection.style.display = 'block';
-                }
-            } else {
-                console.log('Quiz not started yet - showing category section');
-                
-                // Hide setup section
-                if (setupSection) setupSection.classList.add('hidden');
-                
-                // Show category selection
-                this.showCategorySelection();
-            }
-        } else {
-            console.log('Quiz not activated or no teams - showing waiting');
-            
-            // Show waiting section
-            if (setupSection) setupSection.classList.remove('hidden');
-            
-            // Hide category section
-            if (categorySection) categorySection.classList.add('hidden');
-        }
-        
-        // Update leaderboard on questions page too
-        this.updateLeaderboard();
-    }
-    
-    updateIndexPage(state) {
-        console.log('=== UPDATE INDEX PAGE ===');
-        
-        // Update teams display if it exists
-        this.displayTeams();
-        
-        // Hide category section on index.html
-        const categorySection = document.getElementById('categorySection');
-        if (categorySection) {
-            categorySection.classList.add('hidden');
-        }
-        
-        console.log('Index page updated - categories hidden');
-    }
-    
-    activateQuiz() {
-        // Send activation signal to server
-        this.socket.emit('activateQuiz');
-        console.log('Quiz activation sent to server');
-    }
-    
-    resetQuiz() {
-        console.log('=== RESET QUIZ START ===');
-        
-        // Stop any running timers
-        this.stopQuestionTimer();
-        
-        // Reset all local state
-        this.teams = [];
-        this.scores = {};
-        this.currentCategory = null;
-        this.currentQuestion = null;
-        this.currentQuestionIndex = 0;
-        this.selectedCategories = [];
-        this.mixedQuestions = [];
-        this.quizStarted = false;
-        this.quizActivated = false;
-        this.currentQuestionAnswered = false;
-        
-        // Send reset signal to server
-        this.socket.emit('resetQuiz');
-        console.log('Reset signal sent to server');
-        
-        // Reset UI based on current page
-        if (window.location.pathname.includes('questions.html') || 
-            window.location.pathname.endsWith('/questions') ||
-            window.location.href.includes('questions.html')) {
-            
-            // On questions page - redirect to index.html
-            console.log('Redirecting to index.html after reset');
-            window.location.href = 'index.html';
-            
-        } else {
-            // On index.html - reset to initial state
-            console.log('Resetting index.html to initial state');
-            
-            // Hide header and setup status
-            const header = document.querySelector('.header');
-            const setupStatus = document.getElementById('setupStatus');
-            const scoringSection = document.getElementById('scoringSection');
-            const setupSection = document.getElementById('setupSection');
-            const quizSection = document.getElementById('quizSection');
-            
-            if (header) header.classList.add('hidden');
-            if (setupStatus) setupStatus.classList.add('hidden');
-            if (scoringSection) scoringSection.classList.add('hidden');
-            if (quizSection) quizSection.classList.add('hidden');
-            if (setupSection) setupSection.classList.remove('hidden');
-            
-            // Reset team inputs
-            this.generateTeamInputs();
-            
-            // Reset start button
-            const startBtn = document.getElementById('startQuiz');
-            if (startBtn) startBtn.disabled = true;
-            
-            // Reset team count input
-            const teamCountInput = document.getElementById('teamCount');
-            if (teamCountInput) teamCountInput.value = 2;
-        }
-        
-        console.log('=== RESET QUIZ END ===');
-    }
-    
-    endQuiz() {
-        console.log('=== QUIZ END ===');
-        
-        // Stop timer
-        this.stopQuestionTimer();
-        
-        // Calculate final scores
-        const sortedTeams = [...this.teams].sort((a, b) => {
-            return (this.scores[b.id] || 0) - (this.scores[a.id] || 0);
-        });
-        
-        // Show results
-        const winner = sortedTeams[0];
-        const resultsHTML = `
-            <div class="quiz-results">
-                <h2>🎉 Quiz Complete! 🎉</h2>
-                <div class="winner-announcement">
-                    <h3>Winner: ${winner.name}</h3>
-                    <p>Score: ${this.scores[winner.id] || 0}</p>
-                </div>
-                <div class="final-scores">
-                    <h4>Final Scores:</h4>
-                    ${sortedTeams.map(team => `
-                        <div class="team-score">
-                            <span>${team.name}:</span>
-                            <span>${this.scores[team.id] || 0}</span>
-                        </div>
-                    `).join('')}
-                </div>
-                <button class="btn btn-primary" onclick="location.reload()">Play Again</button>
-            </div>
-        `;
-        
-        const questionSection = document.getElementById('questionSection');
-        if (questionSection) {
-            questionSection.innerHTML = resultsHTML;
-        }
-        
-        // Send final scores to server
-        this.socket.emit('submitScores', this.scores);
-    }
-}
-
-// Initialize quiz app when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('=== DOM CONTENT LOADED ===');
-    const quizApp = new QuizApp();
-    quizApp.initialize();
-    
-    // Auto-generate team inputs only on index.html
-    const currentPath = window.location.pathname;
-    const isIndexPage = !currentPath.includes('questions.html') && !currentPath.includes('/questions') && !currentPath.endsWith('questions');
-    
-    if (isIndexPage) {
-        setTimeout(() => {
-            console.log('=== AUTO GENERATE TEAM INPUTS (INDEX PAGE ONLY) ===');
-            quizApp.generateTeamInputs();
-        }, 1000);
-    }
-});
+        if
